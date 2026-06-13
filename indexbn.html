@@ -1,0 +1,1808 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vale 111: Colônia Verde</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VALE 111: COLÔNIA VERDE
+   Farming sim pós-nuclear — Stardew Valley x Fallout
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  /* ── Pip-Boy / HUD ── */
+  --pip-green:#5fff8a;
+  --pip-green-dim:#1f6b38;
+  --pip-amber:#ffb000;
+  --rad-yellow:#e8d000;
+
+  /* ── Terra & solo (tons quentes de terra) ── */
+  --soil:#6b5238;
+  --soil-dark:#3e2e1c;
+  --soil-light:#8a6c48;
+  --soil-tilled:#5a4228;
+  --soil-wet:#3a2c18;
+
+  /* ── Vegetação / grama ── */
+  --grass:#5a9456;
+  --grass-dark:#3c6b3e;
+  --grass-light:#7ab863;
+  --crop-green:#6fae4a;
+  --crop-green-dark:#3f7a2e;
+
+  /* ── Céu: dia / entardecer / noite / chuva ── */
+  --sky-day:#a8d4dc;
+  --sky-day2:#dff0d8;
+  --sky-dusk:#e89a6c;
+  --sky-dusk2:#7a4a5a;
+  --sky-night:#1a2440;
+  --sky-night2:#0c1224;
+  --sky-rain:#5a6a78;
+  --sky-rain2:#3a4854;
+
+  /* ── Madeira & pedra (painéis) ── */
+  --wood:#9a7148;
+  --wood-dark:#5e4326;
+  --wood-light:#b88f5e;
+  --stone:#6a6a64;
+  --stone-dark:#3a3a36;
+  --rust:#a85a32;
+
+  /* ── Painéis / UI base ── */
+  --panel:#22281f;
+  --panel2:#2c3424;
+  --panel-light:#3a4530;
+  --border:#4a5a3a;
+  --border-bright:#5fff8a;
+  --border-dark:#161c12;
+
+  /* ── Texto ── */
+  --text:#dce8d0;
+  --text-dim:#8a9a78;
+  --text-bright:#f4ffec;
+
+  /* ── Iluminação / fogo / tocha ── */
+  --torch-glow:#ffaa44;
+  --torch-core:#ffe08a;
+  --water-shine:#bdf0ff;
+
+  --font-pixel:'Press Start 2P',monospace;
+  --font-term:'VT323',monospace;
+  --font-mono:'Share Tech Mono',monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent;image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--soil-dark);color:var(--text);font-family:var(--font-term);font-size:16px;}
+button{background:none;border:none;cursor:pointer;font-family:inherit;color:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:#0a0c08;}
+::-webkit-scrollbar-thumb{background:var(--pip-green-dim);border:2px solid #0a0c08;}
+
+/* ── PIXEL BORDER: 4-corner notch using clip-path, gives a chunky retro panel edge ── */
+.pixel-frame{
+  position:relative;
+  border:3px solid var(--border);
+  box-shadow:
+    inset 0 0 0 2px #000,
+    0 4px 0 0 rgba(0,0,0,.5);
+  image-rendering:pixelated;
+}
+.pixel-frame::before{
+  content:'';
+  position:absolute; inset:-3px;
+  pointer-events:none;
+  background:
+    linear-gradient(135deg, var(--border) 0 6px, transparent 6px) top left / 50% 50% no-repeat,
+    linear-gradient(225deg, var(--border) 0 6px, transparent 6px) top right / 50% 50% no-repeat,
+    linear-gradient(45deg, var(--border) 0 6px, transparent 6px) bottom left / 50% 50% no-repeat,
+    linear-gradient(315deg, var(--border) 0 6px, transparent 6px) bottom right / 50% 50% no-repeat;
+  opacity:.6;
+}
+
+/* Pixel button: chunky 3D press effect like NES UI */
+.pixel-btn{
+  position:relative;
+  border:none;
+  box-shadow:
+    inset -3px -3px 0 0 rgba(0,0,0,.35),
+    inset 3px 3px 0 0 rgba(255,255,255,.12);
+  transition:transform .08s, box-shadow .08s, filter .12s;
+}
+.pixel-btn:active:not(:disabled){
+  transform:translateY(2px);
+  box-shadow:inset 2px 2px 0 0 rgba(0,0,0,.4);
+}
+.pixel-btn:hover:not(:disabled){ filter:brightness(1.18); }
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes growPlant{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes floatUp{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-30px);opacity:0}}
+@keyframes scanline{0%{background-position:0 0}100%{background-position:0 4px}}
+@keyframes geigerFlash{0%,100%{box-shadow:inset 0 0 0 rgba(232,208,0,0)}50%{box-shadow:inset 0 0 60px rgba(232,208,0,.25)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+@keyframes pixelPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+
+/* ═══ LOADING ═══ */
+#loading-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--soil-dark);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 4px);
+  background-size:32px 32px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity 1.2s ease;
+}
+#loading-screen.fade-out{opacity:0;pointer-events:none;}
+.load-logo{font-family:var(--font-pixel);font-size:18px;color:var(--pip-green);text-shadow:3px 3px 0 #000,0 0 12px var(--pip-green);letter-spacing:4px;text-align:center;line-height:2;animation:pulse 1.8s ease-in-out infinite;}
+.load-sub{font-family:var(--font-term);font-size:14px;color:var(--text-dim);letter-spacing:2px;}
+.load-bar{width:240px;height:14px;background:#0a0c08;border:3px solid var(--pip-green-dim);position:relative;overflow:hidden;box-shadow:0 4px 0 0 rgba(0,0,0,.5);}
+.load-fill{height:100%;background:repeating-linear-gradient(90deg, var(--pip-green) 0 6px, var(--pip-green-dim) 6px 12px);width:0%;animation:loadfill 1.7s steps(20) forwards;box-shadow:0 0 8px var(--pip-green);}
+@keyframes loadfill{to{width:100%}}
+
+/* ═══ SCANLINE OVERLAY ═══ */
+#scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,20,5,.06) 3px,rgba(0,0,0,0) 4px);
+  mix-blend-mode:overlay;opacity:.5;
+}
+
+/* ═══ ROOT LAYOUT ═══ */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+#topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 14px;background:var(--panel2);
+  border-bottom:4px solid var(--border);
+  box-shadow:0 4px 0 0 #000;
+  z-index:10;
+}
+.tb-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.tb-item{display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:#0a0c08;border:2px solid var(--border);padding:2px 6px;box-shadow:inset 0 0 0 1px #000;}
+.tb-label{font-family:var(--font-pixel);font-size:7px;color:var(--text-dim);letter-spacing:1px;}
+.tb-value{font-family:var(--font-term);font-size:17px;color:var(--pip-green);text-shadow:1px 1px 0 #000,0 0 4px rgba(95,255,138,.5);}
+.tb-value.amber{color:var(--pip-amber);text-shadow:1px 1px 0 #000,0 0 4px rgba(255,176,0,.5);}
+.tb-value.rad{color:var(--rad-yellow);}
+#daynight-icon{font-size:18px;}
+.title-bit{font-family:var(--font-pixel);font-size:10px;color:var(--pip-amber);letter-spacing:2px;text-shadow:2px 2px 0 #000;}
+
+/* MAIN AREA */
+#main{flex:1;display:flex;overflow:hidden;position:relative;}
+
+/* ═══════════════════════════════════════════════════
+   FARM VIEW — céu, clima, estações, iluminação
+   ═══════════════════════════════════════════════════ */
+#farm-view{flex:1;position:relative;overflow:auto;background:var(--soil-dark);}
+
+#farm-bg{
+  position:absolute;inset:0;overflow:hidden;
+  background:linear-gradient(180deg, var(--sky-day) 0%, var(--sky-day2) 26%, var(--grass) 26%, var(--grass-dark) 32%, var(--soil) 32%, var(--soil-dark) 100%);
+  transition:background 1.8s ease;
+  image-rendering:pixelated;
+}
+/* dithering / scanline texture sobre o céu e o solo */
+#farm-bg::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
+  background-image:repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 3px, transparent 3px 6px);
+  mix-blend-mode:multiply;
+}
+/* "sol/lua" pixelado fixo no céu */
+#farm-bg::before{
+  content:'';position:absolute;top:6%;left:12%;width:46px;height:46px;
+  background:var(--torch-core);
+  box-shadow:0 0 0 6px rgba(255,224,138,.18), 0 0 24px 10px rgba(255,224,138,.25);
+  clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+  transition:background 1.5s ease, box-shadow 1.5s ease, top 1.5s ease, opacity 1.5s ease;
+  z-index:1;
+}
+
+/* ── ENTARDECER ── */
+#farm-bg.dusk{background:linear-gradient(180deg, var(--sky-dusk) 0%, var(--sky-dusk2) 26%, var(--grass-dark) 26%, var(--grass-dark) 32%, var(--soil) 32%, var(--soil-dark) 100%);}
+#farm-bg.dusk::before{background:var(--torch-glow);top:14%;left:62%;box-shadow:0 0 0 8px rgba(255,170,68,.25),0 0 30px 12px rgba(255,120,60,.35);}
+
+/* ── NOITE ── */
+#farm-bg.night{background:linear-gradient(180deg, var(--sky-night) 0%, var(--sky-night2) 26%, #1c2a1c 26%, var(--grass-dark) 32%, var(--soil-dark) 32%, #1a120a 100%);}
+#farm-bg.night::before{
+  background:#dfe6f0;width:30px;height:30px;top:8%;left:75%;
+  box-shadow:0 0 0 5px rgba(220,230,255,.12),0 0 18px 8px rgba(180,200,255,.18);
+  clip-path:circle(50%);
+}
+/* luz quente de "janelas/tochas" da colônia, visível só de noite */
+#farm-bg.night::after{
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 3px, transparent 3px 6px),
+    radial-gradient(circle at 18% 33%, rgba(255,170,68,.35) 0 3%, transparent 9%),
+    radial-gradient(circle at 82% 35%, rgba(255,170,68,.30) 0 3%, transparent 9%),
+    radial-gradient(circle at 50% 31%, rgba(255,170,68,.25) 0 2.5%, transparent 8%);
+  animation:torchFlicker 2.4s ease-in-out infinite;
+}
+@keyframes torchFlicker{
+  0%,100%{opacity:1;}
+  45%{opacity:.85;}
+  55%{opacity:1;}
+  78%{opacity:.9;}
+}
+
+/* ── CHUVA (classe opcional 'rain', preparada para uso futuro sem quebrar nada) ── */
+#farm-bg.rain{background:linear-gradient(180deg, var(--sky-rain) 0%, var(--sky-rain2) 26%, var(--grass-dark) 26%, var(--grass-dark) 32%, var(--soil-wet) 32%, var(--soil-dark) 100%);}
+#farm-bg.rain::before{opacity:.2;}
+#farm-bg.rain .rain-layer{display:block;}
+.rain-layer{
+  display:none;position:absolute;inset:0;z-index:4;pointer-events:none;
+  background-image:repeating-linear-gradient(115deg, rgba(180,220,255,.18) 0 2px, transparent 2px 22px);
+  animation:rainFall .35s linear infinite;
+}
+@keyframes rainFall{from{background-position:0 0;}to{background-position:-40px 60px;}}
+
+/* ── GRAMA ANIMADA AO VENTO ── */
+.grass-band{
+  position:absolute;left:0;right:0;top:26%;height:6%;z-index:2;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,
+    var(--grass-light) 0 4px, var(--grass) 4px 8px, var(--grass-dark) 8px 10px);
+  clip-path:polygon(0% 40%,2% 0%,5% 45%,8% 5%,11% 50%,14% 10%,17% 45%,20% 0%,23% 48%,26% 8%,29% 42%,32% 5%,35% 50%,38% 12%,41% 45%,44% 0%,47% 48%,50% 8%,53% 42%,56% 5%,59% 50%,62% 12%,65% 45%,68% 2%,71% 48%,74% 8%,77% 42%,80% 5%,83% 50%,86% 10%,89% 45%,92% 0%,95% 48%,98% 8%,100% 40%,100% 100%,0% 100%);
+  animation:windSway 3.2s ease-in-out infinite alternate;
+  transform-origin:bottom center;
+}
+@keyframes windSway{
+  0%{transform:scaleX(1) skewX(0deg);}
+  50%{transform:scaleX(1.01) skewX(.6deg);}
+  100%{transform:scaleX(1) skewX(-.6deg);}
+}
+#farm-bg.night .grass-band{filter:brightness(.55);}
+#farm-bg.dusk .grass-band{filter:brightness(.8) saturate(1.1);}
+
+/* ── PARTÍCULAS: folhas e poeira flutuantes ── */
+.ambient-particles{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;}
+.leaf-particle{
+  position:absolute;font-size:10px;opacity:.55;
+  animation:leafDrift linear infinite;
+  filter:drop-shadow(1px 1px 0 rgba(0,0,0,.4));
+}
+@keyframes leafDrift{
+  0%{transform:translate(0,-10vh) rotate(0deg);opacity:0;}
+  10%{opacity:.6;}
+  90%{opacity:.5;}
+  100%{transform:translate(-60px,110vh) rotate(340deg);opacity:0;}
+}
+.leaf-particle:nth-child(1){left:8%; animation-duration:18s; animation-delay:0s;}
+.leaf-particle:nth-child(2){left:28%;animation-duration:24s; animation-delay:4s;}
+.leaf-particle:nth-child(3){left:52%;animation-duration:20s; animation-delay:9s;}
+.leaf-particle:nth-child(4){left:71%;animation-duration:26s; animation-delay:2s;}
+.leaf-particle:nth-child(5){left:88%;animation-duration:22s; animation-delay:13s;}
+.leaf-particle:nth-child(6){left:40%;animation-duration:30s; animation-delay:6s;}
+
+/* ═══════════════════════════════════════════════════
+   GRID DA FAZENDA
+   ═══════════════════════════════════════════════════ */
+#farm-grid{
+  position:relative;z-index:5;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:4px;
+  padding:18px;
+  max-width:640px;margin:34vh auto 0;
+  background:
+    repeating-linear-gradient(45deg, rgba(0,0,0,.10) 0 4px, transparent 4px 8px),
+    rgba(0,0,0,.18);
+  border:4px solid var(--soil-dark);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.4), 0 6px 0 0 rgba(0,0,0,.35);
+}
+.plot{
+  aspect-ratio:1;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.05) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 65%, rgba(0,0,0,.12) 0 2px, transparent 3px),
+    var(--soil);
+  border:2px solid var(--soil-dark);
+  box-shadow:inset -2px -2px 0 0 rgba(0,0,0,.3), inset 2px 2px 0 0 rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;position:relative;
+  font-size:20px;cursor:pointer;transition:filter .1s,transform .08s,box-shadow .1s;
+}
+.plot:hover{filter:brightness(1.3);transform:scale(1.06);z-index:2;box-shadow:0 0 0 2px var(--pip-green), inset -2px -2px 0 0 rgba(0,0,0,.25);}
+.plot.tilled{
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.1) 0 3px, transparent 3px 9px),
+    var(--soil-tilled);
+}
+.plot.watered{
+  background:
+    linear-gradient(180deg, rgba(189,240,255,.18), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.12) 0 3px, transparent 3px 9px),
+    var(--soil-wet);
+  box-shadow:inset 0 0 0 2px rgba(189,240,255,.3), inset -2px -2px 0 0 rgba(0,0,0,.25);
+}
+.plot.watered::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.22) 48%, transparent 60%);
+  background-size:220% 220%;
+  animation:waterShine 2.6s linear infinite;
+}
+@keyframes waterShine{
+  0%{background-position:120% 0%;}
+  100%{background-position:-20% 100%;}
+}
+.plot.locked{background:#15110c;color:var(--text-dim);cursor:not-allowed;font-size:13px;box-shadow:inset 0 0 0 2px #000;}
+.plot .ready-badge{position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--pip-green);box-shadow:0 0 6px var(--pip-green),0 0 0 1px #000;animation:pulse 1s infinite;}
+.plot .growth-bar{position:absolute;bottom:2px;left:2px;right:2px;height:4px;background:#000;overflow:hidden;border:1px solid #000;}
+.plot .growth-bar-fill{height:100%;background:var(--crop-green);background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.25) 0 2px, transparent 2px 4px);}
+.plant-emoji{display:inline-block;animation:growPlant .4s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
+@keyframes growPlant{
+  0%{transform:scale(.2) translateY(6px);opacity:0;}
+  60%{transform:scale(1.15) translateY(-2px);opacity:1;}
+  100%{transform:scale(1) translateY(0);opacity:1;}
+}
+.float-text{position:absolute;font-family:var(--font-pixel);font-size:9px;color:var(--pip-green);pointer-events:none;animation:floatUp 1s ease-out forwards;white-space:nowrap;z-index:50;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;}
+
+/* RAD STORM overlay */
+#radstorm-overlay{position:fixed;inset:0;z-index:8500;pointer-events:none;display:none;}
+#radstorm-overlay.active{display:block;animation:geigerFlash 1.4s infinite;background:linear-gradient(180deg,rgba(232,208,0,.05),rgba(95,255,138,.03));}
+
+/* SIDE PANEL */
+#sidepanel{
+  width:280px;min-width:280px;background:var(--panel);border-left:4px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:-4px 0 0 0 #000;
+}
+#sp-tabs{display:flex;flex-wrap:wrap;border-bottom:3px solid var(--border);background:#0a0c08;}
+.sp-tab{flex:1 1 33%;padding:8px 4px;font-family:var(--font-pixel);font-size:8px;letter-spacing:1px;color:var(--text-dim);border:2px solid transparent;border-bottom:3px solid var(--border);transition:.1s;}
+.sp-tab.active{color:var(--pip-green);border-bottom-color:var(--pip-green);background:var(--panel2);text-shadow:1px 1px 0 #000;box-shadow:inset 0 3px 0 0 rgba(95,255,138,.15);}
+.sp-tab:hover:not(.active){color:var(--text-bright);background:var(--panel2);}
+#sp-content{flex:1;overflow-y:auto;padding:10px;}
+
+.sp-section-title{font-family:var(--font-pixel);font-size:8px;letter-spacing:2px;color:var(--pip-amber);margin:10px 0 6px;text-shadow:1px 1px 0 #000;border-bottom:2px solid var(--border);padding-bottom:4px;}
+.sp-card{background:var(--panel2);border:2px solid var(--border);box-shadow:inset 0 0 0 1px #000,2px 2px 0 0 rgba(0,0,0,.4);padding:8px;margin-bottom:6px;font-size:13px;}
+.sp-card.active-quest{border-color:var(--pip-green);box-shadow:inset 0 0 0 1px #000,0 0 0 1px var(--pip-green),2px 2px 0 0 rgba(0,0,0,.4);}
+.sp-row{display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.sp-btn{
+  font-family:var(--font-pixel);font-size:8px;letter-spacing:1px;
+  background:var(--pip-green-dim);color:var(--pip-green);border:2px solid var(--pip-green);
+  padding:7px 8px;text-align:center;
+  box-shadow:inset -2px -2px 0 0 rgba(0,0,0,.35), inset 2px 2px 0 0 rgba(255,255,255,.1), 2px 2px 0 0 rgba(0,0,0,.4);
+  transition:transform .08s, filter .1s;
+}
+.sp-btn:hover:not(:disabled){background:var(--pip-green);color:#08130a;filter:brightness(1.1);}
+.sp-btn:active:not(:disabled){transform:translate(1px,1px);box-shadow:inset 1px 1px 0 0 rgba(0,0,0,.4);}
+.sp-btn:disabled{opacity:.35;cursor:not-allowed;}
+.sp-btn.danger{background:#5a1f1f;color:#ff8a8a;border-color:#ff5555;}
+.sp-btn.danger:hover{background:#ff5555;color:#1a0606;}
+.sp-btn.amber{background:#5a3c00;color:var(--pip-amber);border-color:var(--pip-amber);}
+.sp-btn.amber:hover{background:var(--pip-amber);color:#1a0e00;}
+
+/* HOTBAR */
+#hotbar{
+  display:flex;gap:6px;justify-content:center;padding:8px;
+  background:var(--panel2);border-top:4px solid var(--border);
+  box-shadow:0 -4px 0 0 #000;
+}
+.hot-slot{
+  width:48px;height:48px;background:var(--panel);border:3px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:20px;position:relative;transition:.1s;
+  box-shadow:inset -2px -2px 0 0 rgba(0,0,0,.4), inset 2px 2px 0 0 rgba(255,255,255,.08);
+}
+.hot-slot.active{border-color:var(--pip-green);box-shadow:0 0 0 2px var(--pip-green),inset -2px -2px 0 0 rgba(0,0,0,.4);background:#1a2818;}
+.hot-slot .qty{position:absolute;bottom:1px;right:3px;font-family:var(--font-mono);font-size:9px;color:var(--pip-amber);text-shadow:1px 1px 0 #000;}
+.hot-slot .key{position:absolute;top:1px;left:3px;font-size:7px;color:var(--text-dim);font-family:var(--font-mono);}
+
+/* MODALS */
+.modal-overlay{
+  position:fixed;inset:0;z-index:8000;background:rgba(8,12,8,.85);
+  display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;
+}
+.modal-box{
+  background:var(--panel);border:3px solid var(--pip-green-dim);
+  box-shadow:inset 0 0 0 2px #000, 6px 6px 0 0 rgba(0,0,0,.5);
+  max-width:540px;width:92%;max-height:85vh;overflow-y:auto;padding:18px;
+  animation:slideUp .3s ease;
+}
+.modal-title{font-family:var(--font-pixel);font-size:13px;color:var(--pip-green);letter-spacing:2px;margin-bottom:10px;text-shadow:2px 2px 0 #000,0 0 6px rgba(95,255,138,.4);}
+.modal-close{position:sticky;float:right;top:0;font-family:var(--font-pixel);font-size:10px;color:var(--text-dim);}
+
+/* DIALOGUE BOX */
+#dialogue-box{
+  position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
+  width:min(620px,92vw);background:var(--panel);border:3px solid var(--pip-amber);
+  padding:14px;z-index:7500;display:none;animation:slideUp .25s ease;
+  box-shadow:inset 0 0 0 2px #000,6px 6px 0 0 rgba(0,0,0,.5);
+}
+#dialogue-box.show{display:block;animation:pixelPop .25s ease;}
+.dlg-name{font-family:var(--font-pixel);font-size:10px;color:var(--pip-amber);letter-spacing:2px;margin-bottom:6px;text-shadow:1px 1px 0 #000;}
+.dlg-portrait{font-size:30px;float:left;margin-right:10px;}
+.dlg-text{font-size:15px;line-height:1.5;color:var(--text-bright);}
+.dlg-choices{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+.dlg-choice{
+  font-family:var(--font-term);font-size:14px;text-align:left;
+  background:var(--panel2);border:2px solid var(--border);padding:6px 10px;
+  transition:.1s;color:var(--text);
+  box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
+}
+.dlg-choice:hover{border-color:var(--pip-green);color:var(--pip-green);background:#1a2818;}
+.dlg-choice:active{transform:translate(1px,1px);box-shadow:1px 1px 0 0 rgba(0,0,0,.4);}
+
+/* TOASTS */
+#toast-stack{position:fixed;top:60px;right:14px;z-index:9100;display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+.toast{
+  font-family:var(--font-term);font-size:13px;background:var(--panel);border:2px solid var(--pip-green-dim);
+  border-left:5px solid var(--pip-green);padding:8px 12px;color:var(--text-bright);
+  animation:slideUp .25s ease;max-width:280px;
+  box-shadow:inset 0 0 0 1px #000,3px 3px 0 0 rgba(0,0,0,.4);
+}
+.toast.warn{border-left-color:var(--rad-yellow);}
+.toast.fade{animation:toastOut .4s ease forwards;}
+
+/* NPC LIST */
+.npc-card{display:flex;gap:8px;align-items:center;background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;cursor:pointer;transition:.1s;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+.npc-card:hover{border-color:var(--pip-amber);transform:translate(-1px,-1px);box-shadow:3px 3px 0 0 rgba(0,0,0,.4);}
+.npc-emoji{font-size:24px;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
+.npc-info{flex:1;}
+.npc-name{font-family:var(--font-pixel);font-size:8px;color:var(--pip-amber);letter-spacing:1px;text-shadow:1px 1px 0 #000;}
+.npc-hearts{font-size:11px;color:var(--rust);}
+.heart-bar{display:flex;gap:2px;margin-top:2px;}
+.heart{font-size:9px;}
+.heart.full{color:#ff5577;}
+.heart.empty{color:var(--border);}
+
+.bar-outer{height:9px;background:#000;border:2px solid var(--border);overflow:hidden;}
+.bar-inner{height:100%;transition:width .4s ease;background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 3px, transparent 3px 6px);}
+
+/* RESPONSIVE */
+@media (max-width:760px){
+  #sidepanel{position:fixed;right:0;top:46px;bottom:74px;transform:translateX(100%);transition:transform .25s ease;z-index:6000;box-shadow:-6px 0 0 0 #000;}
+  #sidepanel.open{transform:translateX(0);}
+  #farm-grid{max-width:none;margin-top:14vh;padding:10px;gap:2px;}
+  .tb-value{font-size:13px;}
+  #toggle-panel{display:flex !important;}
+}
+#toggle-panel{display:none;font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);background:var(--panel2);border:2px solid var(--pip-green-dim);padding:6px 8px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+
+/* ═══ ANIMAIS / CONSTRUÇÕES / SKILLS ═══ */
+.animal-card{display:flex;gap:8px;align-items:center;background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+.animal-emoji{font-size:26px;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
+.animal-info{flex:1;}
+.animal-name{font-family:var(--font-pixel);font-size:8px;color:var(--pip-amber);letter-spacing:1px;text-shadow:1px 1px 0 #000;}
+.animal-stats{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.mini-bar{height:6px;background:#000;border:2px solid var(--border);overflow:hidden;margin-top:2px;}
+.mini-bar-fill{height:100%;transition:width .3s ease;}
+
+.building-card{background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+.building-card.maxed{border-color:var(--pip-green);box-shadow:0 0 0 1px var(--pip-green),2px 2px 0 0 rgba(0,0,0,.4);}
+.building-title{font-family:var(--font-pixel);font-size:9px;color:var(--pip-green);letter-spacing:1px;margin-bottom:3px;text-shadow:1px 1px 0 #000;}
+.building-level{font-size:11px;color:var(--pip-amber);}
+.building-desc{font-size:11px;color:var(--text-dim);margin:4px 0;}
+
+.skill-card{background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+.skill-title{display:flex;justify-content:space-between;font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);letter-spacing:1px;margin-bottom:4px;text-shadow:1px 1px 0 #000;}
+.skill-icon{font-size:16px;margin-right:4px;}
+.skill-perks{font-size:10px;color:var(--text-dim);margin-top:3px;}
+
+.event-banner{
+  position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:8200;
+  background:var(--panel);border:3px solid var(--pip-amber);
+  padding:8px 18px;font-family:var(--font-pixel);font-size:10px;color:var(--pip-amber);
+  letter-spacing:1px;animation:slideUp .3s ease;
+  box-shadow:inset 0 0 0 2px #000,4px 4px 0 0 rgba(0,0,0,.5);
+  text-align:center;
+}
+
+/* ═══ COLÔNIA / TECH TREE / LEGADO ═══ */
+.tech-node{
+  background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;
+  transition:.1s;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
+}
+.tech-node.unlocked{border-color:var(--pip-green);box-shadow:0 0 0 1px var(--pip-green),2px 2px 0 0 rgba(0,0,0,.4);}
+.tech-node.locked{opacity:.55;}
+.tech-node.available{border-color:var(--pip-amber);}
+.tech-title{font-family:var(--font-pixel);font-size:9px;color:var(--pip-green);letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;text-shadow:1px 1px 0 #000;}
+.tech-title .tag-status{font-size:8px;letter-spacing:0;}
+.tech-desc{font-size:11px;color:var(--text-dim);margin:4px 0;}
+.tech-req{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+
+.milestone-card{
+  background:var(--panel2);border:2px solid var(--border);border-left:5px solid var(--pip-amber);
+  padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
+}
+.milestone-card.done{border-left-color:var(--pip-green);}
+.milestone-title{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pip-amber);letter-spacing:1px;text-shadow:1px 1px 0 #000;}
+.milestone-card.done .milestone-title{color:var(--pip-green);}
+.milestone-desc{font-size:11px;color:var(--text-dim);margin-top:3px;}
+
+.legacy-badge{
+  display:inline-block;background:var(--panel2);border:2px solid var(--pip-green);
+  padding:4px 8px;font-size:11px;color:var(--pip-green);margin:2px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
+}
+
+.colony-tier-banner{
+  text-align:center;font-family:'Press Start 2P',monospace;font-size:11px;color:var(--pip-amber);
+  letter-spacing:2px;padding:10px;background:var(--panel2);border:3px solid var(--pip-amber);
+  margin-bottom:8px;text-shadow:2px 2px 0 #000,0 0 8px rgba(255,176,0,.4);
+  box-shadow:inset 0 0 0 2px #000,3px 3px 0 0 rgba(0,0,0,.4);
+}
+
+.colony-overlay-element{position:absolute;pointer-events:none;z-index:2;font-size:18px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+
+@keyframes researchPulse{0%,100%{box-shadow:0 0 6px rgba(255,176,0,.3)}50%{box-shadow:0 0 18px rgba(255,176,0,.7)}}
+.researching{animation:researchPulse 1.5s infinite;}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="load-logo">VALE 111<br><span style="font-size:9px;color:var(--pip-amber);">COLÔNIA VERDE</span></div>
+  <div class="load-sub">Inicializando módulo agrícola...</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<div id="scanlines"></div>
+<div id="radstorm-overlay"></div>
+<div id="toast-stack"></div>
+<div id="dialogue-box"></div>
+
+<div id="app">
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="tb-group">
+      <span class="title-bit">VALE 111</span>
+      <div class="tb-item"><span class="tb-label">DIA</span><span class="tb-value" id="hud-day">1</span></div>
+      <div class="tb-item"><span class="tb-label">HORA</span><span class="tb-value" id="hud-time">06:00</span></div>
+      <div class="tb-item"><span class="tb-label">ESTAÇÃO</span><span class="tb-value amber" id="hud-season">VERÃO RADIOATIVO</span></div>
+    </div>
+    <div class="tb-group">
+      <div class="tb-item"><span class="tb-label">TAMPINHAS</span><span class="tb-value amber" id="hud-caps">100</span></div>
+      <div class="tb-item"><span class="tb-label">ENERGIA</span><span class="tb-value" id="hud-energy">100/100</span></div>
+      <div class="tb-item"><span class="tb-label">RADIAÇÃO</span><span class="tb-value rad" id="hud-rad">0%</span></div>
+      <button id="toggle-panel">☰ PAINEL</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="farm-view">
+      <div id="farm-bg"></div>
+      <div id="farm-grid"></div>
+    </div>
+    <div id="sidepanel">
+      <div id="sp-tabs">
+        <button class="sp-tab active" data-tab="missoes">MISSÕES</button>
+        <button class="sp-tab" data-tab="colonos">COLONOS</button>
+        <button class="sp-tab" data-tab="loja">EMPÓRIO</button>
+        <button class="sp-tab" data-tab="abrigo">ABRIGO</button>
+        <button class="sp-tab" data-tab="animais">CURRAL</button>
+        <button class="sp-tab" data-tab="construcoes">SETOR</button>
+        <button class="sp-tab" data-tab="habilidades">PERÍCIAS</button>
+        <button class="sp-tab" data-tab="colonia">COLÔNIA</button>
+      </div>
+      <div id="sp-content"></div>
+    </div>
+  </div>
+
+  <!-- HOTBAR -->
+  <div id="hotbar"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// VALE 111 — COLÔNIA VERDE
+// Farming sim pós-nuclear (Stardew Valley × Fallout)
+// ═══════════════════════════════════════════════════════════════
+
+const SEASONS = ['VERÃO RADIOATIVO','OUTONO DE CINZAS','INVERNO NUCLEAR','PRIMAVERA MUTANTE'];
+const SEASON_EMOJI = ['☢️','🍂','❄️','🌱'];
+
+const CROPS = {
+  cenoura_mut: {nome:'Cenoura Mutante', emoji:'🥕', plantEmoji:'🌱', dias:3, custo:8, venda:22, seasons:[0,3]},
+  batata_glow: {nome:'Batata Glow', emoji:'🥔', plantEmoji:'🌱', dias:4, custo:12, venda:30, seasons:[0,1,3]},
+  milho_rad: {nome:'Milho Radioativo', emoji:'🌽', plantEmoji:'🌿', dias:5, custo:18, venda:45, seasons:[0,1]},
+  cogu_brilhante: {nome:'Cogumelo Brilhante', emoji:'🍄', plantEmoji:'🍄', dias:2, custo:15, venda:35, seasons:[1,2,3]},
+  tomate_verde: {nome:'Tomate Verdejante', emoji:'🍅', plantEmoji:'🌱', dias:4, custo:14, venda:38, seasons:[0,3]},
+  trigo_cinza: {nome:'Trigo das Cinzas', emoji:'🌾', plantEmoji:'🌾', dias:3, custo:6, venda:16, seasons:[1,2]},
+};
+
+const NPCS = [
+  {id:'rusty', nome:'Rusty', emoji:'🤖', profissao:'Robô-Comerciante', personalidade:'Sarcástico e prestativo', hearts:0,
+    falas:['Bip-bop. Mais um colono tentando plantar em solo radioativo. Que otimismo encantador.',
+           'Detectei 47% de chance de você fazer algo estúpido hoje. Boa sorte mesmo assim.',
+           'Trouxe sementes do antigo depósito. Não pergunte de onde vieram exatamente.']},
+  {id:'mara', nome:'Mara', emoji:'👩‍🌾', profissao:'Agricultora Veterana', personalidade:'Calorosa, sábia', hearts:0,
+    falas:['As terras aqui eram um deserto há cinco anos. Olha só agora — verde de novo.',
+           'Cogumelos brilhantes crescem melhor à noite. Aprendi isso da pior maneira possível.',
+           'Cada plantação que cresce é uma vitória contra o que aconteceu lá fora.']},
+  {id:'duke', nome:'Duque Ferro', emoji:'🧔', profissao:'Líder da Colônia', personalidade:'Firme, protetor', hearts:0,
+    falas:['Bem-vindo ao Vale 111. Aqui dentro, reconstruímos. Lá fora... é melhor não saber.',
+           'Precisamos de comida, colono. Cada colheita sua alimenta mais uma família.',
+           'As tempestades radioativas estão piores este ano. Mantenha-se abrigado quando vierem.']},
+  {id:'pip', nome:'Pip', emoji:'🐶', profissao:'Cão Mutante', personalidade:'Leal, curioso', hearts:0,
+    falas:['*Pip cheira a terra recém-arada com entusiasmo suspeito*',
+           '*Pip encontrou uma tampinha de refrigerante e a entrega orgulhosamente*',
+           '*Pip late para uma barata gigante e depois finge que não viu nada*']},
+];
+
+const QUESTS = [
+  {id:'q1', titulo:'Primeira Colheita', desc:'Plante e colha 3 cultivos de qualquer tipo.', meta:'colher', alvo:3, recompensa:{caps:80}, completa:false, ativa:true},
+  {id:'q2', titulo:'Amizade no Vale', desc:'Converse com todos os colonos do abrigo.', meta:'conversar', alvo:4, recompensa:{caps:50, energia:20}, completa:false, ativa:false},
+  {id:'q3', titulo:'Mercador de Tampinhas', desc:'Acumule 300 tampinhas vendendo colheitas.', meta:'tampinhas', alvo:300, recompensa:{caps:100, sementes:5}, completa:false, ativa:false},
+  {id:'q4', titulo:'Sobrevivente da Tempestade', desc:'Sobreviva a uma tempestade radioativa sem sair do abrigo.', meta:'tempestade', alvo:1, recompensa:{caps:120}, completa:false, ativa:false},
+  {id:'q5', titulo:'Expansão do Vale', desc:'Desbloqueie 8 novas parcelas de terra.', meta:'expandir', alvo:8, recompensa:{caps:150, energiaMax:20}, completa:false, ativa:false},
+];
+
+const SHOP_ITEMS = [
+  {id:'semente_cenoura', nome:'Sementes: Cenoura Mutante', emoji:'🥕', preco:8, tipo:'semente', cropKey:'cenoura_mut'},
+  {id:'semente_batata', nome:'Sementes: Batata Glow', emoji:'🥔', preco:12, tipo:'semente', cropKey:'batata_glow'},
+  {id:'semente_milho', nome:'Sementes: Milho Radioativo', emoji:'🌽', preco:18, tipo:'semente', cropKey:'milho_rad'},
+  {id:'semente_cogumelo', nome:'Sementes: Cogumelo Brilhante', emoji:'🍄', preco:15, tipo:'semente', cropKey:'cogu_brilhante'},
+  {id:'semente_tomate', nome:'Sementes: Tomate Verdejante', emoji:'🍅', preco:14, tipo:'semente', cropKey:'tomate_verde'},
+  {id:'semente_trigo', nome:'Sementes: Trigo das Cinzas', emoji:'🌾', preco:6, tipo:'semente', cropKey:'trigo_cinza'},
+  {id:'rad_x', nome:'RadAway (remove radiação)', emoji:'💊', preco:35, tipo:'consumivel', efeito:'rad'},
+  {id:'racao_pip', nome:'Ração para Pip', emoji:'🦴', preco:10, tipo:'consumivel', efeito:'pip'},
+  {id:'expansao', nome:'Carta de Expansão (libera parcela)', emoji:'📜', preco:60, tipo:'expansao'},
+  {id:'fertilizante', nome:'Fertilizante Mutagênico', emoji:'🧪', preco:25, tipo:'fertilizante'},
+  {id:'racao_animal', nome:'Ração Animal Reciclada', emoji:'🌾', preco:5, tipo:'racao'},
+  {id:'galinha', nome:'Galinha Mutante (filhote)', emoji:'🐔', preco:150, tipo:'animal', animalKey:'galinha'},
+  {id:'vaca', nome:'Vaca Brahmin (filhote)', emoji:'🐄', preco:400, tipo:'animal', animalKey:'vaca'},
+  {id:'cabra', nome:'Cabra de Duas Cabeças (filhote)', emoji:'🐐', preco:300, tipo:'animal', animalKey:'cabra'},
+];
+
+// ─────────────────────────────────────────────────────────────
+// ANIMAIS
+// ─────────────────────────────────────────────────────────────
+const ANIMAL_TYPES = {
+  galinha: {nome:'Galinha Mutante', emoji:'🐔', produto:'Ovo Brilhante', produtoEmoji:'🥚', producaoBase:30, diasProducao:1, custoEspaco:1},
+  vaca:    {nome:'Vaca Brahmin',    emoji:'🐄', produto:'Leite Radioso', produtoEmoji:'🥛', producaoBase:80, diasProducao:1, custoEspaco:4},
+  cabra:   {nome:'Cabra Bicéfala',  emoji:'🐐', produto:'Lã Mutante',   produtoEmoji:'🧶', producaoBase:55, diasProducao:2, custoEspaco:2},
+};
+const CELEIRO_CAPACIDADE = [4, 8, 14, 22]; // por nível
+
+// ─────────────────────────────────────────────────────────────
+// CONSTRUÇÕES
+// ─────────────────────────────────────────────────────────────
+const BUILDINGS = {
+  casa: {
+    nome:'Casa do Colono', emoji:'🏠', maxLevel:3,
+    descricoes:['Um quarto e um colchão velho.','Cozinha funcional adicionada. +10 energia máxima.','Sótão reformado e gerador próprio. +20 energia máxima.','Suíte completa com painéis solares. +35 energia máxima e regeneração noturna mais rápida.'],
+    custos:[0, 500, 1200, 2800],
+    bonusEnergiaMax:[0,10,20,35],
+  },
+  celeiro: {
+    nome:'Celeiro', emoji:'🏚️', maxLevel:3,
+    descricoes:['Estrutura básica. Capacidade: 4 animais.','Estrutura reforçada. Capacidade: 8 animais.','Ampliação com sistema de irrigação automática. Capacidade: 14 animais.','Bunker-celeiro blindado contra radiação. Capacidade: 22 animais.'],
+    custos:[0, 350, 900, 2200],
+  },
+  oficina: {
+    nome:'Oficina de Ferramentas', emoji:'🔧', maxLevel:3,
+    descricoes:['Bancada improvisada. Ferramentas básicas.','Bancada melhorada. Reduz custo de energia das ferramentas em 20%.','Forja funcional. Permite criar fertilizantes e irrigadores.','Oficina automatizada. Reduz custo de energia em 40% e desbloqueia ferramentas avançadas.'],
+    custos:[0, 400, 1000, 2400],
+    bonusEnergiaFerramenta:[1,0.8,0.8,0.6],
+  },
+  laboratorio: {
+    nome:'Laboratório Subterrâneo', emoji:'🧬', maxLevel:3,
+    descricoes:['Sala vazia e empoeirada.','Equipamento básico de análise. Reduz ganho de radiação diário em 30%.','Estação de descontaminação. Reduz ganho de radiação em 60% e permite sintetizar RadAway.','Laboratório completo. Radiação ambiental quase nula e produção de sementes raras.'],
+    custos:[0, 600, 1500, 3500],
+    bonusRadReducao:[0,0.3,0.6,0.9],
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// HABILIDADES
+// ─────────────────────────────────────────────────────────────
+const SKILLS = {
+  agricultura: {nome:'Agricultura', emoji:'🌾', xp:0, nivel:1,
+    perks:['Nível 2: +10% chance de colheita de Qualidade Alta','Nível 3: -10% energia ao usar ferramentas em plantações','Nível 5: Colheitas têm chance de dobrar (Qualidade Mutante)']},
+  mineracao: {nome:'Mineração', emoji:'⛏️', xp:0, nivel:1,
+    perks:['Nível 2: +1 minério extra por veio','Nível 3: -10% chance de dano de monstros nas minas','Nível 5: Chance de encontrar tesouros raros aumenta']},
+  combate: {nome:'Combate', emoji:'⚔️', xp:0, nivel:1,
+    perks:['Nível 2: +10% dano contra mutantes','Nível 3: +10 HP máximo','Nível 5: Chance de golpe crítico nas minas']},
+  pesca: {nome:'Pesca', emoji:'🎣', xp:0, nivel:1,
+    perks:['Nível 2: +10% chance de peixe raro','Nível 3: -1 energia por pescaria','Nível 5: Chance de pescar tesouros submersos']},
+  social: {nome:'Social', emoji:'💬', xp:0, nivel:1,
+    perks:['Nível 2: +1 coração extra ao dar presentes','Nível 3: NPCs revelam dicas de itens raros','Nível 5: Acesso a diálogos especiais e eventos exclusivos']},
+};
+function xpParaNivel(n){ return 50 * n * n; }
+function ganharXP(skillKey, qtd){
+  const sk = state.skills[skillKey];
+  if (state.tecnologias && state.tecnologias['tech_escola']) qtd = Math.round(qtd*1.2);
+  sk.xp += qtd;
+  const need = xpParaNivel(sk.nivel);
+  if (sk.xp >= need && sk.nivel < 5){
+    sk.xp -= need;
+    sk.nivel++;
+    toast('⭐ '+SKILLS[skillKey].nome+' subiu para o nível '+sk.nivel+'!');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// EVOLUÇÃO DA COLÔNIA: TIERS, ÁRVORE TECNOLÓGICA, LEGADO, MARCOS
+// ─────────────────────────────────────────────────────────────
+const COLONY_TIERS = [
+  {nome:'Acampamento de Sobreviventes', emoji:'⛺', minPontos:0,
+    desc:'Algumas barracas improvisadas em volta de uma fogueira. O Abrigo 111 é pouco mais que um buraco fortificado.'},
+  {nome:'Posto Avançado', emoji:'🏕️', minPontos:8,
+    desc:'Cercas de metal enferrujado, uma horta organizada e luzes a gerador. O Vale começa a parecer um lugar de verdade.'},
+  {nome:'Vila do Vale 111', emoji:'🏘️', minPontos:20,
+    desc:'Casas de madeira reformada, ruas batidas e uma torre de rádio improvisada conectam o Vale ao mundo exterior.'},
+  {nome:'Cidade-Bunker Verde', emoji:'🏙️', minPontos:38,
+    desc:'Painéis solares cobrem os telhados, drones zumbidos sobrevoam os campos e uma muralha protege a colônia das tempestades.'},
+  {nome:'Nova Civilização do Vale', emoji:'🌆', minPontos:60,
+    desc:'O Vale 111 tornou-se um farol pós-nuclear: arquitetura reconstruída, tecnologia restaurada e uma sociedade próspera nasce das cinzas.'},
+];
+
+// Pesquisa: pontos de pesquisa (PD) são gerados por laboratório + ação de colonos cientistas
+const TECH_TREE = [
+  // ── Agricultura ──
+  {id:'tech_irrigador', nome:'Irrigador Automático', emoji:'💧', categoria:'Agricultura',
+    desc:'Constrói irrigadores que regam parcelas adjacentes automaticamente todas as manhãs.', custo:6, req:[]},
+  {id:'tech_drone_agricola', nome:'Drone Agrícola', emoji:'🛰️', categoria:'Agricultura',
+    desc:'Um drone colhe automaticamente 1 cultivo maduro por dia, sem custo de energia.', custo:14, req:['tech_irrigador']},
+  {id:'tech_estufa', nome:'Estufa Pressurizada', emoji:'🏠', categoria:'Agricultura',
+    desc:'Permite plantar em qualquer estação, ignorando restrições sazonais.', custo:10, req:['tech_irrigador']},
+  {id:'tech_fertilizante_avancado', nome:'Fertilizante Sintético II', emoji:'🧪', categoria:'Agricultura',
+    desc:'Fertilizantes agora dobram a chance de Qualidade Alta/Mutante.', custo:18, req:['tech_estufa','tech_drone_agricola']},
+
+  // ── Engenharia ──
+  {id:'tech_coletor_solar', nome:'Coletor Solar', emoji:'☀️', categoria:'Engenharia',
+    desc:'Reduz o custo de energia de TODAS as ferramentas em 15% adicional.', custo:8, req:[]},
+  {id:'tech_reciclagem', nome:'Estação de Reciclagem', emoji:'♻️', categoria:'Engenharia',
+    desc:'Cada colheita vendida tem chance de gerar 1 Ração Animal de bônus automaticamente.', custo:10, req:['tech_coletor_solar']},
+  {id:'tech_coletor_automatico', nome:'Coletores Automáticos do Curral', emoji:'🤖', categoria:'Engenharia',
+    desc:'Produtos animais prontos são coletados automaticamente todos os dias.', custo:16, req:['tech_reciclagem']},
+  {id:'tech_purificador', nome:'Purificador de Radiação', emoji:'🌬️', categoria:'Engenharia',
+    desc:'A radiação ambiental nunca passa de 30%, mesmo em tempestades.', custo:22, req:['tech_coletor_solar','tech_reciclagem']},
+
+  // ── Sociedade ──
+  {id:'tech_radio', nome:'Torre de Rádio', emoji:'📡', categoria:'Sociedade',
+    desc:'Atrai novos colonos para o Vale com mais frequência.', custo:7, req:[]},
+  {id:'tech_escola', nome:'Escola de Campo', emoji:'📘', categoria:'Sociedade',
+    desc:'Toda perícia ganha XP 20% mais rápido.', custo:12, req:['tech_radio']},
+  {id:'tech_mercado', nome:'Mercado Comunitário', emoji:'🏪', categoria:'Sociedade',
+    desc:'Todos os preços de venda no Empório aumentam em 15%.', custo:16, req:['tech_radio']},
+  {id:'tech_conselho', nome:'Conselho do Vale', emoji:'🏛️', categoria:'Sociedade',
+    desc:'Desbloqueia escolhas de rumo da colônia (Tecnologia, Natureza ou Poder Militar).', custo:24, req:['tech_escola','tech_mercado']},
+];
+
+// Colonos especialistas que podem se juntar à colônia
+const COLONO_TIPOS = [
+  {tipo:'agricultor', nome:'Agricultor', emoji:'👨‍🌾',
+    bonus:'+1 Perícia de Agricultura inicial e +5% chance de Qualidade Alta nas colheitas.',
+    personalidade:'Trabalhador, direto ao ponto', falas:[
+      'O solo aqui tem potencial. Só precisa de mãos que saibam ouvi-lo.',
+      'Plantei nabos em terra pior que essa. Vamos fazer esse vale florescer.',
+      'Cada semente plantada é uma aposta no futuro. Eu aposto sempre.']},
+  {tipo:'cientista', nome:'Cientista', emoji:'👩‍🔬',
+    bonus:'+1 Ponto de Pesquisa por dia automaticamente.',
+    personalidade:'Curiosa, metódica', falas:[
+      'Os níveis de radiação aqui são... fascinantes. E levemente preocupantes.',
+      'Com o equipamento certo, podemos reverter parte dos danos da Guerra.',
+      'Cada amostra que coleto nos aproxima de tecnologias perdidas.']},
+  {tipo:'engenheiro', nome:'Engenheiro', emoji:'👨‍🔧',
+    bonus:'-10% custo de energia em todas as ferramentas.',
+    personalidade:'Prático, confiável', falas:[
+      'Dê-me sucata suficiente e eu construo qualquer coisa duas vezes melhor.',
+      'Essas máquinas pré-guerra ainda funcionam. Só precisam de carinho... e solda.',
+      'Um bom sistema de irrigação vale mais que ouro neste mundo.']},
+  {tipo:'guarda', nome:'Guarda da Colônia', emoji:'🛡️',
+    bonus:'Reduz dano de eventos negativos e chance de roubo de colheitas em tempestades.',
+    personalidade:'Vigilante, leal', falas:[
+      'Durmam tranquilos. Eu cuido da muralha esta noite.',
+      'Vi coisas lá fora que não vou descrever durante o jantar.',
+      'Esse vale é nosso agora. Ninguém vai tirá-lo de nós.']},
+];
+
+// Marcos históricos da colônia
+const MILESTONES = [
+  {id:'m_primeira_colheita', titulo:'Primeira Colheita do Vale', desc:'Colha seu primeiro cultivo.', check:s=>s.colheitasFeitas>=1, pontos:1, recompensa:{caps:30}},
+  {id:'m_primeiro_animal', titulo:'Primeiro Habitante do Curral', desc:'Adquira seu primeiro animal.', check:s=>s.animais.length>=1, pontos:1, recompensa:{caps:30}},
+  {id:'m_dez_colheitas', titulo:'Fazenda em Movimento', desc:'Realize 25 colheitas.', check:s=>s.colheitasFeitas>=25, pontos:2, recompensa:{caps:80}},
+  {id:'m_casa3', titulo:'Lar Reconstruído', desc:'Evolua a Casa do Colono ao nível máximo.', check:s=>s.buildings.casa>=4, pontos:3, recompensa:{caps:120, energiaMax:10}},
+  {id:'m_celeiro3', titulo:'Celeiro Blindado', desc:'Evolua o Celeiro ao nível máximo.', check:s=>s.buildings.celeiro>=4, pontos:3, recompensa:{caps:120}},
+  {id:'m_lab3', titulo:'Ciência Restaurada', desc:'Evolua o Laboratório ao nível máximo.', check:s=>s.buildings.laboratorio>=4, pontos:3, recompensa:{caps:150}},
+  {id:'m_oficina3', titulo:'Oficina Automatizada', desc:'Evolua a Oficina ao nível máximo.', check:s=>s.buildings.oficina>=4, pontos:3, recompensa:{caps:120}},
+  {id:'m_primeira_tech', titulo:'Tecnologia Recuperada', desc:'Desbloqueie sua primeira tecnologia.', check:s=>Object.keys(s.tecnologias).length>=1, pontos:2, recompensa:{caps:60}},
+  {id:'m_arvore_meio', titulo:'Renascimento Tecnológico', desc:'Desbloqueie 6 tecnologias.', check:s=>Object.keys(s.tecnologias).length>=6, pontos:4, recompensa:{caps:200}},
+  {id:'m_arvore_completa', titulo:'Era Dourada do Vale', desc:'Desbloqueie todas as tecnologias.', check:s=>Object.keys(s.tecnologias).length>=TECH_TREE.length, pontos:6, recompensa:{caps:400, energiaMax:15}},
+  {id:'m_novo_colono', titulo:'Novos Rostos no Vale', desc:'Receba seu primeiro colono especialista.', check:s=>s.colonosEspecialistas.length>=1, pontos:2, recompensa:{caps:80}},
+  {id:'m_quatro_colonos', titulo:'Comunidade Diversa', desc:'Tenha 4 colonos especialistas na colônia.', check:s=>s.colonosEspecialistas.length>=4, pontos:4, recompensa:{caps:200}},
+  {id:'m_5corações', titulo:'Coração do Vale', desc:'Alcance 5 corações de amizade com qualquer colono.', check:s=>s.npcs.some(n=>n.hearts>=5), pontos:3, recompensa:{caps:100}},
+  {id:'m_5000caps', titulo:'Magnata das Tampinhas', desc:'Acumule 5000 tampinhas em algum momento.', check:s=>s.maiorCapsAcumulado>=5000, pontos:4, recompensa:{caps:0}},
+  {id:'m_30dias', titulo:'Um Mês no Vale', desc:'Sobreviva 30 dias.', check:s=>s.dia>=30, pontos:3, recompensa:{caps:100}},
+  {id:'m_100dias', titulo:'A Nova Geração', desc:'Sobreviva 100 dias.', check:s=>s.dia>=100, pontos:6, recompensa:{caps:300, energiaMax:10}},
+];
+
+// Pontos de Legado: somam-se ao total para calcular Tier da colônia
+function calcularPontosColonia(){
+  let pts = 0;
+  state.marcosCompletos.forEach(id=>{
+    const m = MILESTONES.find(x=>x.id===id);
+    if (m) pts += m.pontos;
+  });
+  pts += Object.keys(state.tecnologias).length; // cada tech vale +1 extra
+  return pts;
+}
+
+function getColonyTier(){
+  const pts = calcularPontosColonia();
+  let tier = COLONY_TIERS[0];
+  for (const t of COLONY_TIERS){ if (pts >= t.minPontos) tier = t; }
+  return tier;
+}
+
+
+
+// ─────────────────────────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────────────────────────
+const TOTAL_PLOTS = 32;
+const UNLOCKED_START = 12;
+
+let state = {
+  dia: 1,
+  hora: 6,
+  estacaoIdx: 0,
+  caps: 100,
+  energia: 100, energiaMax: 100,
+  radiacao: 0,
+  tampinhasGanhas: 0,
+  colheitasFeitas: 0,
+  parcelasDesbloqueadas: UNLOCKED_START,
+  tempestadeAtiva: false,
+  tempestadeSobrevivida: false,
+  toolAtivo: 'enxada',
+  inventario: { sementes:{}, colheitas:{} },
+  plots: [],
+  npcs: JSON.parse(JSON.stringify(NPCS)),
+  quests: JSON.parse(JSON.stringify(QUESTS)),
+  conversadosHoje: new Set(),
+  npcsConversados: new Set(),
+  animais: [],
+  buildings: { casa:1, celeiro:1, oficina:1, laboratorio:1 },
+  skills: JSON.parse(JSON.stringify(SKILLS)),
+  produtosAnimais: {},
+  // ── Evolução da colônia ──
+  pesquisaPD: 0,
+  tecnologias: {},
+  marcosCompletos: [],
+  colonosEspecialistas: [],
+  maiorCapsAcumulado: 100,
+  rumoColonia: null, // 'tecnologia' | 'natureza' | 'militar'
+};
+
+for (let i=0;i<TOTAL_PLOTS;i++){
+  state.plots.push({ idx:i, locked: i>=UNLOCKED_START, tilled:false, watered:false, crop:null, growth:0, ready:false });
+}
+
+const TOOLS = [
+  {id:'enxada', emoji:'⛏️', nome:'Enxada', key:'1'},
+  {id:'rega', emoji:'💧', nome:'Regador', key:'2'},
+  {id:'colher', emoji:'✋', nome:'Colher', key:'3'},
+  {id:'plantar', emoji:'🌱', nome:'Plantar', key:'4'},
+  {id:'fertilizar', emoji:'🧪', nome:'Fertilizar', key:'5'},
+];
+
+// ─────────────────────────────────────────────────────────────
+// UTIL
+// ─────────────────────────────────────────────────────────────
+function toast(msg, warn=false){
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className = 'toast' + (warn?' warn':'');
+  t.textContent = msg;
+  stack.appendChild(t);
+  setTimeout(()=>{ t.classList.add('fade'); setTimeout(()=>t.remove(),400); }, 2600);
+}
+
+function floatText(plotEl, text){
+  const f = document.createElement('div');
+  f.className='float-text';
+  f.textContent = text;
+  f.style.left = '50%'; f.style.top='30%'; f.style.transform='translateX(-50%)';
+  plotEl.appendChild(f);
+  setTimeout(()=>f.remove(),1000);
+}
+
+function fmtTime(h){
+  const hh = Math.floor(h)%24;
+  const mm = Math.floor((h%1)*60);
+  return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: TOPBAR
+// ─────────────────────────────────────────────────────────────
+function renderTopbar(){
+  document.getElementById('hud-day').textContent = state.dia;
+  document.getElementById('hud-time').textContent = fmtTime(state.hora);
+  document.getElementById('hud-season').textContent = SEASON_EMOJI[state.estacaoIdx]+' '+SEASONS[state.estacaoIdx];
+  document.getElementById('hud-caps').textContent = state.caps;
+  document.getElementById('hud-energy').textContent = Math.round(state.energia)+'/'+state.energiaMax;
+  document.getElementById('hud-rad').textContent = Math.round(state.radiacao)+'%';
+
+  const bg = document.getElementById('farm-bg');
+  bg.classList.remove('dusk','night');
+  if (state.hora>=18 && state.hora<21) bg.classList.add('dusk');
+  else if (state.hora>=21 || state.hora<6) bg.classList.add('night');
+
+  const radEl = document.getElementById('hud-rad');
+  radEl.style.color = state.radiacao>50 ? '#ff5555' : state.radiacao>25 ? 'var(--pip-amber)' : 'var(--rad-yellow)';
+
+  document.getElementById('radstorm-overlay').classList.toggle('active', state.tempestadeAtiva);
+
+  const tier = getColonyTier();
+  const titleEl = document.querySelector('.title-bit');
+  if (titleEl) titleEl.textContent = tier.emoji+' VALE 111';
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: FARM GRID
+// ─────────────────────────────────────────────────────────────
+function renderFarm(){
+  const grid = document.getElementById('farm-grid');
+  grid.innerHTML='';
+  state.plots.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='plot';
+    if (p.locked){
+      el.classList.add('locked');
+      el.textContent='🔒';
+      el.title='Compre uma Carta de Expansão no Empório';
+    } else {
+      if (p.tilled) el.classList.add('tilled');
+      if (p.watered) el.classList.add('watered');
+      if (p.crop){
+        const c = CROPS[p.crop];
+        el.innerHTML = `<span class="plant-emoji">${p.ready ? c.emoji : c.plantEmoji}</span>`;
+        if (p.ready){
+          const badge=document.createElement('div'); badge.className='ready-badge'; el.appendChild(badge);
+        } else {
+          const gb=document.createElement('div'); gb.className='growth-bar';
+          const gf=document.createElement('div'); gf.className='growth-bar-fill';
+          gf.style.width = Math.min(100, (p.growth/c.dias)*100)+'%';
+          gb.appendChild(gf); el.appendChild(gb);
+        }
+      }
+    }
+    el.addEventListener('click', ()=>handlePlotClick(p, el));
+    grid.appendChild(el);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// PLOT INTERACTION
+// ─────────────────────────────────────────────────────────────
+function spendEnergy(amount){
+  if (state.energia < amount){ toast('Energia insuficiente! Descanse no Abrigo.', true); return false; }
+  state.energia = Math.max(0, state.energia - amount);
+  return true;
+}
+
+function handlePlotClick(p, el){
+  if (p.locked){ toast('Parcela bloqueada. Compre uma Carta de Expansão.', true); return; }
+  let energiaMult = BUILDINGS.oficina.bonusEnergiaFerramenta[state.buildings.oficina-1];
+  if (state.tecnologias['tech_coletor_solar']) energiaMult *= 0.85;
+  if (state.colonosEspecialistas.some(c=>c.tipo==='engenheiro')) energiaMult *= 0.9;
+
+  switch(state.toolAtivo){
+    case 'enxada':
+      if (p.tilled){ toast('Já está arado.'); return; }
+      if (!spendEnergy(Math.ceil(3*energiaMult))) return;
+      p.tilled = true;
+      floatText(el,'+arado');
+      break;
+
+    case 'rega':
+      if (!p.tilled){ toast('Are a terra primeiro.'); return; }
+      if (p.watered){ toast('Já está regado.'); return; }
+      if (!spendEnergy(Math.ceil(2*energiaMult))) return;
+      p.watered = true;
+      floatText(el,'💧');
+      break;
+
+    case 'plantar': {
+      if (!p.tilled){ toast('Are a terra primeiro.'); return; }
+      if (p.crop){ toast('Já há um cultivo aqui.'); return; }
+      const sementeKey = getSelectedSeed();
+      if (!sementeKey){ toast('Você não tem sementes. Visite o Empório.', true); return; }
+      if (!spendEnergy(Math.ceil(2*energiaMult))) return;
+      p.crop = sementeKey; p.growth = 0; p.ready=false; p.fertilizado = !!state.toolFertilizar;
+      state.inventario.sementes[sementeKey]--;
+      if (state.inventario.sementes[sementeKey]<=0) delete state.inventario.sementes[sementeKey];
+      if (state.toolFertilizar){
+        if ((state.inventario.fertilizante||0)>0) state.inventario.fertilizante--;
+        else p.fertilizado=false;
+      }
+      floatText(el,'🌱 plantado');
+      renderHotbar();
+      break;
+    }
+
+    case 'fertilizar':
+      if (!p.tilled || !p.crop){ toast('Plante algo primeiro.'); return; }
+      if (p.fertilizado){ toast('Já fertilizado.'); return; }
+      if (!(state.inventario.fertilizante>0)){ toast('Sem fertilizante. Compre no Empório.', true); return; }
+      state.inventario.fertilizante--;
+      p.fertilizado = true;
+      floatText(el,'🧪 fertilizado');
+      break;
+
+    case 'colher':
+      if (!p.crop){ toast('Nada para colher aqui.'); return; }
+      if (!p.ready){ toast('Ainda não está maduro.'); return; }
+      if (!spendEnergy(1)) return;
+      {
+        const c = CROPS[p.crop];
+        // quality roll, boosted by agricultura skill and fertilizante
+        const agriLvl = state.skills.agricultura.nivel;
+        let qtd = 1;
+        let qualidade = 'Normal';
+        const fertBonus = (p.fertilizado ? (state.tecnologias['tech_fertilizante_avancado']?0.40:0.20) : 0);
+        const agricultorBonus = state.colonosEspecialistas.some(c=>c.tipo==='agricultor') ? 0.05 : 0;
+        const rollAlta = 0.10 + agriLvl*0.05 + fertBonus + agricultorBonus;
+        let rollMutante = agriLvl>=5 ? 0.08 : 0;
+        if (p.fertilizado && state.tecnologias['tech_fertilizante_avancado']) rollMutante += 0.05;
+        const roll = Math.random();
+        if (roll < rollMutante){ qualidade='Mutante'; qtd=2; }
+        else if (roll < rollMutante+rollAlta){ qualidade='Alta'; }
+        state.inventario.colheitas[p.crop] = (state.inventario.colheitas[p.crop]||0)+qtd;
+        if (qualidade!=='Normal'){
+          state.inventario.qualidades = state.inventario.qualidades||{};
+          state.inventario.qualidades[p.crop] = state.inventario.qualidades[p.crop]||{};
+          state.inventario.qualidades[p.crop][qualidade] = (state.inventario.qualidades[p.crop][qualidade]||0)+qtd;
+        }
+        floatText(el,'+'+qtd+' '+c.emoji+(qualidade!=='Normal'?' ★'+qualidade:''));
+        state.colheitasFeitas++;
+        ganharXP('agricultura', 8 + (qualidade==='Alta'?4:0) + (qualidade==='Mutante'?10:0));
+        updateQuestProgress('colher', state.colheitasFeitas);
+        p.crop=null; p.growth=0; p.ready=false; p.tilled=true; p.watered=false; p.fertilizado=false;
+      }
+      break;
+  }
+  renderFarm();
+  renderTopbar();
+}
+
+function getSelectedSeed(){
+  const keys = Object.keys(state.inventario.sementes).filter(k=>state.inventario.sementes[k]>0);
+  if (!keys.length) return null;
+  // pick currently selected hotbar seed, else first
+  if (state.selectedSeed && state.inventario.sementes[state.selectedSeed]>0) return state.selectedSeed;
+  return keys[0];
+}
+
+// ─────────────────────────────────────────────────────────────
+// HOTBAR
+// ─────────────────────────────────────────────────────────────
+function renderHotbar(){
+  const bar = document.getElementById('hotbar');
+  bar.innerHTML='';
+  TOOLS.forEach(t=>{
+    const slot=document.createElement('div');
+    slot.className='hot-slot'+(state.toolAtivo===t.id?' active':'');
+    slot.innerHTML = `<span class="key">${t.key}</span><span>${t.emoji}</span>`;
+    slot.title=t.nome;
+    slot.addEventListener('click',()=>{ state.toolAtivo=t.id; renderHotbar(); });
+    bar.appendChild(slot);
+  });
+
+  // seed selector slots
+  const seedKeys = Object.keys(state.inventario.sementes).filter(k=>state.inventario.sementes[k]>0);
+  seedKeys.forEach((k,i)=>{
+    const c = CROPS[k];
+    const slot=document.createElement('div');
+    slot.className='hot-slot'+(state.selectedSeed===k?' active':'');
+    slot.innerHTML = `<span>${c.plantEmoji}</span><span class="qty">${state.inventario.sementes[k]}</span>`;
+    slot.title=c.nome;
+    slot.addEventListener('click',()=>{ state.selectedSeed=k; state.toolAtivo='plantar'; renderHotbar(); });
+    bar.appendChild(slot);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// QUESTS
+// ─────────────────────────────────────────────────────────────
+function updateQuestProgress(meta, val){
+  state.quests.forEach(q=>{
+    if (q.meta===meta && q.ativa && !q.completa){
+      q.progresso = val;
+      if (val >= q.alvo){
+        q.completa = true;
+        grantReward(q.recompensa);
+        toast('✅ Missão concluída: '+q.titulo);
+        activateNextQuest();
+      }
+    }
+  });
+  renderSidepanel();
+}
+
+function activateNextQuest(){
+  const order = ['q1','q2','q3','q4','q5'];
+  for (let id of order){
+    const q = state.quests.find(x=>x.id===id);
+    if (!q.ativa && !q.completa){ q.ativa=true; toast('📜 Nova missão: '+q.titulo); break; }
+  }
+}
+
+function grantReward(r){
+  if (r.caps){ state.caps += r.caps; toast('+'+r.caps+' tampinhas 🧢'); }
+  if (r.energia){ state.energia = Math.min(state.energiaMax, state.energia+r.energia); }
+  if (r.energiaMax){ state.energiaMax += r.energiaMax; }
+  if (r.sementes){
+    Object.keys(CROPS).slice(0,1).forEach(k=>{
+      state.inventario.sementes[k]=(state.inventario.sementes[k]||0)+r.sementes;
+    });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// SIDEPANEL
+// ─────────────────────────────────────────────────────────────
+let activeTab = 'missoes';
+
+function renderSidepanel(){
+  document.querySelectorAll('.sp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===activeTab));
+  const c = document.getElementById('sp-content');
+  if (activeTab==='missoes') c.innerHTML = renderMissoes();
+  else if (activeTab==='colonos') c.innerHTML = renderColonos();
+  else if (activeTab==='loja') c.innerHTML = renderLoja();
+  else if (activeTab==='abrigo') c.innerHTML = renderAbrigo();
+  else if (activeTab==='animais') c.innerHTML = renderAnimais();
+  else if (activeTab==='construcoes') c.innerHTML = renderConstrucoes();
+  else if (activeTab==='habilidades') c.innerHTML = renderHabilidades();
+  else if (activeTab==='colonia') c.innerHTML = renderColonia();
+  bindSidepanelEvents();
+}
+
+function renderMissoes(){
+  let h = '<div class="sp-section-title">MISSÕES ATIVAS</div>';
+  const ativas = state.quests.filter(q=>q.ativa && !q.completa);
+  if (!ativas.length) h += '<div class="sp-card">Nenhuma missão ativa.</div>';
+  ativas.forEach(q=>{
+    h += `<div class="sp-card active-quest">
+      <div style="font-family:var(--font-pixel);font-size:9px;color:var(--pip-green);margin-bottom:4px;">${q.titulo}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">${q.desc}</div>
+      <div class="bar-outer"><div class="bar-inner" style="width:${Math.min(100,((q.progresso||0)/q.alvo)*100)}%;background:var(--pip-green);"></div></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${q.progresso||0} / ${q.alvo}</div>
+    </div>`;
+  });
+  h += '<div class="sp-section-title">CONCLUÍDAS</div>';
+  const done = state.quests.filter(q=>q.completa);
+  if (!done.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhuma ainda.</div>';
+  done.forEach(q=>{
+    h += `<div class="sp-card" style="opacity:.6;"><div style="font-size:12px;">✅ ${q.titulo}</div></div>`;
+  });
+  return h;
+}
+
+function renderColonos(){
+  let h = '<div class="sp-section-title">COLONOS DO VALE</div>';
+  state.npcs.forEach(n=>{
+    let hearts='';
+    for (let i=0;i<5;i++) hearts += `<span class="heart ${i<n.hearts?'full':'empty'}">♥</span>`;
+    h += `<div class="npc-card" data-npc="${n.id}">
+      <div class="npc-emoji">${n.emoji}</div>
+      <div class="npc-info">
+        <div class="npc-name">${n.nome}</div>
+        <div style="font-size:11px;color:var(--text-dim);">${n.profissao}</div>
+        <div class="heart-bar">${hearts}</div>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+
+function renderLoja(){
+  let h = '<div class="sp-section-title">EMPÓRIO DO RUSTY</div>';
+  h += `<div class="sp-card">Suas tampinhas: <strong style="color:var(--pip-amber);">${state.caps} 🧢</strong> · Fertilizante: ${state.inventario.fertilizante||0} 🧪 · Ração: ${state.inventario.racao||0} 🌾</div>`;
+  SHOP_ITEMS.forEach(item=>{
+    let disabled = state.caps < item.preco;
+    if (item.tipo==='expansao' && state.parcelasDesbloqueadas>=TOTAL_PLOTS) disabled=true;
+    h += `<div class="sp-card sp-row">
+      <span>${item.emoji} ${item.nome}</span>
+      <button class="sp-btn" data-buy="${item.id}" ${disabled?'disabled':''}>${item.preco} 🧢</button>
+    </div>`;
+  });
+  h += '<div class="sp-section-title">SUAS COLHEITAS (VENDER)</div>';
+  const colheitaKeys = Object.keys(state.inventario.colheitas).filter(k=>state.inventario.colheitas[k]>0);
+  if (!colheitaKeys.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nada para vender ainda.</div>';
+  colheitaKeys.forEach(k=>{
+    const c = CROPS[k];
+    const quals = state.inventario.qualidades?.[k]||{};
+    const totalQual = Object.values(quals).reduce((a,b)=>a+b,0);
+    const normalQty = state.inventario.colheitas[k]-totalQual;
+    if (normalQty>0){
+      h += `<div class="sp-card sp-row">
+        <span>${c.emoji} ${c.nome} ×${normalQty}</span>
+        <button class="sp-btn amber" data-sell="${k}">Vender por ${c.venda} 🧢</button>
+      </div>`;
+    }
+    Object.entries(quals).forEach(([qual,qty])=>{
+      if (qty<=0) return;
+      const mult = qual==='Mutante'?2.5:1.5;
+      const cor = qual==='Mutante' ? 'var(--purple-eldritch, #c060ff)' : 'var(--pip-green)';
+      h += `<div class="sp-card sp-row" style="border-color:${cor};">
+        <span>${c.emoji} ${c.nome} ★${qual} ×${qty}</span>
+        <button class="sp-btn amber" data-sell="${k}" data-qual="${qual}">Vender por ${Math.round(c.venda*mult)} 🧢</button>
+      </div>`;
+    });
+  });
+  h += '<div class="sp-section-title">PRODUTOS ANIMAIS (VENDER)</div>';
+  const prodKeys = Object.keys(state.produtosAnimais).filter(k=>state.produtosAnimais[k]>0);
+  if (!prodKeys.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum produto coletado ainda.</div>';
+  prodKeys.forEach(k=>{
+    const info = PRODUTO_ANIMAL_INFO[k];
+    h += `<div class="sp-card sp-row">
+      <span>${info.emoji} ${info.nome} ×${state.produtosAnimais[k]}</span>
+      <button class="sp-btn amber" data-sellanimal="${k}">Vender por ${info.venda} 🧢</button>
+    </div>`;
+  });
+  return h;
+}
+
+function renderAbrigo(){
+  let h = '<div class="sp-section-title">ABRIGO 111</div>';
+  h += `<div class="sp-card">
+    <div style="margin-bottom:6px;">Energia: ${Math.round(state.energia)}/${state.energiaMax}</div>
+    <div class="bar-outer"><div class="bar-inner" style="width:${(state.energia/state.energiaMax)*100}%;background:var(--pip-green);"></div></div>
+  </div>`;
+  h += `<div class="sp-card">
+    <div style="margin-bottom:6px;">Radiação: ${Math.round(state.radiacao)}%</div>
+    <div class="bar-outer"><div class="bar-inner" style="width:${state.radiacao}%;background:var(--rad-yellow);"></div></div>
+  </div>`;
+  h += `<button class="sp-btn" id="sleep-btn" style="width:100%;padding:10px;margin-top:6px;">🛏️ DORMIR E AVANÇAR O DIA</button>`;
+  if (state.tempestadeAtiva){
+    h += `<div class="sp-card" style="border-color:var(--rad-yellow);margin-top:8px;">
+      ⚠️ TEMPESTADE RADIOATIVA EM CURSO<br>Permaneça no abrigo até passar.
+    </div>`;
+  }
+  if (state.radiacao>0){
+    h += `<button class="sp-btn amber" id="radaway-btn" style="width:100%;margin-top:6px;" ${(!state.inventario.consumiveis||!state.inventario.consumiveis.rad_x)?'disabled':''}>💊 Usar RadAway (${state.inventario.consumiveis&&state.inventario.consumiveis.rad_x||0})</button>`;
+  }
+  return h;
+}
+
+function renderAnimais(){
+  const cap = CELEIRO_CAPACIDADE[state.buildings.celeiro-1];
+  let h = `<div class="sp-section-title">CURRAL (${state.animais.length}/${cap})</div>`;
+  if (!state.animais.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum animal ainda. Compre filhotes no Empório.</div>';
+  state.animais.forEach(a=>{
+    const t = ANIMAL_TYPES[a.tipo];
+    h += `<div class="animal-card">
+      <div class="animal-emoji">${t.emoji}</div>
+      <div class="animal-info">
+        <div class="animal-name">${a.nome} · ${t.nome}</div>
+        <div class="animal-stats">Fome</div>
+        <div class="mini-bar"><div class="mini-bar-fill" style="width:${a.fome}%;background:${a.fome>40?'var(--pip-green)':'var(--rust)'};"></div></div>
+        <div class="animal-stats" style="margin-top:3px;">Felicidade</div>
+        <div class="mini-bar"><div class="mini-bar-fill" style="width:${a.felicidade}%;background:var(--pip-amber);"></div></div>
+      </div>
+    </div>`;
+    if (a.pronto){
+      h += `<button class="sp-btn" style="width:100%;margin:-4px 0 6px;" data-collect="${a.id}">${t.produtoEmoji} Coletar ${t.produto}</button>`;
+    }
+    h += `<button class="sp-btn amber" style="width:100%;margin-bottom:8px;" data-feed="${a.id}" ${(a.fome>=100 || !(state.inventario.racao>0))?'disabled':''}>🌾 Alimentar (usa 1 ração)</button>`;
+  });
+  return h;
+}
+
+function renderConstrucoes(){
+  let h = '<div class="sp-section-title">SETOR DA COLÔNIA</div>';
+  Object.entries(BUILDINGS).forEach(([key,b])=>{
+    const lvl = state.buildings[key];
+    const maxed = lvl>=b.maxLevel+1;
+    const custo = b.custos[lvl] !== undefined ? b.custos[lvl] : null;
+    h += `<div class="building-card ${maxed?'maxed':''}">
+      <div class="building-title">${b.emoji} ${b.nome}</div>
+      <div class="building-level">Nível ${lvl}${maxed?' (MÁXIMO)':''}</div>
+      <div class="building-desc">${b.descricoes[lvl-1]}</div>
+      ${!maxed ? `<button class="sp-btn" data-upgrade="${key}" ${state.caps<custo?'disabled':''}>Evoluir por ${custo} 🧢</button>` : ''}
+    </div>`;
+  });
+  return h;
+}
+
+function renderHabilidades(){
+  let h = '<div class="sp-section-title">PERÍCIAS DO COLONO</div>';
+  Object.entries(SKILLS).forEach(([key,info])=>{
+    const sk = state.skills[key];
+    const need = xpParaNivel(sk.nivel);
+    const pct = sk.nivel>=5 ? 100 : (sk.xp/need)*100;
+    h += `<div class="skill-card">
+      <div class="skill-title"><span><span class="skill-icon">${info.emoji}</span>${info.nome}</span><span>Nv ${sk.nivel}${sk.nivel>=5?' (MAX)':''}</span></div>
+      <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:var(--pip-green);"></div></div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${sk.nivel<5?sk.xp+' / '+need+' XP':'Nível máximo alcançado'}</div>
+      <div class="skill-perks">${info.perks.slice(0, sk.nivel-1).join('<br>')||'Suba de nível para desbloquear bônus.'}</div>
+    </div>`;
+  });
+  return h;
+}
+
+// ─────────────────────────────────────────────────────────────
+// ANIMAL ACTIONS
+// ─────────────────────────────────────────────────────────────
+function feedAnimal(id){
+  const a = state.animais.find(x=>x.id===id);
+  if (!a || !(state.inventario.racao>0) || a.fome>=100) return;
+  state.inventario.racao--;
+  a.fome = Math.min(100, a.fome+50);
+  a.felicidade = Math.min(100, a.felicidade+5);
+  ganharXP('social',1);
+  toast(a.nome+' foi alimentado(a) 🌾');
+  renderSidepanel(); renderTopbar();
+}
+
+function collectAnimalProduct(id){
+  const a = state.animais.find(x=>x.id===id);
+  if (!a || !a.pronto) return;
+  const t = ANIMAL_TYPES[a.tipo];
+  state.produtosAnimais[a.tipo] = (state.produtosAnimais[a.tipo]||0)+1;
+  a.pronto = false;
+  a.diasDesdeProducao = 0;
+  ganharXP('social',3);
+  toast('Coletado: '+t.produtoEmoji+' '+t.produto);
+  renderSidepanel();
+}
+
+function upgradeBuilding(key){
+  const b = BUILDINGS[key];
+  const lvl = state.buildings[key];
+  if (lvl>b.maxLevel) return;
+  const custo = b.custos[lvl];
+  if (state.caps < custo) return;
+  state.caps -= custo;
+  state.buildings[key]++;
+  if (key==='casa'){
+    state.energiaMax += b.bonusEnergiaMax[lvl];
+    state.energia = state.energiaMax;
+  }
+  toast(b.emoji+' '+b.nome+' evoluído para o nível '+state.buildings[key]+'!');
+  renderTopbar(); renderSidepanel();
+}
+
+
+function renderColonia(){
+  const tier = getColonyTier();
+  const pts = calcularPontosColonia();
+  const nextTier = COLONY_TIERS.find(t=>t.minPontos>tier.minPontos);
+
+  let h = `<div class="colony-tier-banner">${tier.emoji} ${tier.nome}</div>`;
+  h += `<div class="sp-card">
+    <div style="font-size:12px;line-height:1.4;">${tier.desc}</div>
+    <div style="margin-top:6px;font-size:11px;color:var(--text-dim);">Pontos de Legado: <strong style="color:var(--pip-amber);">${pts}</strong>${nextTier?' · Próximo nível: '+nextTier.minPontos+' pts ('+nextTier.emoji+' '+nextTier.nome+')':' · Nível máximo alcançado!'}</div>
+    <div class="bar-outer" style="margin-top:4px;"><div class="bar-inner" style="width:${nextTier ? Math.min(100,((pts-tier.minPontos)/(nextTier.minPontos-tier.minPontos))*100) : 100}%;background:var(--pip-amber);"></div></div>
+  </div>`;
+
+  h += `<div class="sp-card sp-row"><span>🔬 Pontos de Pesquisa (PD)</span><strong style="color:var(--pip-green);">${state.pesquisaPD}</strong></div>`;
+
+  // Tech tree
+  h += '<div class="sp-section-title">ÁRVORE TECNOLÓGICA</div>';
+  const categorias = ['Agricultura','Engenharia','Sociedade'];
+  categorias.forEach(cat=>{
+    h += `<div style="font-family:var(--font-pixel);font-size:8px;color:var(--text-dim);letter-spacing:2px;margin:6px 0 4px;">${cat.toUpperCase()}</div>`;
+    TECH_TREE.filter(t=>t.categoria===cat).forEach(t=>{
+      const unlocked = !!state.tecnologias[t.id];
+      const reqMet = t.req.every(r=>state.tecnologias[r]);
+      const available = !unlocked && reqMet && state.pesquisaPD>=t.custo;
+      const cls = unlocked?'unlocked':(reqMet?'available':'locked');
+      h += `<div class="tech-node ${cls}">
+        <div class="tech-title"><span>${t.emoji} ${t.nome}</span><span class="tag-status" style="color:${unlocked?'var(--pip-green)':reqMet?'var(--pip-amber)':'var(--text-dim)'};">${unlocked?'✅ ATIVO':reqMet?'DISPONÍVEL':'🔒 BLOQUEADO'}</span></div>
+        <div class="tech-desc">${t.desc}</div>
+        ${t.req.length?`<div class="tech-req">Requer: ${t.req.map(r=>TECH_TREE.find(x=>x.id===r).nome).join(', ')}</div>`:''}
+        ${!unlocked?`<button class="sp-btn" data-tech="${t.id}" ${(!reqMet || state.pesquisaPD<t.custo)?'disabled':''}>Pesquisar (${t.custo} PD)</button>`:''}
+      </div>`;
+    });
+  });
+
+  // Colonos especialistas
+  h += '<div class="sp-section-title">COLONOS ESPECIALISTAS</div>';
+  if (!state.colonosEspecialistas.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum especialista ainda. A Torre de Rádio atrai novos rostos ao Vale.</div>';
+  state.colonosEspecialistas.forEach(c=>{
+    const info = COLONO_TIPOS.find(x=>x.tipo===c.tipo);
+    h += `<div class="npc-card" style="cursor:default;">
+      <div class="npc-emoji">${info.emoji}</div>
+      <div class="npc-info">
+        <div class="npc-name">${c.nome} · ${info.nome}</div>
+        <div style="font-size:11px;color:var(--text-dim);">${info.bonus}</div>
+      </div>
+    </div>`;
+  });
+
+  // Rumo da colônia
+  if (state.tecnologias['tech_conselho']){
+    h += '<div class="sp-section-title">RUMO DA COLÔNIA</div>';
+    if (state.rumoColonia){
+      const rumos = {tecnologia:'⚙️ Tecnologia — foco em automação e pesquisa.', natureza:'🌿 Natureza — foco em harmonia com a terra mutante.', militar:'🛡️ Poder Militar — foco em defesa e segurança.'};
+      h += `<div class="sp-card">Rumo escolhido: <strong style="color:var(--pip-green);">${rumos[state.rumoColonia]}</strong></div>`;
+    } else {
+      h += `<div class="sp-card">O Conselho do Vale aguarda sua decisão sobre o futuro da colônia. Esta escolha é permanente.</div>
+      <button class="sp-btn" data-rumo="tecnologia" style="width:100%;margin-bottom:4px;">⚙️ Tecnologia (+1 PD/dia extra)</button>
+      <button class="sp-btn" data-rumo="natureza" style="width:100%;margin-bottom:4px;">🌿 Natureza (+10% venda de colheitas)</button>
+      <button class="sp-btn" data-rumo="militar" style="width:100%;margin-bottom:4px;">🛡️ Poder Militar (radiação não sobe durante tempestades)</button>`;
+    }
+  }
+
+  // Marcos históricos
+  h += '<div class="sp-section-title">MARCOS HISTÓRICOS DO VALE</div>';
+  MILESTONES.forEach(m=>{
+    const done = state.marcosCompletos.includes(m.id);
+    h += `<div class="milestone-card ${done?'done':''}">
+      <div class="milestone-title">${done?'✅':'⏳'} ${m.titulo} (+${m.pontos} Legado)</div>
+      <div class="milestone-desc">${m.desc}</div>
+    </div>`;
+  });
+
+  return h;
+}
+
+function pesquisarTech(techId){
+  const t = TECH_TREE.find(x=>x.id===techId);
+  if (!t || state.tecnologias[techId]) return;
+  if (!t.req.every(r=>state.tecnologias[r])) return;
+  if (state.pesquisaPD < t.custo) return;
+  state.pesquisaPD -= t.custo;
+  state.tecnologias[techId] = true;
+  toast('🔬 Tecnologia desbloqueada: '+t.emoji+' '+t.nome);
+  checkMarcos();
+  renderAll();
+}
+
+function escolherRumo(rumo){
+  if (state.rumoColonia) return;
+  state.rumoColonia = rumo;
+  const nomes = {tecnologia:'Tecnologia', natureza:'Natureza', militar:'Poder Militar'};
+  toast('🏛️ O Conselho decidiu: o Vale seguirá o caminho da '+nomes[rumo]+'!');
+  renderSidepanel();
+}
+
+function checkMarcos(){
+  MILESTONES.forEach(m=>{
+    if (!state.marcosCompletos.includes(m.id) && m.check(state)){
+      state.marcosCompletos.push(m.id);
+      grantReward(m.recompensa);
+      toast('🏆 Marco histórico: '+m.titulo+' (+'+m.pontos+' Legado)');
+    }
+  });
+}
+
+// Chance de novo colono especialista chegar (via Torre de Rádio)
+function tentarNovoColono(){
+  if (!state.tecnologias['tech_radio']) return;
+  if (state.colonosEspecialistas.length >= COLONO_TIPOS.length) return;
+  const chance = 0.06;
+  if (Math.random() < chance){
+    const disponiveis = COLONO_TIPOS.filter(t=>!state.colonosEspecialistas.some(c=>c.tipo===t.tipo));
+    if (!disponiveis.length) return;
+    const tipo = disponiveis[Math.floor(Math.random()*disponiveis.length)];
+    const nome = gerarNomeColono();
+    state.colonosEspecialistas.push({tipo:tipo.tipo, nome});
+    if (tipo.tipo==='agricultor') ganharXP('agricultura', xpParaNivel(1));
+    toast('👤 '+nome+' (' +tipo.nome+ ') chegou ao Vale, atraído pelo sinal de rádio!');
+  }
+}
+function gerarNomeColono(){
+  const nomes=['Wren','Cassidy','Tobias','Nadia','Silas','Yara','Orin','Vesper','Kael','Mira'];
+  return nomes[Math.floor(Math.random()*nomes.length)];
+}
+
+
+function bindSidepanelEvents(){
+  document.querySelectorAll('.npc-card').forEach(el=>{
+    el.addEventListener('click', ()=>openDialogue(el.dataset.npc));
+  });
+  document.querySelectorAll('[data-buy]').forEach(btn=>{
+    btn.addEventListener('click',()=>buyItem(btn.dataset.buy));
+  });
+  document.querySelectorAll('[data-sell]').forEach(btn=>{
+    btn.addEventListener('click',()=>sellCrop(btn.dataset.sell, btn.dataset.qual));
+  });
+  document.querySelectorAll('[data-sellanimal]').forEach(btn=>{
+    btn.addEventListener('click',()=>venderProdutoAnimal(btn.dataset.sellanimal));
+  });
+  document.querySelectorAll('[data-feed]').forEach(btn=>{
+    btn.addEventListener('click',()=>feedAnimal(btn.dataset.feed));
+  });
+  document.querySelectorAll('[data-collect]').forEach(btn=>{
+    btn.addEventListener('click',()=>collectAnimalProduct(btn.dataset.collect));
+  });
+  document.querySelectorAll('[data-upgrade]').forEach(btn=>{
+    btn.addEventListener('click',()=>upgradeBuilding(btn.dataset.upgrade));
+  });
+  document.querySelectorAll('[data-tech]').forEach(btn=>{
+    btn.addEventListener('click',()=>pesquisarTech(btn.dataset.tech));
+  });
+  document.querySelectorAll('[data-rumo]').forEach(btn=>{
+    btn.addEventListener('click',()=>escolherRumo(btn.dataset.rumo));
+  });
+  const sleepBtn = document.getElementById('sleep-btn');
+  if (sleepBtn) sleepBtn.addEventListener('click', advanceDay);
+  const radBtn = document.getElementById('radaway-btn');
+  if (radBtn) radBtn.addEventListener('click', useRadAway);
+}
+
+// ─────────────────────────────────────────────────────────────
+// SHOP ACTIONS
+// ─────────────────────────────────────────────────────────────
+function buyItem(id){
+  const item = SHOP_ITEMS.find(i=>i.id===id);
+  if (!item || state.caps < item.preco) return;
+  state.caps -= item.preco;
+  if (item.tipo==='semente'){
+    state.inventario.sementes[item.cropKey] = (state.inventario.sementes[item.cropKey]||0)+1;
+    toast('Comprou '+item.nome);
+  } else if (item.tipo==='consumivel'){
+    if (!state.inventario.consumiveis) state.inventario.consumiveis={};
+    state.inventario.consumiveis[item.id] = (state.inventario.consumiveis[item.id]||0)+1;
+    toast('Comprou '+item.nome);
+  } else if (item.tipo==='expansao'){
+    const locked = state.plots.find(p=>p.locked);
+    if (locked){ locked.locked=false; state.parcelasDesbloqueadas++; toast('Nova parcela desbloqueada! 🟫'); updateQuestProgress('expandir', state.parcelasDesbloqueadas-UNLOCKED_START); }
+    else { state.caps += item.preco; toast('Todas as parcelas já desbloqueadas.'); }
+  } else if (item.tipo==='fertilizante'){
+    state.inventario.fertilizante = (state.inventario.fertilizante||0)+1;
+    toast('Comprou Fertilizante Mutagênico 🧪');
+  } else if (item.tipo==='racao'){
+    state.inventario.racao = (state.inventario.racao||0)+1;
+    toast('Comprou Ração Animal 🌾');
+  } else if (item.tipo==='animal'){
+    const cap = CELEIRO_CAPACIDADE[state.buildings.celeiro-1];
+    if (state.animais.length >= cap){
+      state.caps += item.preco;
+      toast('Celeiro sem espaço! Evolua o Celeiro no SETOR.', true);
+    } else {
+      state.animais.push({ id:'a'+Date.now()+Math.random(), tipo:item.animalKey, nome:gerarNomeAnimal(item.animalKey), fome:100, felicidade:80, diasDesdeProducao:0, pronto:false });
+      toast('Novo animal no curral! '+ANIMAL_TYPES[item.animalKey].emoji);
+    }
+  }
+  renderTopbar(); renderSidepanel(); renderFarm(); renderHotbar();
+}
+
+function gerarNomeAnimal(tipo){
+  const nomes = {galinha:['Pena','Cluck','Atomic','Glow'], vaca:['Mu','Brahma','Verde','Cinder'], cabra:['Duo','Chifre','Mutante','Bico']};
+  const arr = nomes[tipo]||['Bicho'];
+  return arr[Math.floor(Math.random()*arr.length)]+'-'+Math.floor(Math.random()*99);
+}
+
+function sellCrop(key, qualidade){
+  const c = CROPS[key];
+  let qty, label=c.nome, multiplicador=1;
+  if (qualidade){
+    qty = state.inventario.qualidades?.[key]?.[qualidade];
+    if (!qty) return;
+    state.inventario.qualidades[key][qualidade]--;
+    if (state.inventario.qualidades[key][qualidade]<=0) delete state.inventario.qualidades[key][qualidade];
+    multiplicador = qualidade==='Mutante' ? 2.5 : 1.5;
+    label += ' ★'+qualidade;
+  } else {
+    const totalQual = Object.values(state.inventario.qualidades?.[key]||{}).reduce((a,b)=>a+b,0);
+    qty = (state.inventario.colheitas[key]||0) - totalQual;
+    if (qty<=0) return;
+  }
+  state.inventario.colheitas[key]--;
+  if (state.inventario.colheitas[key]<=0) delete state.inventario.colheitas[key];
+  let bonusVenda = 1;
+  if (state.tecnologias['tech_mercado']) bonusVenda += 0.15;
+  if (state.rumoColonia==='natureza') bonusVenda += 0.10;
+  const valor = Math.round(c.venda*multiplicador*bonusVenda);
+  state.caps += valor;
+  state.tampinhasGanhas += valor;
+  toast('Vendido '+label+' por '+valor+' 🧢');
+  if (state.tecnologias['tech_reciclagem'] && Math.random()<0.3){
+    state.inventario.racao = (state.inventario.racao||0)+1;
+    toast('♻️ Reciclagem gerou +1 Ração Animal');
+  }
+  updateQuestProgress('tampinhas', state.tampinhasGanhas);
+  renderTopbar(); renderSidepanel();
+}
+
+function venderProdutoAnimal(key){
+  const info = PRODUTO_ANIMAL_INFO[key];
+  const qty = state.produtosAnimais[key];
+  if (!qty) return;
+  state.produtosAnimais[key]--;
+  if (state.produtosAnimais[key]<=0) delete state.produtosAnimais[key];
+  state.caps += info.venda;
+  state.tampinhasGanhas += info.venda;
+  ganharXP('social', 2);
+  toast('Vendido '+info.emoji+' '+info.nome+' por '+info.venda+' 🧢');
+  updateQuestProgress('tampinhas', state.tampinhasGanhas);
+  renderTopbar(); renderSidepanel();
+}
+
+const PRODUTO_ANIMAL_INFO = {
+  galinha: {nome:'Ovo Brilhante', emoji:'🥚', venda:35},
+  vaca: {nome:'Leite Radioso', emoji:'🥛', venda:90},
+  cabra: {nome:'Lã Mutante', emoji:'🧶', venda:60},
+};
+
+function useRadAway(){
+  if (!state.inventario.consumiveis || !state.inventario.consumiveis.rad_x) return;
+  state.inventario.consumiveis.rad_x--;
+  state.radiacao = Math.max(0, state.radiacao-40);
+  toast('Radiação reduzida 💊');
+  renderTopbar(); renderSidepanel();
+}
+
+// ─────────────────────────────────────────────────────────────
+// DIALOGUE
+// ─────────────────────────────────────────────────────────────
+function openDialogue(npcId){
+  const npc = state.npcs.find(n=>n.id===npcId);
+  const box = document.getElementById('dialogue-box');
+  const tier = getColonyTier();
+  const tierFalas = {
+    0: ['Olha esse lugar... ainda mal dá pra chamar de acampamento.', 'Um dia isso aqui vai ser algo de verdade. Eu acredito.'],
+    1: ['O Vale está crescendo. Sinto isso no ar.', 'Já não é mais só sobrevivência. Estamos construindo algo.'],
+    2: ['Vila do Vale 111... tem até nome agora! Quem diria.', 'As ruas estão mais movimentadas a cada semana.'],
+    3: ['Painéis solares, drones, muralhas... isso aqui virou uma cidade de verdade.', 'Às vezes esqueço que vivemos num mundo pós-nuclear, de tão bem que estamos.'],
+    4: ['O Vale 111 se tornou um farol. Gente de longe vem só para ver com os próprios olhos.', 'Reconstruímos uma civilização aqui. Você fez parte disso.'],
+  };
+  let fala;
+  if (Math.random()<0.25){
+    const idx = COLONY_TIERS.indexOf(tier);
+    const opts = tierFalas[idx];
+    fala = opts[Math.floor(Math.random()*opts.length)];
+  } else {
+    fala = npc.falas[Math.floor(Math.random()*npc.falas.length)];
+  }
+
+  if (!state.conversadosHoje.has(npcId)){
+    state.conversadosHoje.add(npcId);
+    state.npcsConversados.add(npcId);
+    npc.hearts = Math.min(5, npc.hearts+ (Math.random()<0.5?1:0));
+    updateQuestProgress('conversar', state.npcsConversados.size);
+  }
+
+  box.innerHTML = `
+    <div class="dlg-name">${npc.emoji} ${npc.nome}</div>
+    <div class="dlg-text">${fala}</div>
+    <div class="dlg-choices">
+      <button class="dlg-choice" id="dlg-close">[Encerrar conversa]</button>
+    </div>
+  `;
+  box.classList.add('show');
+  document.getElementById('dlg-close').addEventListener('click',()=>{
+    box.classList.remove('show');
+    renderSidepanel();
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TIME / DAY ADVANCE
+// ─────────────────────────────────────────────────────────────
+function advanceDay(){
+  // grow crops
+  state.plots.forEach(p=>{
+    if (p.crop && !p.ready){
+      const irrigado = state.tecnologias['tech_irrigador'] && p.tilled;
+      if (p.watered || irrigado){
+        p.growth += p.fertilizado ? 2 : 1;
+        const c = CROPS[p.crop];
+        if (p.growth>=c.dias) p.ready=true;
+      }
+      p.watered=false;
+    }
+  });
+
+  // Drone agrícola: colhe 1 cultivo maduro automaticamente
+  if (state.tecnologias['tech_drone_agricola']){
+    const pronto = state.plots.find(p=>p.crop && p.ready);
+    if (pronto){
+      const c = CROPS[pronto.crop];
+      state.inventario.colheitas[pronto.crop] = (state.inventario.colheitas[pronto.crop]||0)+1;
+      state.colheitasFeitas++;
+      ganharXP('agricultura', 4);
+      updateQuestProgress('colher', state.colheitasFeitas);
+      pronto.crop=null; pronto.growth=0; pronto.ready=false; pronto.watered=false;
+      toast('🛰️ Drone colheu automaticamente: '+c.emoji+' '+c.nome);
+    }
+  }
+
+  // animals: hunger decay, happiness, production
+  state.animais.forEach(a=>{
+    const t = ANIMAL_TYPES[a.tipo];
+    a.fome = Math.max(0, a.fome-30);
+    if (a.fome<=0) a.felicidade = Math.max(0, a.felicidade-15);
+    else a.felicidade = Math.min(100, a.felicidade+2);
+    if (a.fome>0){
+      a.diasDesdeProducao++;
+      if (a.diasDesdeProducao>=t.diasProducao){ a.pronto = true; }
+    }
+  });
+
+  // Coletor automático do curral
+  if (state.tecnologias['tech_coletor_automatico']){
+    state.animais.forEach(a=>{
+      if (a.pronto){
+        state.produtosAnimais[a.tipo] = (state.produtosAnimais[a.tipo]||0)+1;
+        a.pronto=false; a.diasDesdeProducao=0;
+      }
+    });
+  }
+
+  // Pontos de Pesquisa diários (laboratório + cientistas + escolha de tecnologia)
+  let pdGanho = state.buildings.laboratorio - 1; // nível 2+ gera PD
+  state.colonosEspecialistas.forEach(c=>{ if (c.tipo==='cientista') pdGanho += 1; });
+  if (state.rumoColonia==='tecnologia') pdGanho += 1;
+  if (pdGanho>0){ state.pesquisaPD += pdGanho; }
+
+  state.dia++;
+  state.hora=6;
+  state.energia = state.energiaMax;
+  state.conversadosHoje.clear();
+
+  // season change every 7 days
+  if ((state.dia-1)%7===0){
+    state.estacaoIdx = (state.estacaoIdx+1)%4;
+    toast('🌗 Nova estação: '+SEASONS[state.estacaoIdx]);
+  }
+
+  // random radiation storm
+  let radReducao = BUILDINGS.laboratorio.bonusRadReducao[state.buildings.laboratorio-1];
+  if (state.tecnologias['tech_purificador']) radReducao = Math.max(radReducao, 0.5);
+  if (state.tempestadeAtiva){
+    state.tempestadeAtiva=false;
+    state.tempestadeSobrevivida=true;
+    updateQuestProgress('tempestade',1);
+    toast('☢️ A tempestade passou.');
+  } else if (Math.random()<0.18*(1-radReducao)){
+    state.tempestadeAtiva=true;
+    let aumento = 25*(1-radReducao);
+    if (state.rumoColonia==='militar') aumento = 0;
+    state.radiacao = Math.min(100, state.radiacao + aumento);
+    toast('⚠️ Tempestade radioativa se aproxima! Fique no abrigo.', true);
+  } else {
+    state.radiacao = Math.max(0, state.radiacao - 5 - (radReducao*5));
+  }
+  if (state.tecnologias['tech_purificador']) state.radiacao = Math.min(state.radiacao, 30);
+
+  // Novo colono especialista via rádio
+  tentarNovoColono();
+
+  // Track peak caps + check milestones
+  if (state.caps > state.maiorCapsAcumulado) state.maiorCapsAcumulado = state.caps;
+  checkMarcos();
+
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────
+// KEYBOARD SHORTCUTS
+// ─────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  const tool = TOOLS.find(t=>t.key===e.key);
+  if (tool){ state.toolAtivo=tool.id; renderHotbar(); }
+});
+
+// ─────────────────────────────────────────────────────────────
+// TAB / PANEL BINDINGS
+// ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.sp-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{ activeTab=tab.dataset.tab; renderSidepanel(); });
+});
+document.getElementById('toggle-panel').addEventListener('click',()=>{
+  document.getElementById('sidepanel').classList.toggle('open');
+});
+
+// ─────────────────────────────────────────────────────────────
+// RENDER ALL
+// ─────────────────────────────────────────────────────────────
+function renderAll(){
+  renderTopbar();
+  renderFarm();
+  renderHotbar();
+  renderSidepanel();
+}
+
+// ─────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const loader=document.getElementById('loading-screen');
+    if (loader){ loader.classList.add('fade-out'); setTimeout(()=>loader.remove(),1300); }
+    renderAll();
+    toast('Bem-vindo ao Vale 111. A terra espera por você. 🌱');
+  },1700);
+});
+</script>
+</body>
+</html>
