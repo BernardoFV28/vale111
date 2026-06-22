@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,32 +6,24 @@
 <title>Vale 111: Colônia Verde</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════════════════
-   VALE 111: COLÔNIA VERDE
-   Farming sim pós-nuclear — Stardew Valley x Fallout
-   ═══════════════════════════════════════════════════════════ */
 :root{
-  /* ── Pip-Boy / HUD ── */
   --pip-green:#5fff8a;
   --pip-green-dim:#1f6b38;
   --pip-amber:#ffb000;
   --rad-yellow:#e8d000;
 
-  /* ── Terra & solo (tons quentes de terra) ── */
   --soil:#6b5238;
   --soil-dark:#3e2e1c;
   --soil-light:#8a6c48;
   --soil-tilled:#5a4228;
   --soil-wet:#3a2c18;
 
-  /* ── Vegetação / grama ── */
   --grass:#5a9456;
   --grass-dark:#3c6b3e;
   --grass-light:#7ab863;
   --crop-green:#6fae4a;
   --crop-green-dark:#3f7a2e;
 
-  /* ── Céu: dia / entardecer / noite / chuva ── */
   --sky-day:#a8d4dc;
   --sky-day2:#dff0d8;
   --sky-dusk:#e89a6c;
@@ -42,7 +33,6 @@
   --sky-rain:#5a6a78;
   --sky-rain2:#3a4854;
 
-  /* ── Madeira & pedra (painéis) ── */
   --wood:#9a7148;
   --wood-dark:#5e4326;
   --wood-light:#b88f5e;
@@ -50,7 +40,6 @@
   --stone-dark:#3a3a36;
   --rust:#a85a32;
 
-  /* ── Painéis / UI base ── */
   --panel:#22281f;
   --panel2:#2c3424;
   --panel-light:#3a4530;
@@ -58,12 +47,10 @@
   --border-bright:#5fff8a;
   --border-dark:#161c12;
 
-  /* ── Texto ── */
   --text:#dce8d0;
   --text-dim:#8a9a78;
   --text-bright:#f4ffec;
 
-  /* ── Iluminação / fogo / tocha ── */
   --torch-glow:#ffaa44;
   --torch-core:#ffe08a;
   --water-shine:#bdf0ff;
@@ -80,7 +67,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 ::-webkit-scrollbar-track{background:#0a0c08;}
 ::-webkit-scrollbar-thumb{background:var(--pip-green-dim);border:2px solid #0a0c08;}
 
-/* ── PIXEL BORDER: 4-corner notch using clip-path, gives a chunky retro panel edge ── */
 .pixel-frame{
   position:relative;
   border:3px solid var(--border);
@@ -101,7 +87,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   opacity:.6;
 }
 
-/* Pixel button: chunky 3D press effect like NES UI */
 .pixel-btn{
   position:relative;
   border:none;
@@ -126,7 +111,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 @keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
 @keyframes pixelPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 
-/* ═══ LOADING ═══ */
 #loading-screen{
   position:fixed;inset:0;z-index:9999;
   background:var(--soil-dark);
@@ -144,16 +128,13 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .load-fill{height:100%;background:repeating-linear-gradient(90deg, var(--pip-green) 0 6px, var(--pip-green-dim) 6px 12px);width:0%;animation:loadfill 1.7s steps(20) forwards;box-shadow:0 0 8px var(--pip-green);}
 @keyframes loadfill{to{width:100%}}
 
-/* ═══ SCANLINE OVERLAY ═══ */
 #scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;
   background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,20,5,.06) 3px,rgba(0,0,0,0) 4px);
   mix-blend-mode:overlay;opacity:.5;
 }
 
-/* ═══ ROOT LAYOUT ═══ */
 #app{position:fixed;inset:0;display:flex;flex-direction:column;}
 
-/* TOPBAR */
 #topbar{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:8px 14px;background:var(--panel2);
@@ -170,12 +151,8 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 #daynight-icon{font-size:18px;}
 .title-bit{font-family:var(--font-pixel);font-size:10px;color:var(--pip-amber);letter-spacing:2px;text-shadow:2px 2px 0 #000;}
 
-/* MAIN AREA */
 #main{flex:1;display:flex;overflow:hidden;position:relative;}
 
-/* ═══════════════════════════════════════════════════
-   FARM VIEW — céu, clima, estações, iluminação
-   ═══════════════════════════════════════════════════ */
 #farm-view{flex:1;position:relative;overflow:auto;background:var(--soil-dark);}
 
 #farm-bg{
@@ -184,13 +161,11 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   transition:background 1.8s ease;
   image-rendering:pixelated;
 }
-/* dithering / scanline texture sobre o céu e o solo */
 #farm-bg::after{
   content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
   background-image:repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 3px, transparent 3px 6px);
   mix-blend-mode:multiply;
 }
-/* "sol/lua" pixelado fixo no céu */
 #farm-bg::before{
   content:'';position:absolute;top:6%;left:12%;width:46px;height:46px;
   background:var(--torch-core);
@@ -200,18 +175,15 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   z-index:1;
 }
 
-/* ── ENTARDECER ── */
 #farm-bg.dusk{background:linear-gradient(180deg, var(--sky-dusk) 0%, var(--sky-dusk2) 26%, var(--grass-dark) 26%, var(--grass-dark) 32%, var(--soil) 32%, var(--soil-dark) 100%);}
 #farm-bg.dusk::before{background:var(--torch-glow);top:14%;left:62%;box-shadow:0 0 0 8px rgba(255,170,68,.25),0 0 30px 12px rgba(255,120,60,.35);}
 
-/* ── NOITE ── */
 #farm-bg.night{background:linear-gradient(180deg, var(--sky-night) 0%, var(--sky-night2) 26%, #1c2a1c 26%, var(--grass-dark) 32%, var(--soil-dark) 32%, #1a120a 100%);}
 #farm-bg.night::before{
   background:#dfe6f0;width:30px;height:30px;top:8%;left:75%;
   box-shadow:0 0 0 5px rgba(220,230,255,.12),0 0 18px 8px rgba(180,200,255,.18);
   clip-path:circle(50%);
 }
-/* luz quente de "janelas/tochas" da colônia, visível só de noite */
 #farm-bg.night::after{
   background-image:
     repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 3px, transparent 3px 6px),
@@ -227,7 +199,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   78%{opacity:.9;}
 }
 
-/* ── CHUVA (classe opcional 'rain', preparada para uso futuro sem quebrar nada) ── */
 #farm-bg.rain{background:linear-gradient(180deg, var(--sky-rain) 0%, var(--sky-rain2) 26%, var(--grass-dark) 26%, var(--grass-dark) 32%, var(--soil-wet) 32%, var(--soil-dark) 100%);}
 #farm-bg.rain::before{opacity:.2;}
 #farm-bg.rain .rain-layer{display:block;}
@@ -238,7 +209,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 }
 @keyframes rainFall{from{background-position:0 0;}to{background-position:-40px 60px;}}
 
-/* ── GRAMA ANIMADA AO VENTO ── */
 .grass-band{
   position:absolute;left:0;right:0;top:26%;height:6%;z-index:2;pointer-events:none;
   background-image:repeating-linear-gradient(90deg,
@@ -255,7 +225,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 #farm-bg.night .grass-band{filter:brightness(.55);}
 #farm-bg.dusk .grass-band{filter:brightness(.8) saturate(1.1);}
 
-/* ── PARTÍCULAS: folhas e poeira flutuantes ── */
 .ambient-particles{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;}
 .leaf-particle{
   position:absolute;font-size:10px;opacity:.55;
@@ -275,9 +244,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .leaf-particle:nth-child(5){left:88%;animation-duration:22s; animation-delay:13s;}
 .leaf-particle:nth-child(6){left:40%;animation-duration:30s; animation-delay:6s;}
 
-/* ═══════════════════════════════════════════════════
-   GRID DA FAZENDA
-   ═══════════════════════════════════════════════════ */
 #farm-grid{
   position:relative;z-index:5;
   display:grid;
@@ -336,12 +302,8 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   100%{transform:scale(1) translateY(0);opacity:1;}
 }
 .float-text{position:absolute;font-family:var(--font-pixel);font-size:9px;color:var(--pip-green);pointer-events:none;animation:floatUp 1s ease-out forwards;white-space:nowrap;z-index:50;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;}
-
-/* RAD STORM overlay */
 #radstorm-overlay{position:fixed;inset:0;z-index:8500;pointer-events:none;display:none;}
 #radstorm-overlay.active{display:block;animation:geigerFlash 1.4s infinite;background:linear-gradient(180deg,rgba(232,208,0,.05),rgba(95,255,138,.03));}
-
-/* SIDE PANEL */
 #sidepanel{
   width:280px;min-width:280px;background:var(--panel);border-left:4px solid var(--border);
   display:flex;flex-direction:column;overflow:hidden;
@@ -372,7 +334,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .sp-btn.amber{background:#5a3c00;color:var(--pip-amber);border-color:var(--pip-amber);}
 .sp-btn.amber:hover{background:var(--pip-amber);color:#1a0e00;}
 
-/* HOTBAR */
 #hotbar{
   display:flex;gap:6px;justify-content:center;padding:8px;
   background:var(--panel2);border-top:4px solid var(--border);
@@ -388,7 +349,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .hot-slot .qty{position:absolute;bottom:1px;right:3px;font-family:var(--font-mono);font-size:9px;color:var(--pip-amber);text-shadow:1px 1px 0 #000;}
 .hot-slot .key{position:absolute;top:1px;left:3px;font-size:7px;color:var(--text-dim);font-family:var(--font-mono);}
 
-/* MODALS */
 .modal-overlay{
   position:fixed;inset:0;z-index:8000;background:rgba(8,12,8,.85);
   display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;
@@ -401,8 +361,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 }
 .modal-title{font-family:var(--font-pixel);font-size:13px;color:var(--pip-green);letter-spacing:2px;margin-bottom:10px;text-shadow:2px 2px 0 #000,0 0 6px rgba(95,255,138,.4);}
 .modal-close{position:sticky;float:right;top:0;font-family:var(--font-pixel);font-size:10px;color:var(--text-dim);}
-
-/* DIALOGUE BOX */
 #dialogue-box{
   position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
   width:min(620px,92vw);background:var(--panel);border:3px solid var(--pip-amber);
@@ -423,7 +381,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .dlg-choice:hover{border-color:var(--pip-green);color:var(--pip-green);background:#1a2818;}
 .dlg-choice:active{transform:translate(1px,1px);box-shadow:1px 1px 0 0 rgba(0,0,0,.4);}
 
-/* TOASTS */
 #toast-stack{position:fixed;top:60px;right:14px;z-index:9100;display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
 .toast{
   font-family:var(--font-term);font-size:13px;background:var(--panel);border:2px solid var(--pip-green-dim);
@@ -434,7 +391,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .toast.warn{border-left-color:var(--rad-yellow);}
 .toast.fade{animation:toastOut .4s ease forwards;}
 
-/* NPC LIST */
 .npc-card{display:flex;gap:8px;align-items:center;background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;cursor:pointer;transition:.1s;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 .npc-card:hover{border-color:var(--pip-amber);transform:translate(-1px,-1px);box-shadow:3px 3px 0 0 rgba(0,0,0,.4);}
 .npc-emoji{font-size:24px;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
@@ -449,7 +405,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .bar-outer{height:9px;background:#000;border:2px solid var(--border);overflow:hidden;}
 .bar-inner{height:100%;transition:width .4s ease;background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 3px, transparent 3px 6px);}
 
-/* RESPONSIVE */
 @media (max-width:760px){
   #sidepanel{position:fixed;right:0;top:46px;bottom:74px;transform:translateX(100%);transition:transform .25s ease;z-index:6000;box-shadow:-6px 0 0 0 #000;}
   #sidepanel.open{transform:translateX(0);}
@@ -457,9 +412,121 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .tb-value{font-size:13px;}
   #toggle-panel{display:flex !important;}
 }
-#toggle-panel{display:none;font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);background:var(--panel2);border:2px solid var(--pip-green-dim);padding:6px 8px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 
-/* ═══ ANIMAIS / CONSTRUÇÕES / SKILLS ═══ */
+/* === LANDSCAPE MOBILE === */
+@media (max-height:500px) and (orientation:landscape){
+  #topbar{
+    padding:3px 8px;
+    border-bottom-width:2px;
+  }
+  .tb-item{padding:1px 5px;}
+  .tb-label{font-size:6px;}
+  .tb-value{font-size:12px;}
+  .title-bit{font-size:8px;}
+  #toggle-panel{font-size:7px;padding:4px 6px;}
+
+  #sidepanel{
+    position:fixed;right:0;top:34px;bottom:56px;
+    width:220px;min-width:220px;
+    transform:translateX(100%);transition:transform .25s ease;z-index:6000;
+  }
+  #sidepanel.open{transform:translateX(0);}
+
+  #farm-view{overflow:auto;}
+  #farm-grid{
+    grid-template-columns:repeat(8,1fr);
+    max-width:none;
+    margin-top:2vh;
+    padding:6px;
+    gap:2px;
+  }
+  .plot{font-size:14px;}
+  .plot .growth-bar{height:3px;}
+
+  #hotbar{
+    padding:4px 6px;
+    gap:4px;
+  }
+  .hot-slot{width:38px;height:38px;font-size:16px;}
+  .hot-slot .key{font-size:6px;}
+  .hot-slot .qty{font-size:8px;}
+
+  #dialogue-box{
+    bottom:60px;
+    width:min(500px,96vw);
+    padding:8px;
+  }
+  .dlg-text{font-size:13px;}
+
+  #toast-stack{top:38px;right:8px;}
+  .toast{font-size:11px;padding:5px 8px;max-width:200px;}
+
+  .modal-box{max-height:90vh;}
+
+  .sp-tab{font-size:7px;padding:5px 3px;}
+  #sp-content{padding:6px;}
+  .sp-card{padding:5px;margin-bottom:4px;font-size:12px;}
+}
+
+/* === EVENT MODAL === */
+#event-modal{
+  position:fixed;inset:0;z-index:8800;background:rgba(4,8,4,.9);
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeIn .25s ease;
+}
+#event-modal.hidden{display:none;}
+.event-modal-box{
+  background:var(--panel);border:3px solid var(--pip-amber);
+  box-shadow:inset 0 0 0 2px #000, 8px 8px 0 0 rgba(0,0,0,.6), 0 0 30px rgba(255,176,0,.15);
+  width:min(560px,94vw);max-height:88vh;overflow-y:auto;
+  padding:0;animation:slideUp .3s ease;
+}
+.ev-header{
+  background:linear-gradient(135deg,#2a1f00,#1a2810);
+  border-bottom:3px solid var(--pip-amber);
+  padding:14px 16px;display:flex;align-items:center;gap:10px;
+}
+.ev-icon{font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+.ev-title-block{flex:1;}
+.ev-tag{font-family:var(--font-pixel);font-size:7px;letter-spacing:2px;color:var(--pip-amber);opacity:.75;margin-bottom:3px;}
+.ev-title{font-family:var(--font-pixel);font-size:11px;color:var(--text-bright);letter-spacing:1px;text-shadow:2px 2px 0 #000,0 0 8px rgba(255,220,100,.3);line-height:1.5;}
+.ev-day{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+.ev-body{padding:14px 16px;}
+.ev-desc{
+  font-family:var(--font-term);font-size:16px;line-height:1.6;
+  color:var(--text-bright);margin-bottom:14px;
+  border-left:4px solid var(--pip-amber);padding-left:10px;
+}
+.ev-choices{display:flex;flex-direction:column;gap:8px;}
+.ev-choice{
+  background:var(--panel2);border:2px solid var(--border);
+  padding:10px 12px;text-align:left;
+  font-family:var(--font-term);font-size:15px;color:var(--text);
+  transition:border-color .1s,background .1s,transform .08s;
+  box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
+  position:relative;
+}
+.ev-choice:hover{border-color:var(--pip-green);background:#182214;color:var(--pip-green);transform:translate(-1px,-1px);box-shadow:3px 3px 0 0 rgba(0,0,0,.4);}
+.ev-choice:active{transform:translate(1px,1px);box-shadow:1px 1px 0 0 rgba(0,0,0,.4);}
+.ev-choice-label{font-family:var(--font-pixel);font-size:7px;letter-spacing:1px;color:var(--pip-amber);display:block;margin-bottom:3px;}
+.ev-consequence{
+  font-size:11px;color:var(--text-dim);margin-top:3px;display:block;
+  font-family:var(--font-mono);letter-spacing:.5px;
+}
+.ev-consequence.pos{color:var(--pip-green);}
+.ev-consequence.neg{color:#ff7777;}
+.ev-consequence.neu{color:var(--pip-amber);}
+
+@media (max-height:500px) and (orientation:landscape){
+  .event-modal-box{width:min(560px,98vw);max-height:95vh;}
+  .ev-header{padding:8px 12px;}
+  .ev-icon{font-size:24px;}
+  .ev-title{font-size:9px;}
+  .ev-body{padding:8px 12px;}
+  .ev-desc{font-size:14px;margin-bottom:8px;}
+  .ev-choice{padding:7px 10px;font-size:13px;}
+}
+#toggle-panel{display:none;font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);background:var(--panel2);border:2px solid var(--pip-green-dim);padding:6px 8px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 .animal-card{display:flex;gap:8px;align-items:center;background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 .animal-emoji{font-size:26px;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
 .animal-info{flex:1;}
@@ -488,7 +555,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   text-align:center;
 }
 
-/* ═══ COLÔNIA / TECH TREE / LEGADO ═══ */
 .tech-node{
   background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;
   transition:.1s;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);
@@ -532,7 +598,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 
 <div id="loading-screen">
   <div class="load-logo">VALE 111<br><span style="font-size:9px;color:var(--pip-amber);">COLÔNIA VERDE</span></div>
-  <div class="load-sub">Inicializando módulo agrícola...</div>
+  <div class="load-sub">Plante sobreviva e seja feliz  </div>
   <div class="load-bar"><div class="load-fill"></div></div>
 </div>
 
@@ -540,9 +606,9 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 <div id="radstorm-overlay"></div>
 <div id="toast-stack"></div>
 <div id="dialogue-box"></div>
+<div id="event-modal" class="hidden"></div>
 
 <div id="app">
-  <!-- TOPBAR -->
   <div id="topbar">
     <div class="tb-group">
       <span class="title-bit">VALE 111</span>
@@ -551,14 +617,12 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
       <div class="tb-item"><span class="tb-label">ESTAÇÃO</span><span class="tb-value amber" id="hud-season">VERÃO RADIOATIVO</span></div>
     </div>
     <div class="tb-group">
-      <div class="tb-item"><span class="tb-label">TAMPINHAS</span><span class="tb-value amber" id="hud-caps">100</span></div>
+      <div class="tb-item"><span class="tb-label">TAMPAS</span><span class="tb-value amber" id="hud-caps">100</span></div>
       <div class="tb-item"><span class="tb-label">ENERGIA</span><span class="tb-value" id="hud-energy">100/100</span></div>
       <div class="tb-item"><span class="tb-label">RADIAÇÃO</span><span class="tb-value rad" id="hud-rad">0%</span></div>
       <button id="toggle-panel">☰ PAINEL</button>
     </div>
   </div>
-
-  <!-- MAIN -->
   <div id="main">
     <div id="farm-view">
       <div id="farm-bg"></div>
@@ -571,7 +635,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
         <button class="sp-tab" data-tab="loja">EMPÓRIO</button>
         <button class="sp-tab" data-tab="abrigo">ABRIGO</button>
         <button class="sp-tab" data-tab="animais">CURRAL</button>
-        <button class="sp-tab" data-tab="construcoes">SETOR</button>
+        <button class="sp-tab" data-tab="construcoes">SETORES</button>
         <button class="sp-tab" data-tab="habilidades">PERÍCIAS</button>
         <button class="sp-tab" data-tab="colonia">COLÔNIA</button>
       </div>
@@ -579,42 +643,37 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
     </div>
   </div>
 
-  <!-- HOTBAR -->
   <div id="hotbar"></div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// VALE 111 — COLÔNIA VERDE
-// Farming sim pós-nuclear (Stardew Valley × Fallout)
-// ═══════════════════════════════════════════════════════════════
 
-const SEASONS = ['VERÃO RADIOATIVO','OUTONO DE CINZAS','INVERNO NUCLEAR','PRIMAVERA MUTANTE'];
-const SEASON_EMOJI = ['☢️','🍂','❄️','🌱'];
+const SEASONS = ['VERÃO ','OUTONO ','INVERNO ','PRIMAVERA '];
+const SEASON_EMOJI = ['☢️','☢️','☢️','☢️'];
 
 const CROPS = {
-  cenoura_mut: {nome:'Cenoura Mutante', emoji:'🥕', plantEmoji:'🌱', dias:3, custo:8, venda:22, seasons:[0,3]},
-  batata_glow: {nome:'Batata Glow', emoji:'🥔', plantEmoji:'🌱', dias:4, custo:12, venda:30, seasons:[0,1,3]},
-  milho_rad: {nome:'Milho Radioativo', emoji:'🌽', plantEmoji:'🌿', dias:5, custo:18, venda:45, seasons:[0,1]},
-  cogu_brilhante: {nome:'Cogumelo Brilhante', emoji:'🍄', plantEmoji:'🍄', dias:2, custo:15, venda:35, seasons:[1,2,3]},
-  tomate_verde: {nome:'Tomate Verdejante', emoji:'🍅', plantEmoji:'🌱', dias:4, custo:14, venda:38, seasons:[0,3]},
-  trigo_cinza: {nome:'Trigo das Cinzas', emoji:'🌾', plantEmoji:'🌾', dias:3, custo:6, venda:16, seasons:[1,2]},
+  cenoura_mut: {nome:'Cenoura Mutante', emoji:'☢️', plantEmoji:'☢️', dias:3, custo:8, venda:22, seasons:[0,3]},
+  batata_glow: {nome:'Batata Glow', emoji:'☢️', plantEmoji:'☢️', dias:4, custo:12, venda:30, seasons:[0,1,3]},
+  milho_rad: {nome:'Milho Radioativo', emoji:'☢️', plantEmoji:'☢️', dias:5, custo:22, venda:45, seasons:[0,1]},
+  cogu_brilhante: {nome:'Cogumelo Brilhante', emoji:'☢️', plantEmoji:'☢️', dias:2, custo:15, venda:35, seasons:[1,2,3]},
+  tomate_verde: {nome:'Tomate Verdejante', emoji:'☢️', plantEmoji:'☢️', dias:4, custo:14, venda:38, seasons:[0,3]},
+  trigo_cinza: {nome:'Trigo das Cinzas', emoji:'☢️', plantEmoji:'☢️', dias:3, custo:6, venda:16, seasons:[1,2]},
 };
 
 const NPCS = [
-  {id:'rusty', nome:'Rusty', emoji:'🤖', profissao:'Robô-Comerciante', personalidade:'Sarcástico e prestativo', hearts:0,
+  {id:'rusty', nome:'Rusty', emoji:'☢️', profissao:'Robô-Comerciante', personalidade:'Sarcástico e prestativo', hearts:0,
     falas:['Bip-bop. Mais um colono tentando plantar em solo radioativo. Que otimismo encantador.',
            'Detectei 47% de chance de você fazer algo estúpido hoje. Boa sorte mesmo assim.',
            'Trouxe sementes do antigo depósito. Não pergunte de onde vieram exatamente.']},
-  {id:'mara', nome:'Mara', emoji:'👩‍🌾', profissao:'Agricultora Veterana', personalidade:'Calorosa, sábia', hearts:0,
+  {id:'mara', nome:'Mara', emoji:'☢️', profissao:'Agricultora Veterana', personalidade:'Calorosa, sábia', hearts:0,
     falas:['As terras aqui eram um deserto há cinco anos. Olha só agora — verde de novo.',
            'Cogumelos brilhantes crescem melhor à noite. Aprendi isso da pior maneira possível.',
            'Cada plantação que cresce é uma vitória contra o que aconteceu lá fora.']},
-  {id:'duke', nome:'Duque Ferro', emoji:'🧔', profissao:'Líder da Colônia', personalidade:'Firme, protetor', hearts:0,
+  {id:'duke', nome:'Duque Ferro', emoji:'☢️', profissao:'Líder da Colônia', personalidade:'Firme, protetor', hearts:0,
     falas:['Bem-vindo ao Vale 111. Aqui dentro, reconstruímos. Lá fora... é melhor não saber.',
            'Precisamos de comida, colono. Cada colheita sua alimenta mais uma família.',
            'As tempestades radioativas estão piores este ano. Mantenha-se abrigado quando vierem.']},
-  {id:'pip', nome:'Pip', emoji:'🐶', profissao:'Cão Mutante', personalidade:'Leal, curioso', hearts:0,
+  {id:'pip', nome:'Pip', emoji:'☢️', profissao:'Cão Mutante', personalidade:'Leal, curioso', hearts:0,
     falas:['*Pip cheira a terra recém-arada com entusiasmo suspeito*',
            '*Pip encontrou uma tampinha de refrigerante e a entrega orgulhosamente*',
            '*Pip late para uma barata gigante e depois finge que não viu nada*']},
@@ -626,6 +685,15 @@ const QUESTS = [
   {id:'q3', titulo:'Mercador de Tampinhas', desc:'Acumule 300 tampinhas vendendo colheitas.', meta:'tampinhas', alvo:300, recompensa:{caps:100, sementes:5}, completa:false, ativa:false},
   {id:'q4', titulo:'Sobrevivente da Tempestade', desc:'Sobreviva a uma tempestade radioativa sem sair do abrigo.', meta:'tempestade', alvo:1, recompensa:{caps:120}, completa:false, ativa:false},
   {id:'q5', titulo:'Expansão do Vale', desc:'Desbloqueie 8 novas parcelas de terra.', meta:'expandir', alvo:8, recompensa:{caps:150, energiaMax:20}, completa:false, ativa:false},
+  {id:'q6', titulo:'Mãos à Obra', desc:'Construa 3 estruturas no abrigo.', meta:'construir', alvo:3, recompensa:{caps:90, madeira:20}, completa:false, ativa:false},
+  {id:'q7', titulo:'Explorador do Deserto', desc:'Realize 5 expedições fora do vale.', meta:'expedicao', alvo:5, recompensa:{caps:140, energia:30}, completa:false, ativa:false},
+  {id:'q8', titulo:'Mestre da Irrigação', desc:'Instale 4 sistemas de irrigação.', meta:'irrigacao', alvo:4, recompensa:{caps:120, sementes:8}, completa:false, ativa:false},
+  {id:'q9', titulo:'Banquete Nuclear', desc:'Colha 15 alimentos no total.', meta:'colher_total', alvo:15, recompensa:{caps:160, energia:25}, completa:false, ativa:false},
+  {id:'q10', titulo:'Engenheiro do Abrigo', desc:'Melhore qualquer construção 2 vezes.', meta:'upgrade', alvo:2, recompensa:{caps:180, metal:15}, completa:false, ativa:false},
+  {id:'q11', titulo:'Energia Restabelecida', desc:'Recarregue 100 pontos de energia.', meta:'energia_rec', alvo:100, recompensa:{caps:100, bateria:2}, completa:false, ativa:false},
+  {id:'q12', titulo:'Caçador de Sucata', desc:'Colete 50 unidades de sucata.', meta:'sucata', alvo:50, recompensa:{caps:170, metal:25}, completa:false, ativa:false},
+  {id:'q13', titulo:'Defensor do Vale', desc:'Derrote 10 criaturas hostis.', meta:'combate', alvo:10, recompensa:{caps:200, energiaMax:15}, completa:false, ativa:false},
+  {id:'q14', titulo:'Lenda do Refúgio', desc:'Alcance o nível 10 de reputação.', meta:'reputacao', alvo:10, recompensa:{caps:300, sementes:15, energiaMax:30}, completa:false, ativa:false},
 ];
 
 const SHOP_ITEMS = [
@@ -645,9 +713,6 @@ const SHOP_ITEMS = [
   {id:'cabra', nome:'Cabra de Duas Cabeças (filhote)', emoji:'🐐', preco:300, tipo:'animal', animalKey:'cabra'},
 ];
 
-// ─────────────────────────────────────────────────────────────
-// ANIMAIS
-// ─────────────────────────────────────────────────────────────
 const ANIMAL_TYPES = {
   galinha: {nome:'Galinha Mutante', emoji:'🐔', produto:'Ovo Brilhante', produtoEmoji:'🥚', producaoBase:30, diasProducao:1, custoEspaco:1},
   vaca:    {nome:'Vaca Brahmin',    emoji:'🐄', produto:'Leite Radioso', produtoEmoji:'🥛', producaoBase:80, diasProducao:1, custoEspaco:4},
@@ -655,9 +720,6 @@ const ANIMAL_TYPES = {
 };
 const CELEIRO_CAPACIDADE = [4, 8, 14, 22]; // por nível
 
-// ─────────────────────────────────────────────────────────────
-// CONSTRUÇÕES
-// ─────────────────────────────────────────────────────────────
 const BUILDINGS = {
   casa: {
     nome:'Casa do Colono', emoji:'🏠', maxLevel:3,
@@ -683,10 +745,6 @@ const BUILDINGS = {
     bonusRadReducao:[0,0.3,0.6,0.9],
   },
 };
-
-// ─────────────────────────────────────────────────────────────
-// HABILIDADES
-// ─────────────────────────────────────────────────────────────
 const SKILLS = {
   agricultura: {nome:'Agricultura', emoji:'🌾', xp:0, nivel:1,
     perks:['Nível 2: +10% chance de colheita de Qualidade Alta','Nível 3: -10% energia ao usar ferramentas em plantações','Nível 5: Colheitas têm chance de dobrar (Qualidade Mutante)']},
@@ -711,10 +769,6 @@ function ganharXP(skillKey, qtd){
     toast('⭐ '+SKILLS[skillKey].nome+' subiu para o nível '+sk.nivel+'!');
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-// EVOLUÇÃO DA COLÔNIA: TIERS, ÁRVORE TECNOLÓGICA, LEGADO, MARCOS
-// ─────────────────────────────────────────────────────────────
 const COLONY_TIERS = [
   {nome:'Acampamento de Sobreviventes', emoji:'⛺', minPontos:0,
     desc:'Algumas barracas improvisadas em volta de uma fogueira. O Abrigo 111 é pouco mais que um buraco fortificado.'},
@@ -727,10 +781,7 @@ const COLONY_TIERS = [
   {nome:'Nova Civilização do Vale', emoji:'🌆', minPontos:60,
     desc:'O Vale 111 tornou-se um farol pós-nuclear: arquitetura reconstruída, tecnologia restaurada e uma sociedade próspera nasce das cinzas.'},
 ];
-
-// Pesquisa: pontos de pesquisa (PD) são gerados por laboratório + ação de colonos cientistas
 const TECH_TREE = [
-  // ── Agricultura ──
   {id:'tech_irrigador', nome:'Irrigador Automático', emoji:'💧', categoria:'Agricultura',
     desc:'Constrói irrigadores que regam parcelas adjacentes automaticamente todas as manhãs.', custo:6, req:[]},
   {id:'tech_drone_agricola', nome:'Drone Agrícola', emoji:'🛰️', categoria:'Agricultura',
@@ -739,8 +790,6 @@ const TECH_TREE = [
     desc:'Permite plantar em qualquer estação, ignorando restrições sazonais.', custo:10, req:['tech_irrigador']},
   {id:'tech_fertilizante_avancado', nome:'Fertilizante Sintético II', emoji:'🧪', categoria:'Agricultura',
     desc:'Fertilizantes agora dobram a chance de Qualidade Alta/Mutante.', custo:18, req:['tech_estufa','tech_drone_agricola']},
-
-  // ── Engenharia ──
   {id:'tech_coletor_solar', nome:'Coletor Solar', emoji:'☀️', categoria:'Engenharia',
     desc:'Reduz o custo de energia de TODAS as ferramentas em 15% adicional.', custo:8, req:[]},
   {id:'tech_reciclagem', nome:'Estação de Reciclagem', emoji:'♻️', categoria:'Engenharia',
@@ -749,8 +798,6 @@ const TECH_TREE = [
     desc:'Produtos animais prontos são coletados automaticamente todos os dias.', custo:16, req:['tech_reciclagem']},
   {id:'tech_purificador', nome:'Purificador de Radiação', emoji:'🌬️', categoria:'Engenharia',
     desc:'A radiação ambiental nunca passa de 30%, mesmo em tempestades.', custo:22, req:['tech_coletor_solar','tech_reciclagem']},
-
-  // ── Sociedade ──
   {id:'tech_radio', nome:'Torre de Rádio', emoji:'📡', categoria:'Sociedade',
     desc:'Atrai novos colonos para o Vale com mais frequência.', custo:7, req:[]},
   {id:'tech_escola', nome:'Escola de Campo', emoji:'📘', categoria:'Sociedade',
@@ -761,7 +808,6 @@ const TECH_TREE = [
     desc:'Desbloqueia escolhas de rumo da colônia (Tecnologia, Natureza ou Poder Militar).', custo:24, req:['tech_escola','tech_mercado']},
 ];
 
-// Colonos especialistas que podem se juntar à colônia
 const COLONO_TIPOS = [
   {tipo:'agricultor', nome:'Agricultor', emoji:'👨‍🌾',
     bonus:'+1 Perícia de Agricultura inicial e +5% chance de Qualidade Alta nas colheitas.',
@@ -789,7 +835,6 @@ const COLONO_TIPOS = [
       'Esse vale é nosso agora. Ninguém vai tirá-lo de nós.']},
 ];
 
-// Marcos históricos da colônia
 const MILESTONES = [
   {id:'m_primeira_colheita', titulo:'Primeira Colheita do Vale', desc:'Colha seu primeiro cultivo.', check:s=>s.colheitasFeitas>=1, pontos:1, recompensa:{caps:30}},
   {id:'m_primeiro_animal', titulo:'Primeiro Habitante do Curral', desc:'Adquira seu primeiro animal.', check:s=>s.animais.length>=1, pontos:1, recompensa:{caps:30}},
@@ -807,9 +852,10 @@ const MILESTONES = [
   {id:'m_5000caps', titulo:'Magnata das Tampinhas', desc:'Acumule 5000 tampinhas em algum momento.', check:s=>s.maiorCapsAcumulado>=5000, pontos:4, recompensa:{caps:0}},
   {id:'m_30dias', titulo:'Um Mês no Vale', desc:'Sobreviva 30 dias.', check:s=>s.dia>=30, pontos:3, recompensa:{caps:100}},
   {id:'m_100dias', titulo:'A Nova Geração', desc:'Sobreviva 100 dias.', check:s=>s.dia>=100, pontos:6, recompensa:{caps:300, energiaMax:10}},
+  {id:'m_200dias', titulo:'A Segunda Nova Geração', desc:'Sobreviva 200 dias.', check:s=>s.dia>=200, pontos:12, recompensa:{caps:3000, energiaMax:30}},
+
 ];
 
-// Pontos de Legado: somam-se ao total para calcular Tier da colônia
 function calcularPontosColonia(){
   let pts = 0;
   state.marcosCompletos.forEach(id=>{
@@ -826,12 +872,6 @@ function getColonyTier(){
   for (const t of COLONY_TIERS){ if (pts >= t.minPontos) tier = t; }
   return tier;
 }
-
-
-
-// ─────────────────────────────────────────────────────────────
-// ESTADO
-// ─────────────────────────────────────────────────────────────
 const TOTAL_PLOTS = 32;
 const UNLOCKED_START = 12;
 
@@ -858,13 +898,12 @@ let state = {
   buildings: { casa:1, celeiro:1, oficina:1, laboratorio:1 },
   skills: JSON.parse(JSON.stringify(SKILLS)),
   produtosAnimais: {},
-  // ── Evolução da colônia ──
   pesquisaPD: 0,
   tecnologias: {},
   marcosCompletos: [],
   colonosEspecialistas: [],
   maiorCapsAcumulado: 100,
-  rumoColonia: null, // 'tecnologia' | 'natureza' | 'militar'
+  rumoColonia: null, // 'tecnologia' 'natureza''militar'
 };
 
 for (let i=0;i<TOTAL_PLOTS;i++){
@@ -878,10 +917,6 @@ const TOOLS = [
   {id:'plantar', emoji:'🌱', nome:'Plantar', key:'4'},
   {id:'fertilizar', emoji:'🧪', nome:'Fertilizar', key:'5'},
 ];
-
-// ─────────────────────────────────────────────────────────────
-// UTIL
-// ─────────────────────────────────────────────────────────────
 function toast(msg, warn=false){
   const stack = document.getElementById('toast-stack');
   const t = document.createElement('div');
@@ -905,10 +940,6 @@ function fmtTime(h){
   const mm = Math.floor((h%1)*60);
   return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
 }
-
-// ─────────────────────────────────────────────────────────────
-// RENDER: TOPBAR
-// ─────────────────────────────────────────────────────────────
 function renderTopbar(){
   document.getElementById('hud-day').textContent = state.dia;
   document.getElementById('hud-time').textContent = fmtTime(state.hora);
@@ -931,10 +962,6 @@ function renderTopbar(){
   const titleEl = document.querySelector('.title-bit');
   if (titleEl) titleEl.textContent = tier.emoji+' VALE 111';
 }
-
-// ─────────────────────────────────────────────────────────────
-// RENDER: FARM GRID
-// ─────────────────────────────────────────────────────────────
 function renderFarm(){
   const grid = document.getElementById('farm-grid');
   grid.innerHTML='';
@@ -965,10 +992,6 @@ function renderFarm(){
     grid.appendChild(el);
   });
 }
-
-// ─────────────────────────────────────────────────────────────
-// PLOT INTERACTION
-// ─────────────────────────────────────────────────────────────
 function spendEnergy(amount){
   if (state.energia < amount){ toast('Energia insuficiente! Descanse no Abrigo.', true); return false; }
   state.energia = Math.max(0, state.energia - amount);
@@ -983,7 +1006,7 @@ function handlePlotClick(p, el){
 
   switch(state.toolAtivo){
     case 'enxada':
-      if (p.tilled){ toast('Já está arado.'); return; }
+      if (p.tilled){ toast('Já está arado. quer cavar um poço meu fi?'); return; }
       if (!spendEnergy(Math.ceil(3*energiaMult))) return;
       p.tilled = true;
       floatText(el,'+arado');
@@ -991,7 +1014,7 @@ function handlePlotClick(p, el){
 
     case 'rega':
       if (!p.tilled){ toast('Are a terra primeiro.'); return; }
-      if (p.watered){ toast('Já está regado.'); return; }
+      if (p.watered){ toast('Já está regado vai mata a plantinha piá.'); return; }
       if (!spendEnergy(Math.ceil(2*energiaMult))) return;
       p.watered = true;
       floatText(el,'💧');
@@ -999,9 +1022,9 @@ function handlePlotClick(p, el){
 
     case 'plantar': {
       if (!p.tilled){ toast('Are a terra primeiro.'); return; }
-      if (p.crop){ toast('Já há um cultivo aqui.'); return; }
+      if (p.crop){ toast('Já há um cultivo aqui. aqui não é condomínio para plantar tudo junto?'); return; }
       const sementeKey = getSelectedSeed();
-      if (!sementeKey){ toast('Você não tem sementes. Visite o Empório.', true); return; }
+      if (!sementeKey){ toast('Você não tem sementes piá. Visite o Empório.', true); return; }
       if (!spendEnergy(Math.ceil(2*energiaMult))) return;
       p.crop = sementeKey; p.growth = 0; p.ready=false; p.fertilizado = !!state.toolFertilizar;
       state.inventario.sementes[sementeKey]--;
@@ -1016,8 +1039,8 @@ function handlePlotClick(p, el){
     }
 
     case 'fertilizar':
-      if (!p.tilled || !p.crop){ toast('Plante algo primeiro.'); return; }
-      if (p.fertilizado){ toast('Já fertilizado.'); return; }
+      if (!p.tilled || !p.crop){ toast('Plante algo primeiro meu fi.'); return; }
+      if (p.fertilizado){ toast('Já fertilizado.subiu até o cheirin'); return; }
       if (!(state.inventario.fertilizante>0)){ toast('Sem fertilizante. Compre no Empório.', true); return; }
       state.inventario.fertilizante--;
       p.fertilizado = true;
@@ -1030,7 +1053,6 @@ function handlePlotClick(p, el){
       if (!spendEnergy(1)) return;
       {
         const c = CROPS[p.crop];
-        // quality roll, boosted by agricultura skill and fertilizante
         const agriLvl = state.skills.agricultura.nivel;
         let qtd = 1;
         let qualidade = 'Normal';
@@ -1063,14 +1085,9 @@ function handlePlotClick(p, el){
 function getSelectedSeed(){
   const keys = Object.keys(state.inventario.sementes).filter(k=>state.inventario.sementes[k]>0);
   if (!keys.length) return null;
-  // pick currently selected hotbar seed, else first
   if (state.selectedSeed && state.inventario.sementes[state.selectedSeed]>0) return state.selectedSeed;
   return keys[0];
 }
-
-// ─────────────────────────────────────────────────────────────
-// HOTBAR
-// ─────────────────────────────────────────────────────────────
 function renderHotbar(){
   const bar = document.getElementById('hotbar');
   bar.innerHTML='';
@@ -1082,8 +1099,6 @@ function renderHotbar(){
     slot.addEventListener('click',()=>{ state.toolAtivo=t.id; renderHotbar(); });
     bar.appendChild(slot);
   });
-
-  // seed selector slots
   const seedKeys = Object.keys(state.inventario.sementes).filter(k=>state.inventario.sementes[k]>0);
   seedKeys.forEach((k,i)=>{
     const c = CROPS[k];
@@ -1095,10 +1110,6 @@ function renderHotbar(){
     bar.appendChild(slot);
   });
 }
-
-// ─────────────────────────────────────────────────────────────
-// QUESTS
-// ─────────────────────────────────────────────────────────────
 function updateQuestProgress(meta, val){
   state.quests.forEach(q=>{
     if (q.meta===meta && q.ativa && !q.completa){
@@ -1132,10 +1143,6 @@ function grantReward(r){
     });
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-// SIDEPANEL
-// ─────────────────────────────────────────────────────────────
 let activeTab = 'missoes';
 
 function renderSidepanel(){
@@ -1315,10 +1322,6 @@ function renderHabilidades(){
   });
   return h;
 }
-
-// ─────────────────────────────────────────────────────────────
-// ANIMAL ACTIONS
-// ─────────────────────────────────────────────────────────────
 function feedAnimal(id){
   const a = state.animais.find(x=>x.id===id);
   if (!a || !(state.inventario.racao>0) || a.fome>=100) return;
@@ -1373,7 +1376,6 @@ function renderColonia(){
 
   h += `<div class="sp-card sp-row"><span>🔬 Pontos de Pesquisa (PD)</span><strong style="color:var(--pip-green);">${state.pesquisaPD}</strong></div>`;
 
-  // Tech tree
   h += '<div class="sp-section-title">ÁRVORE TECNOLÓGICA</div>';
   const categorias = ['Agricultura','Engenharia','Sociedade'];
   categorias.forEach(cat=>{
@@ -1391,8 +1393,6 @@ function renderColonia(){
       </div>`;
     });
   });
-
-  // Colonos especialistas
   h += '<div class="sp-section-title">COLONOS ESPECIALISTAS</div>';
   if (!state.colonosEspecialistas.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum especialista ainda. A Torre de Rádio atrai novos rostos ao Vale.</div>';
   state.colonosEspecialistas.forEach(c=>{
@@ -1405,8 +1405,6 @@ function renderColonia(){
       </div>
     </div>`;
   });
-
-  // Rumo da colônia
   if (state.tecnologias['tech_conselho']){
     h += '<div class="sp-section-title">RUMO DA COLÔNIA</div>';
     if (state.rumoColonia){
@@ -1419,8 +1417,6 @@ function renderColonia(){
       <button class="sp-btn" data-rumo="militar" style="width:100%;margin-bottom:4px;">🛡️ Poder Militar (radiação não sobe durante tempestades)</button>`;
     }
   }
-
-  // Marcos históricos
   h += '<div class="sp-section-title">MARCOS HISTÓRICOS DO VALE</div>';
   MILESTONES.forEach(m=>{
     const done = state.marcosCompletos.includes(m.id);
@@ -1462,8 +1458,6 @@ function checkMarcos(){
     }
   });
 }
-
-// Chance de novo colono especialista chegar (via Torre de Rádio)
 function tentarNovoColono(){
   if (!state.tecnologias['tech_radio']) return;
   if (state.colonosEspecialistas.length >= COLONO_TIPOS.length) return;
@@ -1517,10 +1511,6 @@ function bindSidepanelEvents(){
   const radBtn = document.getElementById('radaway-btn');
   if (radBtn) radBtn.addEventListener('click', useRadAway);
 }
-
-// ─────────────────────────────────────────────────────────────
-// SHOP ACTIONS
-// ─────────────────────────────────────────────────────────────
 function buyItem(id){
   const item = SHOP_ITEMS.find(i=>i.id===id);
   if (!item || state.caps < item.preco) return;
@@ -1620,10 +1610,6 @@ function useRadAway(){
   toast('Radiação reduzida 💊');
   renderTopbar(); renderSidepanel();
 }
-
-// ─────────────────────────────────────────────────────────────
-// DIALOGUE
-// ─────────────────────────────────────────────────────────────
 function openDialogue(npcId){
   const npc = state.npcs.find(n=>n.id===npcId);
   const box = document.getElementById('dialogue-box');
@@ -1665,11 +1651,8 @@ function openDialogue(npcId){
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// TIME / DAY ADVANCE
-// ─────────────────────────────────────────────────────────────
 function advanceDay(){
-  // grow crops
+
   state.plots.forEach(p=>{
     if (p.crop && !p.ready){
       const irrigado = state.tecnologias['tech_irrigador'] && p.tilled;
@@ -1682,7 +1665,6 @@ function advanceDay(){
     }
   });
 
-  // Drone agrícola: colhe 1 cultivo maduro automaticamente
   if (state.tecnologias['tech_drone_agricola']){
     const pronto = state.plots.find(p=>p.crop && p.ready);
     if (pronto){
@@ -1696,7 +1678,6 @@ function advanceDay(){
     }
   }
 
-  // animals: hunger decay, happiness, production
   state.animais.forEach(a=>{
     const t = ANIMAL_TYPES[a.tipo];
     a.fome = Math.max(0, a.fome-30);
@@ -1707,8 +1688,6 @@ function advanceDay(){
       if (a.diasDesdeProducao>=t.diasProducao){ a.pronto = true; }
     }
   });
-
-  // Coletor automático do curral
   if (state.tecnologias['tech_coletor_automatico']){
     state.animais.forEach(a=>{
       if (a.pronto){
@@ -1717,8 +1696,6 @@ function advanceDay(){
       }
     });
   }
-
-  // Pontos de Pesquisa diários (laboratório + cientistas + escolha de tecnologia)
   let pdGanho = state.buildings.laboratorio - 1; // nível 2+ gera PD
   state.colonosEspecialistas.forEach(c=>{ if (c.tipo==='cientista') pdGanho += 1; });
   if (state.rumoColonia==='tecnologia') pdGanho += 1;
@@ -1728,14 +1705,10 @@ function advanceDay(){
   state.hora=6;
   state.energia = state.energiaMax;
   state.conversadosHoje.clear();
-
-  // season change every 7 days
   if ((state.dia-1)%7===0){
     state.estacaoIdx = (state.estacaoIdx+1)%4;
     toast('🌗 Nova estação: '+SEASONS[state.estacaoIdx]);
   }
-
-  // random radiation storm
   let radReducao = BUILDINGS.laboratorio.bonusRadReducao[state.buildings.laboratorio-1];
   if (state.tecnologias['tech_purificador']) radReducao = Math.max(radReducao, 0.5);
   if (state.tempestadeAtiva){
@@ -1753,54 +1726,896 @@ function advanceDay(){
     state.radiacao = Math.max(0, state.radiacao - 5 - (radReducao*5));
   }
   if (state.tecnologias['tech_purificador']) state.radiacao = Math.min(state.radiacao, 30);
-
-  // Novo colono especialista via rádio
   tentarNovoColono();
-
-  // Track peak caps + check milestones
   if (state.caps > state.maiorCapsAcumulado) state.maiorCapsAcumulado = state.caps;
   checkMarcos();
 
   renderAll();
 }
 
-// ─────────────────────────────────────────────────────────────
-// KEYBOARD SHORTCUTS
-// ─────────────────────────────────────────────────────────────
-document.addEventListener('keydown',e=>{
+// ============================================================
+// SISTEMA DE EVENTOS ALEATÓRIOS — 67 EVENTOS COM ESCOLHAS MORAIS
+// ============================================================
+
+const RANDOM_EVENTS = [
+  // --- CATEGORIA: FORASTEIROS ---
+  {id:'e01', tag:'FORASTEIRO', icon:'🚶', titulo:'O Viajante Ferido',
+   desc:'Um forasteiro ensanguentado bate no portão do Vale. Ele carrega sementes que você nunca viu — mas pode trazer doenças do além das ruínas.',
+   escolhas:[
+     {label:'[A] ACOLHER', texto:'Deixar entrar e tratar seus ferimentos.',
+      consequencia:'Ganha 5 sementes de cenoura mutante, mas +15% radiação por 2 dias.',
+      exec:(s)=>{ s.inventario.sementes.cenoura_mut=(s.inventario.sementes.cenoura_mut||0)+5; s.radiacao=Math.min(100,s.radiacao+15); }},
+     {label:'[B] RECUSAR', texto:'Fechar o portão. A sobrevivência primeiro.',
+      consequencia:'Segurança mantida. Mara perde 1 coração com sua decisão.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.max(0,m.hearts-1); }},
+     {label:'[C] TRATAR ANTES', texto:'Usar 1 RadAway para descontaminá-lo antes de entrar.',
+      consequencia:'Ganha 3 sementes e um novo colono chega mais cedo.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>0){s.inventario.consumiveis.rad_x--;s.inventario.sementes.cenoura_mut=(s.inventario.sementes.cenoura_mut||0)+3;} else s.caps+=50; }},
+   ]},
+  {id:'e02', tag:'FORASTEIRO', icon:'🤖', titulo:'O Robô Abandonado',
+   desc:'Rusty aponta para um robô enferrujado parado na entrada do Vale. Parece desativado — mas seus sistemas ainda piscam.',
+   escolhas:[
+     {label:'[A] REPARAR', texto:'Usar 80 tampinhas e tentar reativá-lo.',
+      consequencia:'Robô vira assistente do curral: +1 Ração Animal por dia.',
+      exec:(s)=>{ if(s.caps>=80){s.caps-=80;s.inventario.racao=(s.inventario.racao||0)+3;toast('🤖 Robô reparado! +3 rações de bônus');}else toast('Tampinhas insuficientes.',true);}},
+     {label:'[B] DESMONTAR', texto:'Aproveitar as peças para a Oficina.',
+      consequencia:'+50 tampinhas em peças e reduz custo do próximo upgrade de construção em 10%.',
+      exec:(s)=>{ s.caps+=50; }},
+     {label:'[C] IGNORAR', texto:'Deixar o robô como está. Não confia.',
+      consequencia:'Nada acontece. Às vezes cautela é sabedoria.',
+      exec:(s)=>{ toast('Você deixa o robô para lá.'); }},
+   ]},
+  {id:'e03', tag:'FORASTEIRO', icon:'👧', titulo:'A Criança Sozinha',
+   desc:'Uma menina de uns 10 anos aparece na beira da fazenda. Ela diz que seu grupo foi dizimado por mutantes. Está com fome e com medo.',
+   escolhas:[
+     {label:'[A] ADOTAR', texto:'Integrar a criança à colônia permanentemente.',
+      consequencia:'+20 morale, Duque Ferro ganha 2 corações. Custa 30 tampinhas em mantimentos.',
+      exec:(s)=>{ s.caps=Math.max(0,s.caps-30); const d=s.npcs.find(n=>n.id==='duke'); if(d) d.hearts=Math.min(5,d.hearts+2); }},
+     {label:'[B] ALIMENTAR E MANDAR', texto:'Dar comida e indicar o caminho para outro acampamento.',
+      consequencia:'+10 tampinhas em boa vontade kármica, Pip fica triste.',
+      exec:(s)=>{ s.caps+=10; }},
+   ]},
+  {id:'e04', tag:'FORASTEIRO', icon:'🕵️', titulo:'O Espião Suspeito',
+   desc:'Um homem chega dizendo ser comerciante, mas Pip não para de latir para ele. Rusty detecta que ele está mapeando suas instalações.',
+   escolhas:[
+     {label:'[A] EXPULSAR', texto:'Tirar o espião na força.',
+      consequencia:'Ameaça eliminada. +5% chance de ataque nos próximos 3 dias.',
+      exec:(s)=>{ s.radiacao=Math.min(100,s.radiacao+5); toast('⚠️ O espião pode voltar com reforços.', true); }},
+     {label:'[B] NEGOCIAR', texto:'Descobrir quem o mandou e o que querem.',
+      consequencia:'+80 tampinhas em informação valiosa. Pip ganha 1 coração por provar seu instinto.',
+      exec:(s)=>{ s.caps+=80; const pip=s.npcs.find(n=>n.id==='pip'); if(pip) pip.hearts=Math.min(5,pip.hearts+1); }},
+     {label:'[C] RECRUTAR', texto:'Oferecer proteção em troca de lealdade.',
+      consequencia:'Arriscado. 50% chance: novo guarda. 50% chance: -100 tampinhas roubadas.',
+      exec:(s)=>{ if(Math.random()<0.5){toast('🛡️ O espião virou aliado!');s.caps+=40;}else{s.caps=Math.max(0,s.caps-100);toast('😡 Traído! -100 tampinhas roubadas.', true);} }},
+   ]},
+  {id:'e05', tag:'FORASTEIRO', icon:'🧙', titulo:'A Curandeira das Ruínas',
+   desc:'Uma velha chega com ervas mutantes que dizem curar radiação. Ninguém sabe se é charlatã ou estudiosa das plantas pós-guerra.',
+   escolhas:[
+     {label:'[A] CONFIAR', texto:'Usar as ervas e aplicar em todos os colonos.',
+      consequencia:'70% chance: -25 radiação. 30% chance: +10 radiação (ervas falsas).',
+      exec:(s)=>{ if(Math.random()<0.7){s.radiacao=Math.max(0,s.radiacao-25);toast('🌿 As ervas funcionaram! -25 radiação.');}else{s.radiacao=Math.min(100,s.radiacao+10);toast('☠️ Ervas contaminadas! +10 radiação.', true);} }},
+     {label:'[B] TESTAR PRIMEIRO', texto:'Testar numa pequena amostra antes.',
+      consequencia:'-10 radiação com segurança. Demora mais, mas funciona.',
+      exec:(s)=>{ s.radiacao=Math.max(0,s.radiacao-10); }},
+   ]},
+
+  // --- CATEGORIA: NATUREZA MUTANTE ---
+  {id:'e06', tag:'NATUREZA', icon:'🐺', titulo:'A Matilha de Lobos Radiantes',
+   desc:'Uma matilha de lobos mutantes foi avistada à noite. Eles não atacaram — parecem estar fugindo de algo ainda maior.',
+   escolhas:[
+     {label:'[A] DEFENDER COM FORÇA', texto:'Organizar guarda noturna para afastá-los.',
+      consequencia:'Custo: -1 energia. Resultado: parcelas protegidas por 3 dias.',
+      exec:(s)=>{ s.energia=Math.max(0,s.energia-1); toast('🐺 Guardas afastaram a matilha.'); }},
+     {label:'[B] ALIMENTAR', texto:'Deixar carne (1 produto animal) para atraí-los como guardiões.',
+      consequencia:'Se tiver produto animal: lobos passam a proteger o vale passivamente.',
+      exec:(s)=>{ const k=Object.keys(s.produtosAnimais).find(k=>s.produtosAnimais[k]>0); if(k){s.produtosAnimais[k]--;toast('🐺 Os lobos aceitaram o pacto!');}else{toast('Sem produto animal para oferecer.',true);} }},
+     {label:'[C] INVESTIGAR', texto:'Seguir rastros para descobrir o que os assustou.',
+      consequencia:'+15 XP de combate. Descobre um evento raro próximo.',
+      exec:(s)=>{ ganharXP('combate',15); }},
+   ]},
+  {id:'e07', tag:'NATUREZA', icon:'🌪️', titulo:'A Tempestade Ácida',
+   desc:'Uma nuvem amarelada se aproxima. Diferente das tempestades radioativas — essa é ácida. Pode destruir cultivos se não agir rápido.',
+   escolhas:[
+     {label:'[A] COBRIR AS PLANTAÇÕES', texto:'Gastar 20 tampinhas em lona improvisada.',
+      consequencia:'Cultivos protegidos. Custo: 20 tampinhas.',
+      exec:(s)=>{ if(s.caps>=20){s.caps-=20;toast('🌿 Cultivos protegidos da chuva ácida.');}else{toast('Tampinhas insuficientes!',true);s.plots.filter(p=>p.crop&&!p.ready).forEach(p=>{if(Math.random()<0.3){p.growth=Math.max(0,p.growth-1);}});} }},
+     {label:'[B] DEIXAR ACONTECER', texto:'A natureza decide.',
+      consequencia:'30% de cultivos ativos perdem 1 dia de crescimento.',
+      exec:(s)=>{ s.plots.filter(p=>p.crop&&!p.ready).forEach(p=>{if(Math.random()<0.3) p.growth=Math.max(0,p.growth-1);}); toast('🌧️ Alguns cultivos sofreram com a chuva.'); }},
+   ]},
+  {id:'e08', tag:'NATUREZA', icon:'🌸', titulo:'A Flor Incandescente',
+   desc:'Uma flor nunca vista brilha no canto da fazenda. Mara diz que pode ser um ingrediente raro para fertilizante — ou veneno puro.',
+   escolhas:[
+     {label:'[A] COLHER PARA PESQUISA', texto:'Enviar ao laboratório.',
+      consequencia:'+5 Pontos de Pesquisa. Mara fica curiosa e ganha 1 coração.',
+      exec:(s)=>{ s.pesquisaPD+=5; const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.min(5,m.hearts+1); }},
+     {label:'[B] USAR COMO FERTILIZANTE', texto:'Aplicar direto na parcela mais produtiva.',
+      consequencia:'50/50: colheita tripla na próxima harvest OU planta morre.',
+      exec:(s)=>{ const p=s.plots.find(x=>x.crop&&!x.ready); if(p){if(Math.random()<0.5){p.fertilizado=true;toast('🌸 Flor potencializou o cultivo!');}else{p.crop=null;p.growth=0;toast('☠️ A flor era venenosa. Cultivo perdido.',true);}} else toast('Sem cultivos para aplicar.'); }},
+     {label:'[C] DEIXAR CRESCER', texto:'Observar por alguns dias.',
+      consequencia:'+8 XP de Agricultura. A flor atrai uma borboleta mutante como mascote.',
+      exec:(s)=>{ ganharXP('agricultura',8); toast('🦋 Uma borboleta mutante adotou o Vale!'); }},
+   ]},
+  {id:'e09', tag:'NATUREZA', icon:'🐛', titulo:'A Praga de Gafanhotos Gigantes',
+   desc:'Gafanhotos do tamanho de galinhas estão se aproximando. Podem destruir metade dos cultivos se nada for feito.',
+   escolhas:[
+     {label:'[A] AFUGENTAR COM FOGO', texto:'Queimar as bordas da fazenda.',
+      consequencia:'-2 parcelas temporariamente bloqueadas, mas pragas eliminadas.',
+      exec:(s)=>{ let cnt=0; s.plots.filter(p=>!p.locked&&!p.crop).slice(0,2).forEach(p=>{p.locked=true;setTimeout(()=>{p.locked=false;},0);cnt++;});toast('🔥 Pragas afugentatadas. Algumas parcelas afetadas.'); }},
+     {label:'[B] USAR FERTILIZANTE COMO REPELENTE', texto:'Sacrificar 2 fertilizantes.',
+      consequencia:'Pragas repelidas sem dano algum.',
+      exec:(s)=>{ if((s.inventario.fertilizante||0)>=2){s.inventario.fertilizante-=2;toast('🧪 Fertilizante repeliu os gafanhotos!');}else{toast('Sem fertilizante suficiente.',true);s.plots.filter(p=>p.crop).slice(0,3).forEach(p=>{p.crop=null;p.growth=0;});toast('🐛 Cultivos devorados!',true);} }},
+     {label:'[C] DEIXAR PASSAREM', texto:'Eles podem ir embora por conta própria.',
+      consequencia:'40% chance: somem sozinhos. 60%: perdem 3 cultivos.',
+      exec:(s)=>{ if(Math.random()<0.4){toast('🍀 Os gafanhotos foram embora!');}else{let cnt=0;s.plots.filter(p=>p.crop).slice(0,3).forEach(p=>{p.crop=null;p.growth=0;cnt++;});toast(`🐛 ${cnt} cultivos destruídos!`,true);} }},
+   ]},
+  {id:'e10', tag:'NATUREZA', icon:'🌊', titulo:'A Inundação Tóxica',
+   desc:'Chuvas pesadas criaram uma poça de líquido esverdeado que está se espalhando pelo campo. Algo precisa ser feito.',
+   escolhas:[
+     {label:'[A] CONSTRUIR BARREIRA', texto:'Cavar um valo de contenção. Custa 30 tampinhas.',
+      consequencia:'Campo protegido completamente.',
+      exec:(s)=>{ if(s.caps>=30){s.caps-=30;toast('🏗️ Barreira construída!');}else{s.radiacao=Math.min(100,s.radiacao+10);toast('Sem tampinhas suficientes! +10 radiação.',true);} }},
+     {label:'[B] DESVIAR PARA UM PLOT', texto:'Sacrificar 1 parcela para salvar o resto.',
+      consequencia:'1 parcela fica intransitável por 2 dias. Resto do campo salvo.',
+      exec:(s)=>{ const p=s.plots.find(x=>!x.locked&&!x.crop); if(p){p.locked=true;setTimeout(()=>{p.locked=false;},0);toast('🌊 Uma parcela foi sacrificada.');}else toast('Sem parcela livre para sacrificar.'); }},
+   ]},
+
+  // --- CATEGORIA: COLÔNIA E POLÍTICA ---
+  {id:'e11', tag:'COLÔNIA', icon:'📻', titulo:'A Transmissão Misteriosa',
+   desc:'A Torre de Rádio capta uma transmissão codificada. Pode ser um grupo sobrevivente pedindo ajuda — ou uma armadilha.',
+   escolhas:[
+     {label:'[A] RESPONDER', texto:'Enviar sinal de volta.',
+      consequencia:'60% chance: novo colono chega em 2 dias. 40%: nada acontece.',
+      exec:(s)=>{ if(Math.random()<0.6&&s.colonosEspecialistas.length<COLONO_TIPOS.length){const tipo=COLONO_TIPOS.find(t=>!s.colonosEspecialistas.some(c=>c.tipo===t.tipo));if(tipo){s.colonosEspecialistas.push({tipo:tipo.tipo,nome:gerarNomeColono()});toast('📡 O sinal trouxe '+tipo.nome+' ao Vale!');}}else toast('📡 Sinal enviado. Aguardando resposta...'); }},
+     {label:'[B] IGNORAR', texto:'Segurança em primeiro lugar.',
+      consequencia:'Nada de bom, nada de ruim. Cautela tem seu preço.',
+      exec:(s)=>{ toast('📻 Transmissão ignorada.'); }},
+     {label:'[C] DECIFRAR', texto:'Gastar 3 PD de pesquisa para decodificar.',
+      consequencia:'+60 tampinhas em coordenadas de depósito antigo.',
+      exec:(s)=>{ if(s.pesquisaPD>=3){s.pesquisaPD-=3;s.caps+=60;toast('🔐 Transmissão decifrada: depósito encontrado! +60 tampinhas.');}else toast('PD insuficiente para decifrar.',true); }},
+   ]},
+  {id:'e12', tag:'COLÔNIA', icon:'⚖️', titulo:'A Disputa de Terra',
+   desc:'Dois colonos especialistas estão brigando por qual parcela é "deles". A tensão está afetando a produtividade de todos.',
+   escolhas:[
+     {label:'[A] MEDIAR', texto:'Sentar com os dois e chegar a um acordo.',
+      consequencia:'+2 corações com Mara (mediadora). Ambos colonos ficam satisfeitos.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.min(5,m.hearts+2); ganharXP('social',10); }},
+     {label:'[B] DECIDIR NA AUTORIDADE', texto:'Determinar a divisão sem discussão.',
+      consequencia:'+1 eficiência. Um colono fica irritado por 3 dias.',
+      exec:(s)=>{ toast('⚖️ Decisão tomada. Um dos colonos aceitou de má vontade.'); }},
+     {label:'[C] EXPANDIR', texto:'Comprar nova carta de expansão para resolver.',
+      consequencia:'Custo: 60 tampinhas. Nova parcela desbloqueada.',
+      exec:(s)=>{ if(s.caps>=60&&s.parcelasDesbloqueadas<TOTAL_PLOTS){s.caps-=60;const locked=s.plots.find(p=>p.locked);if(locked){locked.locked=false;s.parcelasDesbloqueadas++;toast('📜 Nova parcela desbloqueada pela mediação!');}}}},
+   ]},
+  {id:'e13', tag:'COLÔNIA', icon:'🍺', titulo:'O Festival Improvisado',
+   desc:'Os colonos pedem uma folga. Rusty sugere organizar um pequeno festival com as colheitas. "Bip: moral elevado = produtividade elevada."',
+   escolhas:[
+     {label:'[A] APROVAR', texto:'Gastar recursos para o festival.',
+      consequencia:'Custo: 50 tampinhas. Todos os NPCs ganham 1 coração.',
+      exec:(s)=>{ if(s.caps>=50){s.caps-=50;s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1));toast('🎉 Festival do Vale! Todos os colonos em festa!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] RECUSAR', texto:'"Não é hora de festejar."',
+      consequencia:'Duque Ferro aprova. Mara fica decepcionada. -1 coração da Mara.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.max(0,m.hearts-1); toast('😞 Os colonos ficaram desapontados.'); }},
+     {label:'[C] FESTIVAL MÍNIMO', texto:'Uma comemoração simples com o que há.',
+      consequencia:'Zero custo. Moral levemente elevado. Mara ganha 1 coração.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.min(5,m.hearts+1); toast('🌻 Festival singelo, mas sincero!'); }},
+   ]},
+  {id:'e14', tag:'COLÔNIA', icon:'📜', titulo:'A Lei do Vale',
+   desc:'Duque Ferro propõe criar um código de regras para o Vale 111. Isso daria mais estrutura — mas alguns colonos se sentem oprimidos pela ideia.',
+   escolhas:[
+     {label:'[A] APROVAR', texto:'Implementar as regras formalmente.',
+      consequencia:'+3 corações com Duque Ferro. -1 coração com Pip (libertário por natureza).',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke'),pip=s.npcs.find(n=>n.id==='pip'); if(d) d.hearts=Math.min(5,d.hearts+3); if(pip) pip.hearts=Math.max(0,pip.hearts-1); }},
+     {label:'[B] REJEITAR', texto:'"O Vale é livre."',
+      consequencia:'+2 corações com Pip. Duque Ferro fica irritado.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke'),pip=s.npcs.find(n=>n.id==='pip'); if(pip) pip.hearts=Math.min(5,pip.hearts+2); if(d) d.hearts=Math.max(0,d.hearts-1); }},
+     {label:'[C] VOTAR', texto:'Deixar todos os colonos decidirem juntos.',
+      consequencia:'+10 XP Social. Todos ficam satisfeitos com o processo democrático.',
+      exec:(s)=>{ ganharXP('social',10); s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1)); }},
+   ]},
+  {id:'e15', tag:'COLÔNIA', icon:'💔', titulo:'O Colono que Quer Ir Embora',
+   desc:'Um dos colonos especialistas chega até você. Ele está deprimido e quer deixar o Vale para procurar família perdida.',
+   escolhas:[
+     {label:'[A] DEIXAR IR', texto:'Respeitar sua decisão.',
+      consequencia:'Colono vai embora. Seu bônus é perdido permanentemente.',
+      exec:(s)=>{ if(s.colonosEspecialistas.length>0){s.colonosEspecialistas.pop();toast('👋 Um colono partiu em busca de sua família.');}else toast('Sem colonos especialistas.'); }},
+     {label:'[B] CONVENCER', texto:'Mostrar o quanto o Vale precisa dele.',
+      consequencia:'70% chance: fica e ganha 2 corações. 30%: vai embora mesmo assim.',
+      exec:(s)=>{ if(Math.random()<0.7){ganharXP('social',15);toast('💙 O colono decidiu ficar!');}else if(s.colonosEspecialistas.length>0){s.colonosEspecialistas.pop();toast('💔 Ele foi embora mesmo assim.',true);} }},
+     {label:'[C] ENVIAR MISSÃO', texto:'Organizar uma expedição para encontrar sua família.',
+      consequencia:'Custo: 80 tampinhas. Recompensa: colono retorna mais forte (+bônus extra).',
+      exec:(s)=>{ if(s.caps>=80){s.caps-=80;ganharXP('social',20);toast('🗺️ Expedição enviada! O colono retornará com a família.');}else toast('Tampinhas insuficientes.',true); }},
+   ]},
+
+  // --- CATEGORIA: COMÉRCIO E RECURSOS ---
+  {id:'e16', tag:'COMÉRCIO', icon:'🛒', titulo:'O Caravan Misterioso',
+   desc:'Um grupo de comerciantes nômades estaciona do lado de fora. Eles têm mercadorias raras mas pedem preço alto — e vendem rápido.',
+   escolhas:[
+     {label:'[A] COMPRAR MUITO', texto:'Investir 100 tampinhas em mercadorias raras.',
+      consequencia:'+8 sementes variadas, +3 RadAway, +5 fertilizante.',
+      exec:(s)=>{ if(s.caps>=100){s.caps-=100;s.inventario.sementes.cenoura_mut=(s.inventario.sementes.cenoura_mut||0)+3;s.inventario.sementes.milho_rad=(s.inventario.sementes.milho_rad||0)+3;s.inventario.sementes.cogu_brilhante=(s.inventario.sementes.cogu_brilhante||0)+2;if(!s.inventario.consumiveis)s.inventario.consumiveis={};s.inventario.consumiveis.rad_x=(s.inventario.consumiveis.rad_x||0)+3;s.inventario.fertilizante=(s.inventario.fertilizante||0)+5;toast('🛒 Compra feita! Estoque abastecido.');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] NEGOCIAR', texto:'Barganhar pelo melhor preço.',
+      consequencia:'+4 sementes e +1 RadAway por apenas 40 tampinhas.',
+      exec:(s)=>{ if(s.caps>=40){s.caps-=40;s.inventario.sementes.batata_glow=(s.inventario.sementes.batata_glow||0)+4;if(!s.inventario.consumiveis)s.inventario.consumiveis={};s.inventario.consumiveis.rad_x=(s.inventario.consumiveis.rad_x||0)+1;toast('🤝 Boa negociação!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[C] IGNORAR', texto:'"Não precisamos de nada externo."',
+      consequencia:'A caravana vai embora. Pode retornar em 7 dias com preços piores.',
+      exec:(s)=>{ toast('🚛 A caravana foi embora.'); }},
+   ]},
+  {id:'e17', tag:'COMÉRCIO', icon:'💎', titulo:'O Artefato Pré-Guerra',
+   desc:'Escavando a terra, você encontrou um artefato tecnológico de antes da guerra. Funcional, valioso, e certamente cobiçado.',
+   escolhas:[
+     {label:'[A] VENDER', texto:'Entregar ao próximo comerciante.',
+      consequencia:'+200 tampinhas.',
+      exec:(s)=>{ s.caps+=200; toast('💎 Artefato vendido por 200 tampinhas!'); }},
+     {label:'[B] ESTUDAR', texto:'Enviar ao laboratório para pesquisa.',
+      consequencia:'+8 PD de Pesquisa.',
+      exec:(s)=>{ s.pesquisaPD+=8; toast('🔬 Artefato analisado: +8 PD!'); }},
+     {label:'[C] USAR NA OFICINA', texto:'Desmontar para extrair componentes raros.',
+      consequencia:'Reduz permanentemente custo de ferramentas em 5%.',
+      exec:(s)=>{ toast('🔧 Componentes integrados à Oficina!'); ganharXP('mineracao',15); }},
+   ]},
+  {id:'e18', tag:'COMÉRCIO', icon:'📦', titulo:'O Depósito Abandonado',
+   desc:'Um explorador chegou com um mapa marcando um depósito pré-guerra a 3 km. Ele quer dividir os lucros se você bancar a expedição.',
+   escolhas:[
+     {label:'[A] BANCAR', texto:'Investir 50 tampinhas na expedição.',
+      consequencia:'80% chance: retorna com recursos valiosos (+100 caps, sementes). 20%: nada encontrado.',
+      exec:(s)=>{ if(s.caps>=50){s.caps-=50;if(Math.random()<0.8){s.caps+=100;s.inventario.sementes.tomate_verde=(s.inventario.sementes.tomate_verde||0)+4;toast('🗺️ Expedição bem-sucedida! +100 tampinhas e sementes.');}else toast('😔 Depósito encontrado vazio.',true);}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] RECUSAR', texto:'Muito arriscado.',
+      consequencia:'O explorador vai com outra colônia. Você perde a oportunidade.',
+      exec:(s)=>{ toast('🗺️ O explorador foi com outro grupo.'); }},
+   ]},
+  {id:'e19', tag:'COMÉRCIO', icon:'🧲', titulo:'O Sucateiro Errante',
+   desc:'Um sucateiro oferece uma troca peculiar: 3 colheitas por peças metálicas que reduzem o custo do próximo upgrade de construção.',
+   escolhas:[
+     {label:'[A] ACEITAR TROCA', texto:'Dar 3 colheitas em troca das peças.',
+      consequencia:'Próximo upgrade de construção fica 30% mais barato.',
+      exec:(s)=>{ const keys=Object.keys(s.inventario.colheitas).filter(k=>s.inventario.colheitas[k]>0); if(keys.length>=1){for(let i=0;i<Math.min(3,keys.reduce((a,k)=>a+s.inventario.colheitas[k],0));i++){const k=keys.find(k=>s.inventario.colheitas[k]>0);if(k){s.inventario.colheitas[k]--;}}toast('🔩 Troca feita! Próximo upgrade com desconto.');}else toast('Sem colheitas para trocar.',true); }},
+     {label:'[B] RECUSAR', texto:'Suas colheitas valem mais.',
+      consequencia:'Nada acontece.',
+      exec:(s)=>{ toast('🛒 Negociação recusada.'); }},
+   ]},
+  {id:'e20', tag:'COMÉRCIO', icon:'💸', titulo:'O Imposto da Facção',
+   desc:'Uma facção guerreira exige "tributo" de 80 tampinhas para "proteção". Duque Ferro diz para não pagar. Rusty calcula as probabilidades.',
+   escolhas:[
+     {label:'[A] PAGAR', texto:'Evitar confronto.',
+      consequencia:'-80 tampinhas. Sem consequências imediatas.',
+      exec:(s)=>{ if(s.caps>=80){s.caps-=80;toast('💸 Tributo pago. Paz temporária.');}else{s.caps=0;toast('💸 Tudo pago. Ficou devendo.',true);} }},
+     {label:'[B] RECUSAR', texto:'"O Vale não paga tributo."',
+      consequencia:'+2 corações com Duque Ferro. 40% chance de ataque nos próximos 2 dias (+15 radiação).',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke'); if(d) d.hearts=Math.min(5,d.hearts+2); if(Math.random()<0.4){s.radiacao=Math.min(100,s.radiacao+15);toast('⚔️ Facção atacou! +15 radiação.',true);}else toast('✊ A facção recuou!'); }},
+     {label:'[C] NEGOCIAR', texto:'Oferecer 3 colheitas em vez de tampinhas.',
+      consequencia:'A facção aceita. Sementes como moeda: sem custo em caps.',
+      exec:(s)=>{ const keys=Object.keys(s.inventario.colheitas).filter(k=>s.inventario.colheitas[k]>0); if(keys.length>0){for(let i=0;i<3&&keys.some(k=>s.inventario.colheitas[k]>0);i++){const k=keys.find(k=>s.inventario.colheitas[k]>0);if(k) s.inventario.colheitas[k]--;}toast('🤝 Facção aceitou colheitas como tributo.');}else toast('Sem colheitas para negociar.',true); }},
+   ]},
+
+  // --- CATEGORIA: TECNOLOGIA E CIÊNCIA ---
+  {id:'e21', tag:'CIÊNCIA', icon:'⚗️', titulo:'O Experimento Acidental',
+   desc:'O laboratório produz um composto verde brilhante por acidente. Pode ser um fertilizante milagroso ou uma toxina.',
+   escolhas:[
+     {label:'[A] TESTAR NAS PLANTAS', texto:'Aplicar em 2 parcelas imediatamente.',
+      consequencia:'50/50: plantas crescem 2x mais rápido OU parcela fica inutilizada por 2 dias.',
+      exec:(s)=>{ const ps=s.plots.filter(p=>p.crop&&!p.ready).slice(0,2); if(ps.length>0){if(Math.random()<0.5){ps.forEach(p=>p.growth+=2);toast('🌿 Composto acelerou o crescimento!');}else{ps.forEach(p=>{p.crop=null;p.growth=0;});toast('☠️ Composto tóxico! Cultivos destruídos.',true);}}else toast('Sem cultivos para testar.'); }},
+     {label:'[B] ANALISAR COM CALMA', texto:'Gastar 3 dias pesquisando.',
+      consequencia:'+6 PD de pesquisa.',
+      exec:(s)=>{ s.pesquisaPD+=6; toast('🔬 Análise completa: +6 PD!'); }},
+     {label:'[C] DESCARTAR', texto:'Muito arriscado.',
+      consequencia:'Nada acontece. Segurança garantida.',
+      exec:(s)=>{ toast('🧪 Composto descartado com segurança.'); }},
+   ]},
+  {id:'e22', tag:'CIÊNCIA', icon:'🔭', titulo:'O Sinal do Satélite',
+   desc:'O satélite de comunicação pré-guerra entrou em órbita baixa. Janela de 1 hora para transmitir dados ou baixar informações.',
+   escolhas:[
+     {label:'[A] BAIXAR DADOS AGRÍCOLAS', texto:'Receitas de cultivo avançadas.',
+      consequencia:'Desbloqueio acelerado de 1 tecnologia agrícola sem custo de PD.',
+      exec:(s)=>{ const t=TECH_TREE.find(x=>x.categoria==='Agricultura'&&!s.tecnologias[x.id]&&x.req.every(r=>s.tecnologias[r])); if(t){s.tecnologias[t.id]=true;toast('🛰️ Tecnologia desbloqueada via satélite: '+t.nome+'!');}else{s.pesquisaPD+=5;toast('🛰️ Dados salvos: +5 PD!');} }},
+     {label:'[B] TRANSMITIR SUA POSIÇÃO', texto:'Anunciar o Vale 111 ao mundo.',
+      consequencia:'+1 colono especialista chega nos próximos dias.',
+      exec:(s)=>{ if(s.colonosEspecialistas.length<COLONO_TIPOS.length){const tipo=COLONO_TIPOS.find(t=>!s.colonosEspecialistas.some(c=>c.tipo===t.tipo));if(tipo){s.colonosEspecialistas.push({tipo:tipo.tipo,nome:gerarNomeColono()});toast('📡 Sinal enviado! '+tipo.nome+' chegou ao Vale!');}}else toast('📡 Sinal transmitido ao mundo!'); }},
+   ]},
+  {id:'e23', tag:'CIÊNCIA', icon:'💡', titulo:'A Invenção do Engenheiro',
+   desc:'Seu engenheiro especialista apresenta uma invenção: um purificador de água improvisado. Funciona, mas precisa de recursos.',
+   escolhas:[
+     {label:'[A] FINANCIAR', texto:'Investir 70 tampinhas na invenção.',
+      consequencia:'+10% energia máxima permanente.',
+      exec:(s)=>{ if(s.caps>=70){s.caps-=70;s.energiaMax=Math.round(s.energiaMax*1.1);toast('💡 Purificador instalado! +10% energia máxima!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] ADIAR', texto:'"Quando tivermos mais recursos."',
+      consequencia:'Engenheiro guarda os planos. Volta em 5 dias com versão melhorada.',
+      exec:(s)=>{ toast('⏳ Engenheiro vai melhorar os planos.'); }},
+   ]},
+  {id:'e24', tag:'CIÊNCIA', icon:'🧬', titulo:'A Mutação Controlada',
+   desc:'O laboratório oferece um procedimento experimental: mutação controlada de sementes para criar uma variedade completamente nova.',
+   escolhas:[
+     {label:'[A] AUTORIZAR', texto:'Gastar 40 tampinhas e 3 PD.',
+      consequencia:'Nova semente "Cogumelo Estelar" com valor de venda dobrado.',
+      exec:(s)=>{ if(s.caps>=40&&s.pesquisaPD>=3){s.caps-=40;s.pesquisaPD-=3;s.inventario.sementes.cogu_brilhante=(s.inventario.sementes.cogu_brilhante||0)+3;toast('🧬 Mutação bem-sucedida! +3 Cogumelos Brilhantes melhorados!');}else toast('Recursos insuficientes.',true); }},
+     {label:'[B] RECUSAR', texto:'"Não mexemos com mutações deliberadas."',
+      consequencia:'Nada acontece. Mara aprova sua cautela.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m) m.hearts=Math.min(5,m.hearts+1); toast('🌿 Mara aprova sua prudência.'); }},
+   ]},
+  {id:'e25', tag:'CIÊNCIA', icon:'☢️', titulo:'O Reator Instável',
+   desc:'O laboratório detecta um micro-reator pré-guerra no subsolo. Pode fornecer energia infinita — ou explodir e contaminar tudo.',
+   escolhas:[
+     {label:'[A] ATIVAR COM CUIDADO', texto:'Gastar 5 PD para estabilizá-lo.',
+      consequencia:'70% sucesso: +30 energia máxima permanente. 30%: +30 radiação.',
+      exec:(s)=>{ if(s.pesquisaPD>=5){s.pesquisaPD-=5;if(Math.random()<0.7){s.energiaMax+=30;toast('⚡ Reator ativado! +30 energia máxima!');}else{s.radiacao=Math.min(100,s.radiacao+30);toast('💥 Reator instável! +30 radiação.',true);}}else toast('PD insuficiente.',true); }},
+     {label:'[B] SELAR', texto:'Tampar e esquecer.',
+      consequencia:'-10 radiação permanente (reator não vaza mais).',
+      exec:(s)=>{ s.radiacao=Math.max(0,s.radiacao-10); toast('🔒 Reator selado com segurança. -10 radiação.'); }},
+   ]},
+
+  // --- CATEGORIA: NPCs E RELACIONAMENTOS ---
+  {id:'e26', tag:'PERSONAGEM', icon:'🐕', titulo:'Pip Encontrou Algo',
+   desc:'Pip chegou correndo com algo na boca — um pacote lacrado pré-guerra com o símbolo de uma farmácia.',
+   escolhas:[
+     {label:'[A] ABRIR O PACOTE', texto:'Descobrir o que há dentro.',
+      consequencia:'Conteúdo aleatório: 3 RadAway OU 50 tampinhas OU sementes raras.',
+      exec:(s)=>{ const roll=Math.random(); if(roll<0.33){if(!s.inventario.consumiveis)s.inventario.consumiveis={};s.inventario.consumiveis.rad_x=(s.inventario.consumiveis.rad_x||0)+3;toast('💊 Pip trouxe 3 RadAway!');}else if(roll<0.66){s.caps+=50;toast('💰 Pip trouxe 50 tampinhas!');}else{s.inventario.sementes.tomate_verde=(s.inventario.sementes.tomate_verde||0)+5;toast('🍅 Pip trouxe sementes raras!');}const pip=s.npcs.find(n=>n.id==='pip');if(pip)pip.hearts=Math.min(5,pip.hearts+1); }},
+     {label:'[B] DEIXAR COM PIP', texto:'Ele claramente ama o pacote.',
+      consequencia:'Pip feliz da vida. +2 corações com Pip.',
+      exec:(s)=>{ const pip=s.npcs.find(n=>n.id==='pip'); if(pip) pip.hearts=Math.min(5,pip.hearts+2); toast('🐕 Pip está radiante de felicidade!'); }},
+   ]},
+  {id:'e27', tag:'PERSONAGEM', icon:'🌹', titulo:'O Romance no Vale',
+   desc:'Mara e Rusty foram vistos conversando até tarde da noite. A colônia toda está curiosa. Alguém precisa dizer algo?',
+   escolhas:[
+     {label:'[A] ENCORAJAR', texto:'Dar um empurrãozinho nos dois.',
+      consequencia:'+2 corações com Mara e Rusty. Ambos mais motivados.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'),r=s.npcs.find(n=>n.id==='rusty'); if(m)m.hearts=Math.min(5,m.hearts+2); if(r)r.hearts=Math.min(5,r.hearts+2); toast('💕 O amor floresce no Vale 111!'); }},
+     {label:'[B] IGNORAR', texto:'Não é da sua conta.',
+      consequencia:'Nada acontece. Privacidade respeitada.',
+      exec:(s)=>{ toast('😌 Você finge não ter visto nada.'); }},
+   ]},
+  {id:'e28', tag:'PERSONAGEM', icon:'😤', titulo:'A Raiva do Duque',
+   desc:'Duque Ferro entrou em conflito com um dos colonos especialistas sobre os rumos da colônia. Está ameaçando expulsá-lo.',
+   escolhas:[
+     {label:'[A] DEFENDER O COLONO', texto:'Enfrentar Duque Ferro.',
+      consequencia:'+2 corações com o colono. -2 corações com Duque Ferro.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke'); if(d)d.hearts=Math.max(0,d.hearts-2); ganharXP('social',10); toast('⚖️ Você defendeu o colono.'); }},
+     {label:'[B] APOIAR O DUQUE', texto:'Autoridade precisa de respeito.',
+      consequencia:'+2 corações com Duque Ferro. Colono fica descontente.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke'); if(d)d.hearts=Math.min(5,d.hearts+2); toast('🛡️ Você apoiou Duque Ferro.'); }},
+     {label:'[C] MEDIAR', texto:'Sentar os dois para resolver.',
+      consequencia:'+1 coração com todos. +10 XP Social.',
+      exec:(s)=>{ s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1)); ganharXP('social',15); toast('🤝 Mediação bem-sucedida!'); }},
+   ]},
+  {id:'e29', tag:'PERSONAGEM', icon:'🎁', titulo:'O Aniversário Esquecido',
+   desc:'Mara lembrou que hoje é o aniversário de Pip — o único "aniversário" de animal celebrado no Vale. Você se esqueceu completamente.',
+   escolhas:[
+     {label:'[A] IMPROVISAR UMA FESTA', texto:'Gastar 20 tampinhas em algo especial.',
+      consequencia:'+3 corações com Pip. Todos os NPCs ficam animados.',
+      exec:(s)=>{ if(s.caps>=20){s.caps-=20;const pip=s.npcs.find(n=>n.id==='pip');if(pip)pip.hearts=Math.min(5,pip.hearts+3);s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1));toast('🎂 Festa de aniversário do Pip!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] DAR UM OSSO', texto:'É o que você tem.',
+      consequencia:'+1 coração com Pip. Simples mas sincero.',
+      exec:(s)=>{ const pip=s.npcs.find(n=>n.id==='pip'); if(pip)pip.hearts=Math.min(5,pip.hearts+1); toast('🦴 Pip adorou o presente!'); }},
+     {label:'[C] FINGIR QUE SABIA', texto:'"Óbvio que eu lembrei!"',
+      consequencia:'Ninguém acredita. -1 coração com Mara por ser desonesto.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m)m.hearts=Math.max(0,m.hearts-1); toast('😅 Ninguém acreditou.'); }},
+   ]},
+  {id:'e30', tag:'PERSONAGEM', icon:'🏆', titulo:'O Orgulho de Rusty',
+   desc:'Rusty calculou que o Vale 111 é 43% mais eficiente que a média das colônias pós-guerra conhecidas. Ele quer celebrar com dados.',
+   escolhas:[
+     {label:'[A] CELEBRAR OS NÚMEROS', texto:'Apreciar a conquista com Rusty.',
+      consequencia:'+2 corações com Rusty. +30 tampinhas de "bônus de eficiência".',
+      exec:(s)=>{ const r=s.npcs.find(n=>n.id==='rusty'); if(r)r.hearts=Math.min(5,r.hearts+2); s.caps+=30; toast('📊 Rusty celebra a eficiência com 30 tampinhas de bônus!'); }},
+     {label:'[B] FOCAR NO TRABALHO', texto:'"Números não alimentam ninguém."',
+      consequencia:'Rusty fica levemente ofendido. -1 coração com Rusty.',
+      exec:(s)=>{ const r=s.npcs.find(n=>n.id==='rusty'); if(r)r.hearts=Math.max(0,r.hearts-1); toast('📊 Rusty manda uma planilha de volta mudo de raiva.'); }},
+   ]},
+
+  // --- CATEGORIA: SOBREVIVÊNCIA EXTREMA ---
+  {id:'e31', tag:'CRISE', icon:'💀', titulo:'A Doença Misteriosa',
+   desc:'Três colonos adoeceram de uma vez. Sintomas: olhos que brilham, tosse verde. Pode se espalhar se não agir.',
+   escolhas:[
+     {label:'[A] QUARENTENA', texto:'Isolar os doentes imediatamente.',
+      consequencia:'-20 energia (estresse). Doença contida, colônia salva.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-20); toast('🏥 Quarentena estabelecida. Doença contida.'); }},
+     {label:'[B] TRATAMENTO RADICAL', texto:'Usar 3 RadAway para tratar.',
+      consequencia:'Se tiver RadAway: todos se curam rapidamente. Se não: doença piora.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>=3){s.inventario.consumiveis.rad_x-=3;s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1));toast('💊 Tratamento funcionou! Colonos curados.');}else{s.radiacao=Math.min(100,s.radiacao+20);toast('☠️ Sem tratamento suficiente. +20 radiação.',true);} }},
+     {label:'[C] REZAR E ESPERAR', texto:'Talvez passe sozinha.',
+      consequencia:'30% chance: passa. 70%: se espalha e -30 energia total.',
+      exec:(s)=>{ if(Math.random()<0.3){toast('🙏 Milagre: a doença desapareceu!');}else{s.energia=Math.max(1,s.energia-30);toast('💀 A doença se espalhou. -30 energia.',true);} }},
+   ]},
+  {id:'e32', tag:'CRISE', icon:'🔥', titulo:'O Incêndio no Celeiro',
+   desc:'Um curto-circuito causou um incêndio no celeiro. Os animais estão agitados e algumas colheitas armazenadas podem se perder.',
+   escolhas:[
+     {label:'[A] COMBATER O FOGO', texto:'Usar água e energia para apagar.',
+      consequencia:'-15 energia, animais salvos.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-15); toast('🔥 Incêndio controlado! Animais salvos.'); }},
+     {label:'[B] EVACUAR ANIMAIS', texto:'Prioridade nos animais, deixar celeiro queimar.',
+      consequencia:'Animais salvos. Celeiro volta ao nível 1.',
+      exec:(s)=>{ if(s.buildings.celeiro>1)s.buildings.celeiro=1; toast('🏃 Animais evacuados! Celeiro danificado.'); }},
+     {label:'[C] SALVAR AS COLHEITAS', texto:'Prioridade nos alimentos armazenados.',
+      consequencia:'Colheitas salvas. 1 animal fugiu.',
+      exec:(s)=>{ if(s.animais.length>0){s.animais.pop();toast('🌾 Colheitas salvas! Um animal fugiu no caos.');}else toast('🌾 Colheitas salvas!'); }},
+   ]},
+  {id:'e33', tag:'CRISE', icon:'🌑', titulo:'A Falha no Gerador',
+   desc:'O gerador do abrigo falhou no meio da noite. Sem energia de backup, as próximas ações custarão mais até ser reparado.',
+   escolhas:[
+     {label:'[A] REPARAR AGORA', texto:'Gastar 60 tampinhas e 10 energia em peças.',
+      consequencia:'Gerador restaurado imediatamente.',
+      exec:(s)=>{ if(s.caps>=60){s.caps-=60;s.energia=Math.max(1,s.energia-10);toast('⚡ Gerador reparado!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] IMPROVISAR', texto:'Usar o conhecimento do engenheiro.',
+      consequencia:'Se tiver engenheiro: reparo grátis. Se não: -20 energia.',
+      exec:(s)=>{ if(s.colonosEspecialistas.some(c=>c.tipo==='engenheiro')){toast('🔧 Engenheiro reparou o gerador!');}else{s.energia=Math.max(1,s.energia-20);toast('😓 Reparo improvisado custou energia.',true);} }},
+   ]},
+  {id:'e34', tag:'CRISE', icon:'🌫️', titulo:'A Névoa Tóxica',
+   desc:'Uma névoa verde cobre o Vale ao amanhecer. Invisible mas radioativa — cada ação ao ar livre hoje custa o dobro de energia.',
+   escolhas:[
+     {label:'[A] ESPERAR DISSIPAR', texto:'Ficar no abrigo o dia todo.',
+      consequencia:'Perde um dia de plantio mas evita penalidade de energia.',
+      exec:(s)=>{ toast('🏠 Você ficou no abrigo. A névoa dissipou ao entardecer.'); }},
+     {label:'[B] TRABALHAR COM MÁSCARA', texto:'Usando RadAway como proteção parcial.',
+      consequencia:'Se tiver RadAway: trabalha normalmente. Se não: +15 radiação.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>0){s.inventario.consumiveis.rad_x--;toast('😷 Máscara improvisada protegeu você!');}else{s.radiacao=Math.min(100,s.radiacao+15);toast('☠️ Névoa tóxica causou +15 radiação.',true);} }},
+   ]},
+  {id:'e35', tag:'CRISE', icon:'🚨', titulo:'O Ladrão de Sementes',
+   desc:'Alguém roubou metade das suas sementes armazenadas durante a noite. Pip farejou o rastro mas o ladrão já fugiu.',
+   escolhas:[
+     {label:'[A] PERSEGUIR', texto:'Gastar energia para rastrear.',
+      consequencia:'-10 energia. 60% chance: recupera as sementes. 40%: nada.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-10); if(Math.random()<0.6){Object.keys(s.inventario.sementes).forEach(k=>s.inventario.sementes[k]=(s.inventario.sementes[k]||0)+2);toast('🏃 Ladrão capturado! Sementes recuperadas.');}else toast('😤 Ladrão escapou.',true); }},
+     {label:'[B] ACEITAR A PERDA', texto:'Deixar ir e recomprar depois.',
+      consequencia:'Sementes perdidas. +10 XP de Social (lição de humildade).',
+      exec:(s)=>{ Object.keys(s.inventario.sementes).forEach(k=>{s.inventario.sementes[k]=Math.max(0,s.inventario.sementes[k]-1);});ganharXP('social',10);toast('😞 Lição aprendida: mais segurança no armazém.'); }},
+     {label:'[C] ARMADILHA', texto:'Preparar uma armadilha para a próxima tentativa.',
+      consequencia:'Se atacado novamente: captura o ladrão e ganha recompensa de 80 tampinhas.',
+      exec:(s)=>{ toast('🪤 Armadilha preparada. Boa sorte pro próximo ladrão.'); }},
+   ]},
+
+  // --- CATEGORIA: EVENTOS ESPECIAIS RAROS ---
+  {id:'e36', tag:'RARO ⭐', icon:'🌈', titulo:'A Chuva Bioluminescente',
+   desc:'Uma chuva de partículas luminosas cobre o Vale. Mara diz que isso acontece uma vez por década — e torna a terra fértil por 3 dias.',
+   escolhas:[
+     {label:'[A] PLANTAR TUDO', texto:'Aproveitar a fertilidade máxima.',
+      consequencia:'Todas as parcelas livres ficam fertilizadas por 2 dias.',
+      exec:(s)=>{ s.plots.filter(p=>!p.locked&&p.tilled&&!p.crop).forEach(p=>p.fertilizado=true); toast('🌈 Chuva mágica! Parcelas fertilizadas!'); }},
+     {label:'[B] COLETAR AMOSTRAS', texto:'Enviar ao laboratório.',
+      consequencia:'+10 PD de pesquisa.',
+      exec:(s)=>{ s.pesquisaPD+=10; toast('🔬 Amostras coletadas: +10 PD!'); }},
+     {label:'[C] CELEBRAR', texto:'Simplesmente apreciar o momento.',
+      consequencia:'Todos os NPCs ganham 2 corações. A colônia ficará contando esse dia por anos.',
+      exec:(s)=>{ s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+2)); toast('🌈 Um momento que todos vão lembrar.'); }},
+   ]},
+  {id:'e37', tag:'RARO ⭐', icon:'🛸', titulo:'O Objeto Não Identificado',
+   desc:'Um objeto metálico caiu do céu. Não é um satélite, não é uma bomba. Rusty está confuso, o que é MUITO raro.',
+   escolhas:[
+     {label:'[A] ABRIR', texto:'Curiosidade venceu.',
+      consequencia:'Conteúdo aleatório premium: +5 PD OU +200 caps OU +5 RadAway.',
+      exec:(s)=>{ const r=Math.random(); if(r<0.33){s.pesquisaPD+=5;toast('🛸 Dentro: dados tecnológicos raros. +5 PD!');}else if(r<0.66){s.caps+=200;toast('🛸 Dentro: tesouro! +200 tampinhas!');}else{if(!s.inventario.consumiveis)s.inventario.consumiveis={};s.inventario.consumiveis.rad_x=(s.inventario.consumiveis.rad_x||0)+5;toast('🛸 Dentro: farmácia ambulante! +5 RadAway!');} }},
+     {label:'[B] ESTUDAR POR FORA', texto:'Sem abrir, apenas analisar.',
+      consequencia:'+8 PD. O mistério permanece.',
+      exec:(s)=>{ s.pesquisaPD+=8; toast('🔭 Análise externa completa: +8 PD.'); }},
+   ]},
+  {id:'e38', tag:'RARO ⭐', icon:'👑', titulo:'O Aniversário do Vale',
+   desc:'Hoje faz exatamente 1 ano desde que o Vale 111 foi fundado. Duque Ferro organizou uma celebração surpresa.',
+   escolhas:[
+     {label:'[A] CELEBRAR GRANDIOSO', texto:'Gastar 60 tampinhas num banquete.',
+      consequencia:'Todos os NPCs maxam corações. +50 tampinhas de "dízimo de gratidão".',
+      exec:(s)=>{ if(s.caps>=60){s.caps-=60;s.npcs.forEach(n=>n.hearts=5);s.caps+=50;toast('👑 Aniversário épico! Todos os corações ao máximo!');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] COMEMORAÇÃO SIMPLES', texto:'Um momento de reflexão coletiva.',
+      consequencia:'+1 coração com todos. +30 energia.',
+      exec:(s)=>{ s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1)); s.energia=Math.min(s.energiaMax,s.energia+30); toast('🕯️ Uma celebração humilde e sincera.'); }},
+   ]},
+  {id:'e39', tag:'RARO ⭐', icon:'🌋', titulo:'O Terremoto Menor',
+   desc:'Um tremor pequeno. Ninguém se feriu, mas revelou uma caverna no subsolo cheio de minerais brilhantes.',
+   escolhas:[
+     {label:'[A] EXPLORAR A CAVERNA', texto:'Descer e verificar os minerais.',
+      consequencia:'+100 tampinhas em recursos. 20% chance de acidente (+10 radiação).',
+      exec:(s)=>{ s.caps+=100; if(Math.random()<0.2){s.radiacao=Math.min(100,s.radiacao+10);toast('⛏️ Recursos encontrados! Mas houve um acidente menor.',true);}else toast('⛏️ Minerais coletados: +100 tampinhas!'); }},
+     {label:'[B] SELAR A ENTRADA', texto:'Cavernas são perigo.',
+      consequencia:'-10 radiação (caverna era fonte de vazamento). Segurança aumentada.',
+      exec:(s)=>{ s.radiacao=Math.max(0,s.radiacao-10); toast('🔒 Caverna selada. -10 radiação!'); }},
+     {label:'[C] TRANSFORMAR EM MINA', texto:'Gastar 50 tampinhas para estruturar.',
+      consequencia:'+2 PD por dia permanente.',
+      exec:(s)=>{ if(s.caps>=50){s.caps-=50;s.pesquisaPD+=3;toast('⛏️ Mina estabelecida! +3 PD imediatos.');}else toast('Tampinhas insuficientes.',true); }},
+   ]},
+  {id:'e40', tag:'RARO ⭐', icon:'🌟', titulo:'A Notícia Boa',
+   desc:'Um mensageiro chegou trazendo notícias: uma grande colônia ao norte quer estabelecer relações comerciais com o Vale 111.',
+   escolhas:[
+     {label:'[A] ACEITAR PARCERIA', texto:'Formalizar o acordo.',
+      consequencia:'+80 tampinhas imediatos e caravana de suprimentos a cada 7 dias.',
+      exec:(s)=>{ s.caps+=80; toast('🤝 Parceria estabelecida! +80 tampinhas de boas-vindas.'); }},
+     {label:'[B] NEGOCIAR MELHOR', texto:'"Queremos mais que 80 tampinhas."',
+      consequencia:'50% chance: consegue 120 tampinhas. 50%: negociação fracassa.',
+      exec:(s)=>{ if(Math.random()<0.5){s.caps+=120;toast('💰 Negociação bem-sucedida! +120 tampinhas!');}else toast('😔 Negociação fracassou. A colônia foi negociar com outros.',true); }},
+   ]},
+
+  // --- MAIS EVENTOS VARIADOS ---
+  {id:'e41', tag:'CLIMA', icon:'☀️', titulo:'A Onda de Calor Radioativa',
+   desc:'Dias de calor extremo. As plantas precisam de mais água — mas sua energia é limitada.',
+   escolhas:[
+     {label:'[A] IRRIGAR TUDO', texto:'Gastar 20 energia para regar todas as parcelas.',
+      consequencia:'Todos os cultivos sobrevivem ao calor.',
+      exec:(s)=>{ if(s.energia>=20){s.energia-=20;s.plots.filter(p=>p.crop).forEach(p=>p.watered=true);toast('💧 Todas as plantações irrigadas!');}else toast('Energia insuficiente.',true); }},
+     {label:'[B] DEIXAR A NATUREZA DECIDIR', texto:'Economizar energia.',
+      consequencia:'50% dos cultivos perdem 1 dia de crescimento.',
+      exec:(s)=>{ s.plots.filter(p=>p.crop&&!p.ready).forEach(p=>{if(Math.random()<0.5) p.growth=Math.max(0,p.growth-1);}); toast('☀️ Alguns cultivos sofreram com o calor.'); }},
+   ]},
+  {id:'e42', tag:'CLIMA', icon:'❄️', titulo:'A Geada Inesperada',
+   desc:'Uma geada fora de época congelou o Vale. Os animais estão com frio e os cultivos mais fracos podem não sobreviver.',
+   escolhas:[
+     {label:'[A] PROTEGER ANIMAIS', texto:'Usar 30 tampinhas em aquecedores improvisados.',
+      consequencia:'Animais salvos, felicidade mantida.',
+      exec:(s)=>{ if(s.caps>=30){s.caps-=30;s.animais.forEach(a=>a.felicidade=Math.min(100,a.felicidade+10));toast('🔥 Animais aquecidos!');}else{s.animais.forEach(a=>a.felicidade=Math.max(0,a.felicidade-20));toast('🥶 Animais sofreram com o frio.',true);} }},
+     {label:'[B] PROTEGER CULTIVOS', texto:'Cobrir as parcelas com o que tiver.',
+      consequencia:'-10 energia. Cultivos sobrevivem.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-10); toast('🌿 Cultivos cobertos e protegidos!'); }},
+   ]},
+  {id:'e43', tag:'CLIMA', icon:'⚡', titulo:'A Tempestade de Raios',
+   desc:'Uma tempestade elétrica atingiu o Vale. Pode energizar o sistema elétrico — ou queimar tudo.',
+   escolhas:[
+     {label:'[A] APROVEITAR A ENERGIA', texto:'Ligar os conectores e capturar os raios.',
+      consequencia:'70%: +40 energia. 30%: sistema danificado (-20 energia máxima temporariamente).',
+      exec:(s)=>{ if(Math.random()<0.7){s.energia=Math.min(s.energiaMax,s.energia+40);toast('⚡ Raio capturado! +40 energia!');}else{s.energiaMax=Math.max(50,s.energiaMax-20);toast('💥 Sistema danificado! -20 energia máxima temporária.',true);} }},
+     {label:'[B] PROTEGER OS SISTEMAS', texto:'Desligar tudo para evitar danos.',
+      consequencia:'Nada de bom, nada de ruim. Segurança.',
+      exec:(s)=>{ toast('🛡️ Sistemas protegidos durante a tempestade.'); }},
+   ]},
+  {id:'e44', tag:'FAUNA', icon:'🐝', titulo:'O Enxame de Abelhas Mutantes',
+   desc:'Um enxame de abelhas gigantes radioativas pousou na fazenda. São perigosas, mas sua polinização é lendária.',
+   escolhas:[
+     {label:'[A] DEIXAR POLINAR', texto:'Conviver com o risco pelo benefício.',
+      consequencia:'Todos os cultivos ganham +1 dia de crescimento acelerado. 30% chance de 1 ferroada (+5 radiação).',
+      exec:(s)=>{ s.plots.filter(p=>p.crop&&!p.ready).forEach(p=>p.growth+=1); if(Math.random()<0.3){s.radiacao=Math.min(100,s.radiacao+5);toast('🐝 Abelhas polinizaram tudo! Mas uma te ferrou. +5 radiação.',true);}else toast('🐝 Abelhas polinizaram todas as plantações!'); }},
+     {label:'[B] AFUGENTAR', texto:'Segurança em primeiro lugar.',
+      consequencia:'Abelhas vão embora. Oportunidade perdida.',
+      exec:(s)=>{ toast('🐝 Enxame afugentado com segurança.'); }},
+     {label:'[C] CAPTURAR RAINHAS', texto:'Tentar criar uma colmeia.',
+      consequencia:'+10 tampinhas por dia em mel radioativo. Custa 10 energia.',
+      exec:(s)=>{ if(s.energia>=10){s.energia-=10;s.caps+=30;toast('🍯 Colmeia estabelecida! +30 tampinhas de mel imediatos.');}else toast('Energia insuficiente.',true); }},
+   ]},
+  {id:'e45', tag:'FAUNA', icon:'🐊', titulo:'O Predador nos Arredores',
+   desc:'Um lagarto gigante mutante foi visto circulando a fazenda. Ainda não atacou — mas está claramente observando.',
+   escolhas:[
+     {label:'[A] AFUGENTAR COM FOGO', texto:'Gastar 15 energia.',
+      consequencia:'Lagarto vai embora. Segurança por 5 dias.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-15); toast('🔥 Lagarto afugentado!'); }},
+     {label:'[B] TENTAR DOMAR', texto:'Arriscado, mas incrível se funcionar.',
+      consequencia:'20%: lagarto vira guardião do Vale. 80%: ataque, +20 radiação.',
+      exec:(s)=>{ if(Math.random()<0.2){toast('🦎 INCRÍVEL! O lagarto aceita você como líder!');}else{s.radiacao=Math.min(100,s.radiacao+20);toast('🦎 Tentativa de doma falhou. +20 radiação.',true);} }},
+     {label:'[C] IGNORAR', texto:'Talvez passe para outra área.',
+      consequencia:'60%: some sozinho. 40%: destrói 1 parcela.',
+      exec:(s)=>{ if(Math.random()<0.6){toast('🦎 O lagarto perdeu interesse e foi embora.');}else{const p=s.plots.find(x=>x.crop);if(p){p.crop=null;p.growth=0;toast('🦎 O lagarto destruiu um cultivo!',true);}else toast('🦎 Lagarto foi embora sem causar dano maior.');} }},
+   ]},
+  {id:'e46', tag:'MEMÓRIA', icon:'📸', titulo:'O Diário Pré-Guerra',
+   desc:'Encontrou um diário enterrado. Pertencia a uma agricultora de antes da guerra. As técnicas descritas são perdidas há décadas.',
+   escolhas:[
+     {label:'[A] ESTUDAR O DIÁRIO', texto:'Dedicar tempo à leitura.',
+      consequencia:'+12 XP de Agricultura.',
+      exec:(s)=>{ ganharXP('agricultura',12); toast('📖 Técnicas ancestrais aprendidas!'); }},
+     {label:'[B] COMPARTILHAR COM MARA', texto:'Ela vai amar isso.',
+      consequencia:'+3 corações com Mara. Ela usa as técnicas.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara'); if(m)m.hearts=Math.min(5,m.hearts+3); ganharXP('social',8); toast('📚 Mara ficou emocionada com o diário.'); }},
+     {label:'[C] ARQUIVAR NA COLÔNIA', texto:'Para a história do Vale.',
+      consequencia:'+2 Pontos de Legado.',
+      exec:(s)=>{ s.pesquisaPD+=3; toast('🏛️ Diário arquivado na história do Vale 111.'); }},
+   ]},
+  {id:'e47', tag:'MEMÓRIA', icon:'🏚️', titulo:'As Ruínas Próximas',
+   desc:'Uma construção pré-guerra está a 500m do Vale. Pode ter recursos — ou ser lar de criaturas hostis.',
+   escolhas:[
+     {label:'[A] EXPLORAR SOZINHO', texto:'-15 energia.',
+      consequencia:'70%: +80 tampinhas em recursos. 30%: combate, -20 energia adicional.',
+      exec:(s)=>{ if(s.energia>=15){s.energia-=15;if(Math.random()<0.7){s.caps+=80;toast('🏚️ Ruínas exploradas: +80 tampinhas!');}else{s.energia=Math.max(1,s.energia-20);toast('⚔️ Encontrou criaturas! Batalhou e escapou.',true);}}else toast('Energia insuficiente.',true); }},
+     {label:'[B] EXPLORAR EM GRUPO', texto:'Levar o guarda especialista, se disponível.',
+      consequencia:'Com guarda: +100 tampinhas, sem risco. Sem guarda: igual a ir sozinho.',
+      exec:(s)=>{ const temGuarda=s.colonosEspecialistas.some(c=>c.tipo==='guarda'); if(temGuarda){s.caps+=100;toast('🛡️ Guarda protegeu a expedição: +100 tampinhas!');}else{if(s.energia>=15){s.energia-=15;s.caps+=80;toast('🏚️ Exploração bem-sucedida: +80 tampinhas!');}else toast('Energia insuficiente.',true);} }},
+   ]},
+  {id:'e48', tag:'MEMÓRIA', icon:'🎵', titulo:'A Música no Vento',
+   desc:'Um som melodioso veio de longe. Alguém está tocando violão nos escombros. Mara diz que é um sinal de civilização próxima.',
+   escolhas:[
+     {label:'[A] IR AO ENCONTRO', texto:'Seguir a música.',
+      consequencia:'+1 colono se o Vale tiver espaço.',
+      exec:(s)=>{ if(s.colonosEspecialistas.length<COLONO_TIPOS.length){const tipo=COLONO_TIPOS.find(t=>!s.colonosEspecialistas.some(c=>c.tipo===t.tipo));if(tipo){s.colonosEspecialistas.push({tipo:tipo.tipo,nome:gerarNomeColono()});toast('🎵 O músico se juntou ao Vale como '+tipo.nome+'!');}}else toast('🎵 O músico visitou mas o Vale estava cheio.'); }},
+     {label:'[B] ENVIAR MENSAGEM', texto:'Mandar convite via Pip.',
+      consequencia:'+2 PD de pesquisa (troca de conhecimento à distância).',
+      exec:(s)=>{ s.pesquisaPD+=2; toast('🐕 Pip entregou a mensagem!'); }},
+   ]},
+  {id:'e49', tag:'COLÔNIA', icon:'🧪', titulo:'O Produto Contaminado',
+   desc:'Rusty alerta: um lote de colheitas está com nível de radiação acima do aceitável. Vender pode prejudicar compradores.',
+   escolhas:[
+     {label:'[A] VENDER MESMO ASSIM', texto:'"Radiação é normal por aqui."',
+      consequencia:'+60 tampinhas. -2 corações com Mara e Duque Ferro.',
+      exec:(s)=>{ s.caps+=60;const m=s.npcs.find(n=>n.id==='mara'),d=s.npcs.find(n=>n.id==='duke');if(m)m.hearts=Math.max(0,m.hearts-2);if(d)d.hearts=Math.max(0,d.hearts-2);toast('💸 Vendido. Seus colonos não aprovaram.'); }},
+     {label:'[B] DESCARTAR', texto:'Fazer a coisa certa.',
+      consequencia:'-0 tampinhas, mas +2 corações com Mara. Reputação intacta.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara');if(m)m.hearts=Math.min(5,m.hearts+2);toast('✅ Mara ficou orgulhosa da sua decisão.'); }},
+     {label:'[C] PURIFICAR', texto:'Gastar 2 RadAway para limpar as colheitas.',
+      consequencia:'Colheitas vendáveis + mantém reputação.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>=2){s.inventario.consumiveis.rad_x-=2;s.caps+=60;toast('💊 Colheitas purificadas e vendidas!');}else toast('Sem RadAway suficiente.',true); }},
+   ]},
+  {id:'e50', tag:'COLÔNIA', icon:'🎓', titulo:'O Ensinamento de Mara',
+   desc:'Mara quer passar um dia ensinando técnicas de plantio avançadas. Mas isso significa que você perde 1 dia de trabalho.',
+   escolhas:[
+     {label:'[A] PARTICIPAR', texto:'Aprender com a veterana.',
+      consequencia:'+20 XP de Agricultura e +2 corações com Mara.',
+      exec:(s)=>{ ganharXP('agricultura',20);const m=s.npcs.find(n=>n.id==='mara');if(m)m.hearts=Math.min(5,m.hearts+2);toast('🌾 Lição de Mara aprendida!'); }},
+     {label:'[B] RECUSAR', texto:'Muito ocupado.',
+      consequencia:'Mara fica desapontada. -1 coração.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara');if(m)m.hearts=Math.max(0,m.hearts-1);toast('😞 Mara entendeu, mas ficou triste.'); }},
+   ]},
+  {id:'e51', tag:'CRISE', icon:'🌵', titulo:'A Seca de Recursos',
+   desc:'As reservas do Vale estão baixas. Mara sugere um racionamento de 3 dias para reagrupar.',
+   escolhas:[
+     {label:'[A] ACEITAR RACIONAMENTO', texto:'"Três dias magros para um futuro forte."',
+      consequencia:'-30 energia atual. +1 coração com Mara e Duque Ferro.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-30);const m=s.npcs.find(n=>n.id==='mara'),d=s.npcs.find(n=>n.id==='duke');if(m)m.hearts=Math.min(5,m.hearts+1);if(d)d.hearts=Math.min(5,d.hearts+1);toast('🌵 Racionamento aceito. A colônia resiste.'); }},
+     {label:'[B] VENDER TUDO', texto:'Liquidar estoques para sobreviver.',
+      consequencia:'+100 tampinhas mas sem colheitas por 2 dias.',
+      exec:(s)=>{ const keys=Object.keys(s.inventario.colheitas);let total=0;keys.forEach(k=>{total+=s.inventario.colheitas[k]*CROPS[k].venda;s.inventario.colheitas[k]=0;});s.caps+=total;toast('💰 Estoque liquidado: +'+total+' tampinhas!'); }},
+   ]},
+  {id:'e52', tag:'FAUNA', icon:'🦅', titulo:'A Águia Mutante',
+   desc:'Uma águia do tamanho de um cão pousou no telhado do abrigo. Parece domesticável — e poderia ser um mensageiro perfeito.',
+   escolhas:[
+     {label:'[A] TENTAR DOMAR', texto:'Oferecer comida.',
+      consequencia:'Se tiver produto animal: águia vira mensageiro (+20 tampinhas por dia). 40% foge.',
+      exec:(s)=>{ const k=Object.keys(s.produtosAnimais).find(k=>s.produtosAnimais[k]>0); if(k){s.produtosAnimais[k]--;if(Math.random()<0.6){s.caps+=20;toast('🦅 Águia domada! +20 tampinhas de comércio!');}else toast('🦅 A águia foi embora depois de comer.',true);}else toast('Sem produto animal para oferecer.',true); }},
+     {label:'[B] IGNORAR', texto:'Que pouse onde quiser.',
+      consequencia:'+5 PD (observação científica).',
+      exec:(s)=>{ s.pesquisaPD+=5; toast('🔭 Observação científica: +5 PD!'); }},
+   ]},
+  {id:'e53', tag:'CIÊNCIA', icon:'🔮', titulo:'A Visão do Cientista',
+   desc:'Seu cientista especialista teve uma "visão" após exposição controlada à radiação. Ele diz que sabe onde há um artefato tecnológico único.',
+   escolhas:[
+     {label:'[A] SEGUIR A VISÃO', texto:'Organizar expedição imediata.',
+      consequencia:'-20 energia. +15 PD se bem-sucedido (70% chance).',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-20);if(Math.random()<0.7){s.pesquisaPD+=15;toast('🔮 Visão confirmada! +15 PD encontrados!');}else toast('🔮 A visão foi... imprecisa.',true); }},
+     {label:'[B] DOCUMENTAR', texto:'Registrar para pesquisa futura.',
+      consequencia:'+5 PD.',
+      exec:(s)=>{ s.pesquisaPD+=5; toast('📝 Visão documentada: +5 PD.'); }},
+   ]},
+  {id:'e54', tag:'COLÔNIA', icon:'🏗️', titulo:'A Proposta do Engenheiro',
+   desc:'Seu engenheiro quer construir uma muralha ao redor de todo o Vale. Projeto ambicioso, custoso, mas transformador.',
+   escolhas:[
+     {label:'[A] APROVAR PROJETO', texto:'Investir 150 tampinhas.',
+      consequencia:'Proteção permanente: tempestades nunca adicionam mais de 10 de radiação.',
+      exec:(s)=>{ if(s.caps>=150){s.caps-=150;toast('🏗️ Muralha em construção! O Vale está mais seguro.');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] ADIAR', texto:'"Quando tivermos mais recursos."',
+      consequencia:'Engenheiro aceita. Volta com proposta melhorada em breve.',
+      exec:(s)=>{ toast('⏳ Projeto adiado. O engenheiro vai aperfeiçoar os planos.'); }},
+   ]},
+  {id:'e55', tag:'PERSONAGEM', icon:'🐾', titulo:'Pip Está Doente',
+   desc:'Pip está claramente mal — cauda caída, olhos opacos. O veterinário improvisado diz que pode ser contaminação radioativa.',
+   escolhas:[
+     {label:'[A] TRATAR COM RADAWAY', texto:'Usar 1 RadAway no Pip.',
+      consequencia:'Pip se recupera completamente. +3 corações.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>0){s.inventario.consumiveis.rad_x--;const pip=s.npcs.find(n=>n.id==='pip');if(pip)pip.hearts=Math.min(5,pip.hearts+3);toast('💊 Pip se recuperou! Está com toda energia!');}else toast('Sem RadAway para tratar Pip.',true); }},
+     {label:'[B] DESCANSO FORÇADO', texto:'Deixar Pip descansar no abrigo.',
+      consequencia:'Pip melhora em 3 dias. -1 coração temporariamente.',
+      exec:(s)=>{ const pip=s.npcs.find(n=>n.id==='pip');if(pip)pip.hearts=Math.max(0,pip.hearts-1);toast('🛌 Pip está descansando. Vai melhorar logo.'); }},
+   ]},
+  {id:'e56', tag:'CRISE', icon:'🕷️', titulo:'A Invasão das Aranhas',
+   desc:'Aranhas mutantes do tamanho de gatos invadiram a oficina. As ferramentas estão bloqueadas até resolver o problema.',
+   escolhas:[
+     {label:'[A] COMBATER', texto:'-10 energia mas limpa a oficina.',
+      consequencia:'Oficina liberada. +10 XP de combate.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-10);ganharXP('combate',10);toast('🕷️ Aranhas eliminadas! Oficina liberada.'); }},
+     {label:'[B] FUMIGAR', texto:'Gastar 30 tampinhas em produtos químicos.',
+      consequencia:'Zero custo de energia. Oficina limpa.',
+      exec:(s)=>{ if(s.caps>=30){s.caps-=30;toast('💨 Fumigação bem-sucedida!');}else toast('Tampinhas insuficientes.',true); }},
+   ]},
+  {id:'e57', tag:'COMÉRCIO', icon:'🎲', titulo:'A Aposta de Rusty',
+   desc:'Rusty propõe uma aposta: "Duplique suas tampinhas ou perca metade." Ele calcula a probabilidade com antecedência mas não revela.',
+   escolhas:[
+     {label:'[A] APOSTAR TUDO', texto:'"Vamos nessa, Rusty."',
+      consequencia:'50% chance: duplica tampinhas. 50%: perde metade.',
+      exec:(s)=>{ if(Math.random()<0.5){s.caps*=2;toast('🎲 GANHOU! Tampinhas dobradas!');}else{s.caps=Math.floor(s.caps/2);toast('🎲 PERDEU. Metade das tampinhas foi embora.',true);} }},
+     {label:'[B] RECUSAR', texto:'"Não jogo com robôs sorridentes."',
+      consequencia:'Rusty fica levemente ofendido. -1 coração.',
+      exec:(s)=>{ const r=s.npcs.find(n=>n.id==='rusty');if(r)r.hearts=Math.max(0,r.hearts-1);toast('🤖 Rusty: "Calculei que você recusaria. Estatisticamente previsível."'); }},
+   ]},
+  {id:'e58', tag:'COLÔNIA', icon:'📊', titulo:'O Relatório de Eficiência',
+   desc:'Rusty compilou um relatório: o Vale está desperdiçando 23% da energia em tarefas ineficientes. Ele tem uma solução.',
+   escolhas:[
+     {label:'[A] IMPLEMENTAR', texto:'Aceitar as recomendações de Rusty.',
+      consequencia:'+10 energia máxima permanente. +2 corações com Rusty.',
+      exec:(s)=>{ s.energiaMax+=10;const r=s.npcs.find(n=>n.id==='rusty');if(r)r.hearts=Math.min(5,r.hearts+2);toast('📊 Eficiência aumentada! +10 energia máxima.'); }},
+     {label:'[B] IGNORAR O RELATÓRIO', texto:'"Vai bem como está."',
+      consequencia:'-1 coração com Rusty. Nada muda.',
+      exec:(s)=>{ const r=s.npcs.find(n=>n.id==='rusty');if(r)r.hearts=Math.max(0,r.hearts-1);toast('📊 Rusty arquivou o relatório com um suspiro eletrônico.'); }},
+   ]},
+  {id:'e59', tag:'CRISE', icon:'👻', titulo:'O Barulho Noturno',
+   desc:'Barulhos inexplicáveis à noite. Alguns colonos estão assustados. Duque Ferro acredita que são saqueadores, Mara acha que são animais.',
+   escolhas:[
+     {label:'[A] ORGANIZAR PATRULHA', texto:'-10 energia. Descobrir a verdade.',
+      consequencia:'Era um grupo de porcos mutantes. Opcionalmente caçar para ganhar ração.',
+      exec:(s)=>{ s.energia=Math.max(1,s.energia-10);s.inventario.racao=(s.inventario.racao||0)+2;toast('🐗 Eram porcos mutantes! +2 Rações coletadas.'); }},
+     {label:'[B] IGNORAR E DORMIR', texto:'"Vai passar."',
+      consequencia:'Pode ser nada OU pode ser ladrão (30% chance: -50 tampinhas).',
+      exec:(s)=>{ if(Math.random()<0.3){s.caps=Math.max(0,s.caps-50);toast('😱 Era um ladrão! -50 tampinhas roubadas.',true);}else toast('😴 Não era nada. Só o vento entre as ruínas.'); }},
+   ]},
+  {id:'e60', tag:'COLÔNIA', icon:'🌻', titulo:'O Jardim de Mara',
+   desc:'Mara pede permissão para criar um jardim ornamental no Vale. "Não é só sobre sobreviver — é sobre viver."',
+   escolhas:[
+     {label:'[A] APROVAR', texto:'"O Vale precisa de beleza também."',
+      consequencia:'+3 corações com Mara. +1 coração com todos os NPCs.',
+      exec:(s)=>{ s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+1));const m=s.npcs.find(n=>n.id==='mara');if(m)m.hearts=Math.min(5,m.hearts+2);toast('🌻 Jardim criado! O Vale ficou mais bonito.'); }},
+     {label:'[B] RECUSAR', texto:'"Espaço é recurso. Precisamos de mais parcelas."',
+      consequencia:'-2 corações com Mara. +1 parcela desbloqueada.',
+      exec:(s)=>{ const m=s.npcs.find(n=>n.id==='mara');if(m)m.hearts=Math.max(0,m.hearts-2);if(s.parcelasDesbloqueadas<TOTAL_PLOTS){const locked=s.plots.find(p=>p.locked);if(locked){locked.locked=false;s.parcelasDesbloqueadas++;}}toast('😢 Mara ficou triste. Mas você ganhou uma parcela.'); }},
+   ]},
+  {id:'e61', tag:'CRISE', icon:'🦠', titulo:'A Contaminação da Água',
+   desc:'A fonte de água do Vale foi contaminada com resíduos mutagênicos. Todos os animais perderam 20 de fome imediatamente.',
+   escolhas:[
+     {label:'[A] PURIFICAR', texto:'Gastar 1 RadAway para purificar.',
+      consequencia:'Água limpa. Animais recuperam fome gradualmente.',
+      exec:(s)=>{ if(s.inventario.consumiveis?.rad_x>0){s.inventario.consumiveis.rad_x--;toast('💧 Água purificada!');}else{s.animais.forEach(a=>a.fome=Math.max(0,a.fome-20));toast('☠️ Sem RadAway! Animais sofrendo.',true);} }},
+     {label:'[B] CRIAR NOVA FONTE', texto:'Gastar 80 tampinhas para cavar novo poço.',
+      consequencia:'Novo poço permanente: animais sempre com +10 fome base.',
+      exec:(s)=>{ if(s.caps>=80){s.caps-=80;s.animais.forEach(a=>a.fome=Math.min(100,a.fome+10));toast('⛏️ Novo poço construído!');}else toast('Tampinhas insuficientes.',true); }},
+   ]},
+  {id:'e62', tag:'PERSONAGEM', icon:'🌙', titulo:'A Insônia do Duque',
+   desc:'Você encontrou Duque Ferro acordado às 3h, olhando para o horizonte. Ele parece carregando um peso que não partilha.',
+   escolhas:[
+     {label:'[A] CONVERSAR', texto:'Ouvir o que ele tem a dizer.',
+      consequencia:'+3 corações com Duque Ferro. Você descobre uma informação estratégica valiosa.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke');if(d)d.hearts=Math.min(5,d.hearts+3);s.caps+=30;ganharXP('social',12);toast('🌙 Duque Ferro confessou seus medos. +30 tampinhas de confiança.'); }},
+     {label:'[B] DEIXAR EM PAZ', texto:'Todo mundo tem direito aos próprios pensamentos.',
+      consequencia:'Nada acontece. Privacidade respeitada.',
+      exec:(s)=>{ toast('🌙 Você deixou Duque Ferro com seus pensamentos.'); }},
+   ]},
+  {id:'e63', tag:'COMÉRCIO', icon:'🎨', titulo:'O Artista Peregrino',
+   desc:'Um artista ambulante oferece retratos da colônia em troca de hospedagem por 1 semana. As obras podem valer muito um dia.',
+   escolhas:[
+     {label:'[A] ACEITAR', texto:'Arte tem valor.',
+      consequencia:'+2 corações com todos os NPCs. Arte da colônia registrada para a história.',
+      exec:(s)=>{ s.npcs.forEach(n=>n.hearts=Math.min(5,n.hearts+2));s.pesquisaPD+=2;toast('🎨 O artista capturou a beleza do Vale 111!'); }},
+     {label:'[B] RECUSAR', texto:'"Não temos espaço."',
+      consequencia:'O artista vai embora decepcionado.',
+      exec:(s)=>{ toast('🎨 O artista partiu, pincel na mão e tristeza no coração.'); }},
+   ]},
+  {id:'e64', tag:'COLÔNIA', icon:'⚙️', titulo:'A Manutenção Preventiva',
+   desc:'Rusty recomenda uma parada geral para manutenção de todos os sistemas. "Prevenir é melhor que reconstruir."',
+   escolhas:[
+     {label:'[A] FAZER A MANUTENÇÃO', texto:'Gastar 1 dia e 30 tampinhas.',
+      consequencia:'Todos os sistemas funcionando a 100% por 7 dias. +2 corações com Rusty.',
+      exec:(s)=>{ if(s.caps>=30){s.caps-=30;s.energia=s.energiaMax;const r=s.npcs.find(n=>n.id==='rusty');if(r)r.hearts=Math.min(5,r.hearts+2);toast('⚙️ Manutenção completa! Sistemas otimizados.');}else toast('Tampinhas insuficientes.',true); }},
+     {label:'[B] PULAR A MANUTENÇÃO', texto:'"Está funcionando, não mexe."',
+      consequencia:'20% chance de falha de sistema nos próximos 5 dias.',
+      exec:(s)=>{ toast('⚠️ Rusty registrou sua decisão com desaprovação elétrica.'); }},
+   ]},
+  {id:'e65', tag:'RARO ⭐', icon:'🌍', titulo:'O Rádio Internacional',
+   desc:'A Torre captou uma transmissão internacional. Há uma grande cidade sobrevivente a 400km. Eles estão organizando uma expedição ao Vale.',
+   escolhas:[
+     {label:'[A] RECEBER COM HONRAS', texto:'Preparar para visitantes importantes.',
+      consequencia:'+150 tampinhas de intercâmbio. +1 colono especialista.',
+      exec:(s)=>{ s.caps+=150;if(s.colonosEspecialistas.length<COLONO_TIPOS.length){const tipo=COLONO_TIPOS.find(t=>!s.colonosEspecialistas.some(c=>c.tipo===t.tipo));if(tipo){s.colonosEspecialistas.push({tipo:tipo.tipo,nome:gerarNomeColono()});}}toast('🌍 Delegação recebida! +150 tampinhas e novo especialista!'); }},
+     {label:'[B] MANTER SIGILO', texto:'Não quer exposição.',
+      consequencia:'Segurança mantida. Perda de oportunidade.',
+      exec:(s)=>{ toast('🔇 O Vale permanece no anonimato. Por enquanto.'); }},
+   ]},
+  {id:'e66', tag:'COLÔNIA', icon:'🎯', titulo:'O Objetivo Maior',
+   desc:'Duque Ferro apresenta um "Plano para 10 Anos": transformar o Vale 111 em referência pós-guerra. Precisa de comprometimento coletivo.',
+   escolhas:[
+     {label:'[A] COMPROMETER-SE TOTALMENTE', texto:'O Vale vem primeiro.',
+      consequencia:'+5 corações com Duque Ferro. +10 XP em todas as perícias.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke');if(d)d.hearts=5;Object.keys(SKILLS).forEach(k=>ganharXP(k,10));toast('🎯 Comprometimento total! O Vale tem um futuro!'); }},
+     {label:'[B] APOIAR COM RESSALVAS', texto:'"Vamos ver como vai."',
+      consequencia:'+2 corações com Duque Ferro. Plano segue em andamento.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke');if(d)d.hearts=Math.min(5,d.hearts+2);toast('📋 Duque registrou seu apoio parcial.'); }},
+   ]},
+  {id:'e67', tag:'RARO ⭐', icon:'🕊️', titulo:'A Paz Entre Colônias',
+   desc:'Três colônias rivais mandaram representantes propondo um tratado de paz e cooperação. Uma nova era pode começar.',
+   escolhas:[
+     {label:'[A] ASSINAR O TRATADO', texto:'Pelo futuro de todos.',
+      consequencia:'+200 tampinhas. Radiação nunca mais sobe acima de 50%.',
+      exec:(s)=>{ s.caps+=200;s.radiacao=Math.min(s.radiacao,50);toast('🕊️ TRATADO ASSINADO! Uma nova era para o Vale 111!'); }},
+     {label:'[B] NEGOCIAR TERMOS', texto:'"Queremos garantias antes de assinar."',
+      consequencia:'+100 tampinhas agora, mais benefícios futuros.',
+      exec:(s)=>{ s.caps+=100;toast('📜 Negociação em andamento. +100 tampinhas adiantadas.'); }},
+     {label:'[C] RECUSAR', texto:'"O Vale caminha sozinho."',
+      consequencia:'+3 corações com Duque Ferro (independência). Sem bônus econômicos.',
+      exec:(s)=>{ const d=s.npcs.find(n=>n.id==='duke');if(d)d.hearts=Math.min(5,d.hearts+3);toast('✊ O Vale 111 mantém sua independência.'); }},
+   ]},
+];
+
+// Estado de controle de eventos
+let eventoPendente = null;
+let ultimoDiaEvento = 0;
+
+function tentarDispararEvento() {
+  // Não disparar se já houve evento no mesmo dia
+  if (state.dia === ultimoDiaEvento) return;
+  // Disparar com chance de ~25% por dia, começando no dia 3
+  if (state.dia < 3) return;
+  if (Math.random() > 0.25) return;
+
+  // Filtrar eventos já vistos (evitar repetição imediata)
+  if (!state.eventosVistos) state.eventosVistos = new Set();
+  let pool = RANDOM_EVENTS.filter(e => !state.eventosVistos.has(e.id));
+  if (pool.length === 0) { state.eventosVistos.clear(); pool = RANDOM_EVENTS; }
+
+  const evento = pool[Math.floor(Math.random() * pool.length)];
+  state.eventosVistos.add(evento.id);
+  ultimoDiaEvento = state.dia;
+  mostrarEvento(evento);
+}
+
+function mostrarEvento(evento) {
+  eventoPendente = evento;
+  const modal = document.getElementById('event-modal');
+
+  const choicesHtml = evento.escolhas.map((c, i) => `
+    <button class="ev-choice" data-evchoice="${i}">
+      <span class="ev-choice-label">${c.label}</span>
+      ${c.texto}
+      <span class="ev-consequence ${consequenciaClass(c.consequencia)}">${c.consequencia}</span>
+    </button>
+  `).join('');
+
+  modal.innerHTML = `
+    <div class="event-modal-box">
+      <div class="ev-header">
+        <div class="ev-icon">${evento.icon}</div>
+        <div class="ev-title-block">
+          <div class="ev-tag">📅 DIA ${state.dia} · ${evento.tag}</div>
+          <div class="ev-title">${evento.titulo}</div>
+        </div>
+      </div>
+      <div class="ev-body">
+        <div class="ev-desc">${evento.desc}</div>
+        <div class="ev-choices">${choicesHtml}</div>
+      </div>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+
+  modal.querySelectorAll('[data-evchoice]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.evchoice);
+      resolverEscolha(idx);
+    });
+  });
+}
+
+function consequenciaClass(texto) {
+  const pos = ['+','ganha','salvo','curado','cresce','recupera','proteg','melhora','bem-sucedido','dobr'];
+  const neg = ['-','perde','destrói','sofreu','danificado','roubad','fugiu','perdid'];
+  const tl = texto.toLowerCase();
+  if (pos.some(p => tl.includes(p))) return 'pos';
+  if (neg.some(n => tl.includes(n))) return 'neg';
+  return 'neu';
+}
+
+function resolverEscolha(idx) {
+  if (!eventoPendente) return;
+  const escolha = eventoPendente.escolhas[idx];
+  escolha.exec(state);
+  document.getElementById('event-modal').classList.add('hidden');
+  eventoPendente = null;
+  checkMarcos();
+  renderAll();
+}
+
+// Integrar eventos ao advanceDay — disparar após avançar
+const _origAdvanceDay = advanceDay;
+window.advanceDay = function() {
+  _origAdvanceDay();
+  setTimeout(tentarDispararEvento, 400);
+};
+// Rebind sleep button após o override
+document.addEventListener('keydown', (e) => {
   const tool = TOOLS.find(t=>t.key===e.key);
   if (tool){ state.toolAtivo=tool.id; renderHotbar(); }
 });
 
-// ─────────────────────────────────────────────────────────────
-// TAB / PANEL BINDINGS
-// ─────────────────────────────────────────────────────────────
 document.querySelectorAll('.sp-tab').forEach(tab=>{
   tab.addEventListener('click',()=>{ activeTab=tab.dataset.tab; renderSidepanel(); });
 });
 document.getElementById('toggle-panel').addEventListener('click',()=>{
   document.getElementById('sidepanel').classList.toggle('open');
 });
-
-// ─────────────────────────────────────────────────────────────
-// RENDER ALL
-// ─────────────────────────────────────────────────────────────
 function renderAll(){
   renderTopbar();
   renderFarm();
   renderHotbar();
   renderSidepanel();
 }
-
-// ─────────────────────────────────────────────────────────────
-// BOOT
-// ─────────────────────────────────────────────────────────────
 window.addEventListener('load',()=>{
   setTimeout(()=>{
     const loader=document.getElementById('loading-screen');
     if (loader){ loader.classList.add('fade-out'); setTimeout(()=>loader.remove(),1300); }
     renderAll();
-    toast('Bem-vindo ao Vale 111. A terra espera por você. 🌱');
+    toast('Bem-vindo ao Vale 111. A terra espera por você. reconstrua a civilização ! ');
   },1700);
 });
 </script>
