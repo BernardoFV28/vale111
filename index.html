@@ -309,7 +309,20 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   display:flex;flex-direction:column;overflow:hidden;
   box-shadow:-4px 0 0 0 #000;
 }
-#sp-tabs{display:flex;flex-wrap:wrap;border-bottom:3px solid var(--border);background:#0a0c08;}
+#sp-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  border-bottom:3px solid var(--border);
+  background:#0a0c08;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+/* Horizontal scroll on very small screens */
+@media(max-width:480px){
+  #sp-tabs{flex-wrap:nowrap;overflow-x:auto;}
+  .sp-tab{flex:0 0 auto;min-width:60px;}
+}
 .sp-tab{flex:1 1 33%;padding:8px 4px;font-family:var(--font-pixel);font-size:8px;letter-spacing:1px;color:var(--text-dim);border:2px solid transparent;border-bottom:3px solid var(--border);transition:.1s;}
 .sp-tab.active{color:var(--pip-green);border-bottom-color:var(--pip-green);background:var(--panel2);text-shadow:1px 1px 0 #000;box-shadow:inset 0 3px 0 0 rgba(95,255,138,.15);}
 .sp-tab:hover:not(.active){color:var(--text-bright);background:var(--panel2);}
@@ -635,9 +648,12 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
         <button class="sp-tab" data-tab="loja">EMPÓRIO</button>
         <button class="sp-tab" data-tab="abrigo">ABRIGO</button>
         <button class="sp-tab" data-tab="animais">CURRAL</button>
+        <button class="sp-tab" data-tab="ruinas">🏛️RUÍNAS</button>
         <button class="sp-tab" data-tab="construcoes">SETORES</button>
         <button class="sp-tab" data-tab="habilidades">PERÍCIAS</button>
         <button class="sp-tab" data-tab="colonia">COLÔNIA</button>
+        <button class="sp-tab" data-tab="historico">📜HIST.</button>
+        <button class="sp-tab" data-tab="save">💾SAVE</button>
       </div>
       <div id="sp-content"></div>
     </div>
@@ -872,6 +888,130 @@ function getColonyTier(){
   for (const t of COLONY_TIERS){ if (pts >= t.minPontos) tier = t; }
   return tier;
 }
+const RUINAS_ZONAS = [
+  {id:1, nome:'Superfície em Ruínas', emoji:'🏚️', custoEnergia:12, custoCaps:0, minExploracoes:0,
+    desc:'Os destroços do antigo povoado. Seguro, mas com poucos tesouros valiosos.',
+    loot:[
+      {tipo:'caps', peso:35, min:5, max:20},
+      {tipo:'sucata', peso:30, min:1, max:3},
+      {tipo:'nada', peso:20},
+      {tipo:'relíquia', peso:10, pool:['Lata de Refrigerante Pré-Guerra','Boné Desbotado da Liga','Disco de Vinil Quebrado']},
+      {tipo:'perigo', peso:5, radiacao:[3,8], mensagem:'Você pisou numa poça radioativa!'},
+    ]},
+  {id:2, nome:'Subsolo do Vale', emoji:'🕳️', custoEnergia:20, custoCaps:0, minExploracoes:5,
+    desc:'Túneis colapsados e bunkers esquecidos. Mais perigoso, mais recompensador.',
+    loot:[
+      {tipo:'caps', peso:28, min:15, max:45},
+      {tipo:'sucata', peso:25, min:2, max:5},
+      {tipo:'nada', peso:15},
+      {tipo:'relíquia', peso:20, pool:['Terminal Pip-Boy Quebrado','Capacete de Patrulheiro','Mapa do Vale Original','Chave-Mestra Enferrujada']},
+      {tipo:'perigo', peso:12, radiacao:[8,16], mensagem:'Um mutante das sombras atacou! Você fugiu, mas se feriu.'},
+    ]},
+  {id:3, nome:'Cofre Profundo', emoji:'🔐', custoEnergia:30, custoCaps:80, minExploracoes:15,
+    desc:'Um cofre pré-guerra selado. Exige tampinhas para reativar o acesso, mas guarda tesouros raros.',
+    loot:[
+      {tipo:'caps', peso:25, min:40, max:120},
+      {tipo:'sucata', peso:15, min:3, max:8},
+      {tipo:'nada', peso:10},
+      {tipo:'relíquia', peso:35, pool:['Núcleo de Energia Intacto','Coroa do Antigo Prefeito','Diário do Último Cientista','Semente Geneticamente Pura','Medalha de Honra ao Mérito']},
+      {tipo:'perigo', peso:15, radiacao:[12,22], mensagem:'O sistema de defesa do cofre disparou! Radiação severa.'},
+    ]},
+];
+
+function getZonaAtual(){
+  return RUINAS_ZONAS.find(z=>z.id===state.ruinas.zonaSelecionada) || RUINAS_ZONAS[0];
+}
+
+function zonaDesbloqueada(zona){
+  return state.ruinas.exploracoes >= zona.minExploracoes;
+}
+
+function sortearLoot(zona){
+  const total = zona.loot.reduce((s,l)=>s+l.peso,0);
+  let r = Math.random()*total;
+  for (const l of zona.loot){
+    if (r < l.peso) return l;
+    r -= l.peso;
+  }
+  return zona.loot[0];
+}
+
+function explorarRuinas(){
+  const zona = getZonaAtual();
+  if (!zonaDesbloqueada(zona)){ toast('Zona ainda bloqueada.', true); return; }
+  if (state.energia < zona.custoEnergia){ toast('Energia insuficiente para explorar.', true); return; }
+  if (zona.id===3 && !state.ruinas.cofreAberto){
+    if (state.caps < zona.custoCaps){ toast('Tampinhas insuficientes para reativar o Cofre Profundo.', true); return; }
+    state.caps -= zona.custoCaps;
+    state.ruinas.cofreAberto = true;
+    toast('🔐 Cofre Profundo reativado! Acesso liberado.');
+  }
+  state.energia = Math.max(0, state.energia - zona.custoEnergia);
+  state.ruinas.exploracoes++;
+
+  const resultado = sortearLoot(zona);
+  if (resultado.tipo==='caps'){
+    const valor = Math.floor(resultado.min + Math.random()*(resultado.max-resultado.min+1));
+    state.caps += valor;
+    state.maiorCapsAcumulado = Math.max(state.maiorCapsAcumulado, state.caps);
+    toast('🧢 Encontrou '+valor+' tampinhas nas ruínas!');
+  } else if (resultado.tipo==='sucata'){
+    const qtd = Math.floor(resultado.min + Math.random()*(resultado.max-resultado.min+1));
+    state.inventario.sucata = (state.inventario.sucata||0) + qtd;
+    toast('🔩 Encontrou '+qtd+'x Sucata.');
+  } else if (resultado.tipo==='relíquia'){
+    const nome = resultado.pool[Math.floor(Math.random()*resultado.pool.length)];
+    state.ruinas.relíquias.push({nome, zona:zona.nome, dia:state.dia});
+    toast('✨ RELÍQUIA ENCONTRADA: '+nome+'!');
+  } else if (resultado.tipo==='perigo'){
+    const rad = Math.floor(resultado.radiacao[0] + Math.random()*(resultado.radiacao[1]-resultado.radiacao[0]+1));
+    state.radiacao = Math.min(100, state.radiacao + rad);
+    state.energia = Math.max(0, state.energia - 8);
+    toast('☢️ '+resultado.mensagem+' (+'+rad+'% radiação)', true);
+  } else {
+    toast('Você vasculhou as ruínas, mas não encontrou nada de valor.');
+  }
+  ganharXP('combate', 2);
+  ganharXP('mineracao', 2);
+  checkMarcos();
+  renderAll();
+}
+
+function selecionarZonaRuinas(id){
+  const zona = RUINAS_ZONAS.find(z=>z.id===Number(id));
+  if (!zona || !zonaDesbloqueada(zona)) return;
+  state.ruinas.zonaSelecionada = zona.id;
+  renderSidepanel();
+}
+
+function renderRuinas(){
+  const zonaAtual = getZonaAtual();
+  let h = '<div class="sp-section-title">EXPLORAÇÃO DE RUÍNAS</div>';
+  h += '<div class="sp-card" style="color:var(--text-dim);font-size:12px;">Explorações realizadas: '+state.ruinas.exploracoes+' · Relíquias: '+state.ruinas.relíquias.length+'</div>';
+
+  RUINAS_ZONAS.forEach(zona=>{
+    const desbloqueada = zonaDesbloqueada(zona);
+    const selecionada = zona.id===zonaAtual.id;
+    h += `<div class="building-card ${selecionada?'maxed':''}" style="${!desbloqueada?'opacity:.5;':''}cursor:${desbloqueada?'pointer':'default'};" ${desbloqueada?`data-zona="${zona.id}"`:''}>
+      <div class="building-title">${zona.emoji} ${zona.nome} ${selecionada?'· SELECIONADA':''}</div>
+      <div class="building-level">Energia: ${zona.custoEnergia} ⚡ ${zona.id===3?(state.ruinas.cofreAberto?'· Cofre aberto':'· Custo de acesso: '+zona.custoCaps+' 🧢'):''}</div>
+      <div class="building-desc">${desbloqueada ? zona.desc : '🔒 Desbloqueia após '+zona.minExploracoes+' explorações.'}</div>
+    </div>`;
+  });
+
+  h += `<button class="sp-btn" style="width:100%;margin:8px 0;" id="btn-explorar-ruinas" ${state.energia<zonaAtual.custoEnergia?'disabled':''}>🔍 EXPLORAR (${zonaAtual.custoEnergia} ⚡)</button>`;
+
+  h += '<div class="sp-section-title" style="margin-top:10px;">RELÍQUIAS COLETADAS</div>';
+  if (!state.ruinas.relíquias.length){
+    h += '<div class="sp-card" style="color:var(--text-dim);">Nenhuma relíquia encontrada ainda. Explore as ruínas!</div>';
+  } else {
+    [...state.ruinas.relíquias].reverse().slice(0,20).forEach(r=>{
+      h += `<div class="sp-card" style="font-size:12px;">✨ <b>${r.nome}</b><br><span style="color:var(--text-dim);">${r.zona} · Dia ${r.dia}</span></div>`;
+    });
+  }
+  return h;
+}
+
 const TOTAL_PLOTS = 32;
 const UNLOCKED_START = 12;
 
@@ -903,13 +1043,65 @@ let state = {
   marcosCompletos: [],
   colonosEspecialistas: [],
   maiorCapsAcumulado: 100,
-  rumoColonia: null, // 'tecnologia' 'natureza''militar'
+  rumoColonia: null,
+  ruinas: { exploracoes:0, zonaSelecionada:1, cofreAberto:false, relíquias:[] },
+  historicoEventos: [], // {dia, icon, titulo, escolha} // 'tecnologia' 'natureza''militar'
 };
 
 for (let i=0;i<TOTAL_PLOTS;i++){
   state.plots.push({ idx:i, locked: i>=UNLOCKED_START, tilled:false, watered:false, crop:null, growth:0, ready:false });
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+// SAVE / LOAD — localStorage
+// ═══════════════════════════════════════════════════════════════
+const SAVE_KEY = 'vale111_save_v1';
+
+function saveGame() {
+  try {
+    const snap = {
+      ...state,
+      conversadosHoje: Array.from(state.conversadosHoje),
+      npcsConversados:  Array.from(state.npcsConversados),
+      eventosVistos:    state.eventosVistos ? Array.from(state.eventosVistos) : [],
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(snap));
+    return true;
+  } catch(e) { return false; }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const snap = JSON.parse(raw);
+    // Restore Sets
+    snap.conversadosHoje = new Set(snap.conversadosHoje || []);
+    snap.npcsConversados  = new Set(snap.npcsConversados  || []);
+    snap.eventosVistos    = new Set(snap.eventosVistos    || []);
+    // Migrate missing fields added in later versions
+    if (snap.historicoEventos === undefined) snap.historicoEventos = [];
+    if (snap.maiorCapsAcumulado === undefined) snap.maiorCapsAcumulado = snap.caps || 0;
+    if (snap.pesquisaPD === undefined) snap.pesquisaPD = 0;
+    if (snap.tecnologias === undefined) snap.tecnologias = {};
+    if (snap.marcosCompletos === undefined) snap.marcosCompletos = [];
+    if (snap.colonosEspecialistas === undefined) snap.colonosEspecialistas = [];
+    if (snap.rumoColonia === undefined) snap.rumoColonia = null;
+    if (snap.ruinas === undefined) snap.ruinas = { exploracoes:0, zonaSelecionada:1, cofreAberto:false, relíquias:[] };
+    if (snap.produtosAnimais === undefined) snap.produtosAnimais = {};
+    if (snap.inventario && !snap.inventario.fertilizante) snap.inventario.fertilizante = 0;
+    if (snap.inventario && !snap.inventario.racao) snap.inventario.racao = 0;
+    Object.assign(state, snap);
+    return true;
+  } catch(e) { return false; }
+}
+
+function resetGame() {
+  if (!confirm('Apagar todo o progresso e começar do zero?')) return;
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
 const TOOLS = [
   {id:'enxada', emoji:'⛏️', nome:'Enxada', key:'1'},
   {id:'rega', emoji:'💧', nome:'Regador', key:'2'},
@@ -1025,6 +1217,15 @@ function handlePlotClick(p, el){
       if (p.crop){ toast('Já há um cultivo aqui. aqui não é condomínio para plantar tudo junto?'); return; }
       const sementeKey = getSelectedSeed();
       if (!sementeKey){ toast('Você não tem sementes piá. Visite o Empório.', true); return; }
+      // ── Verificação sazonal (Estufa ignora) ──
+      if (!state.tecnologias['tech_estufa']) {
+        const cropDef = CROPS[sementeKey];
+        if (cropDef && !cropDef.seasons.includes(state.estacaoIdx)) {
+          const nomesEstacao = ['Verão Radioativo','Outono das Cinzas','Inverno Nuclear','Primavera Mutante'];
+          toast('❌ '+cropDef.nome+' não cresce no '+nomesEstacao[state.estacaoIdx]+'! Construa a Estufa para plantar em qualquer estação.', true);
+          return;
+        }
+      }
       if (!spendEnergy(Math.ceil(2*energiaMult))) return;
       p.crop = sementeKey; p.growth = 0; p.ready=false; p.fertilizado = !!state.toolFertilizar;
       state.inventario.sementes[sementeKey]--;
@@ -1154,8 +1355,11 @@ function renderSidepanel(){
   else if (activeTab==='abrigo') c.innerHTML = renderAbrigo();
   else if (activeTab==='animais') c.innerHTML = renderAnimais();
   else if (activeTab==='construcoes') c.innerHTML = renderConstrucoes();
+  else if (activeTab==='ruinas') c.innerHTML = renderRuinas();
   else if (activeTab==='habilidades') c.innerHTML = renderHabilidades();
   else if (activeTab==='colonia') c.innerHTML = renderColonia();
+  else if (activeTab==='historico') c.innerHTML = renderHistorico();
+  else if (activeTab==='save') c.innerHTML = renderSave();
   bindSidepanelEvents();
 }
 
@@ -1478,7 +1682,45 @@ function gerarNomeColono(){
 }
 
 
+
+function renderHistorico() {
+  const hist = state.historicoEventos || [];
+  let h = '<div class="sp-section-title">📜 HISTÓRICO DE EVENTOS</div>';
+  if (!hist.length) {
+    h += '<div class="sp-card" style="color:var(--text-dim)">Nenhum evento ocorreu ainda. Avance dias para encontrar situações.</div>';
+    return h;
+  }
+  hist.forEach(ev => {
+    h += `<div class="sp-card" style="border-left:3px solid var(--pip-amber);padding-left:8px;margin-bottom:6px;">
+      <div style="font-family:var(--font-pixel);font-size:7px;color:var(--pip-amber);">${ev.icon} DIA ${ev.dia}</div>
+      <div style="font-size:13px;color:var(--text-bright);margin:3px 0;">${ev.titulo}</div>
+      <div style="font-size:11px;color:var(--pip-green);">${ev.escolha}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${ev.consequencia}</div>
+    </div>`;
+  });
+  return h;
+}
+
+function renderSave() {
+  const hasSave = !!localStorage.getItem('vale111_save_v1');
+  return `
+    <div class="sp-section-title">💾 SAVE / LOAD</div>
+    <div class="sp-card" style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">
+      O jogo salva automaticamente ao dormir. Use os botões abaixo para salvar ou reiniciar manualmente.
+    </div>
+    <div class="sp-card" style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">
+      Status: <strong style="color:var(--pip-green)">${hasSave ? '✅ Save encontrado — Dia '+state.dia : '❌ Sem save'}</strong>
+    </div>
+    <button class="sp-btn" id="btn-save-now" style="width:100%;margin-bottom:6px;">💾 Salvar agora</button>
+    <button class="sp-btn danger" id="btn-reset" style="width:100%;">⚠️ Reiniciar jogo (apaga tudo)</button>
+  `;
+}
 function bindSidepanelEvents(){
+  document.querySelectorAll('[data-zona]').forEach(el=>{
+    el.addEventListener('click', ()=>selecionarZonaRuinas(el.dataset.zona));
+  });
+  const btnExplorar = document.getElementById('btn-explorar-ruinas');
+  if (btnExplorar) btnExplorar.addEventListener('click', explorarRuinas);
   document.querySelectorAll('.npc-card').forEach(el=>{
     el.addEventListener('click', ()=>openDialogue(el.dataset.npc));
   });
@@ -1510,6 +1752,10 @@ function bindSidepanelEvents(){
   if (sleepBtn) sleepBtn.addEventListener('click', advanceDay);
   const radBtn = document.getElementById('radaway-btn');
   if (radBtn) radBtn.addEventListener('click', useRadAway);
+  const btnSave = document.getElementById('btn-save-now');
+  if (btnSave) btnSave.addEventListener('click', () => { if(saveGame()) toast('💾 Jogo salvo!'); else toast('Erro ao salvar.', true); });
+  const btnReset = document.getElementById('btn-reset');
+  if (btnReset) btnReset.addEventListener('click', resetGame);
 }
 function buyItem(id){
   const item = SHOP_ITEMS.find(i=>i.id===id);
@@ -1680,12 +1926,24 @@ function advanceDay(){
 
   state.animais.forEach(a=>{
     const t = ANIMAL_TYPES[a.tipo];
+    const fomaAntes = a.fome;
     a.fome = Math.max(0, a.fome-30);
-    if (a.fome<=0) a.felicidade = Math.max(0, a.felicidade-15);
-    else a.felicidade = Math.min(100, a.felicidade+2);
-    if (a.fome>0){
+    if (a.fome<=0) {
+      a.felicidade = Math.max(0, a.felicidade-15);
+      // Zero fome: cancela produção pendente, não avança contador
+      if (fomaAntes > 0) {
+        // acabou de ficar sem fome agora
+        toast('🐄 '+a.nome+' está faminto e parou de produzir!', true);
+      }
+      a.pronto = false; // não gera produto enquanto com fome
+    } else {
+      a.felicidade = Math.min(100, a.felicidade+2);
       a.diasDesdeProducao++;
       if (a.diasDesdeProducao>=t.diasProducao){ a.pronto = true; }
+    }
+    // Felicidade muito baixa: avisa o jogador
+    if (a.felicidade <= 20 && a.fome > 0) {
+      toast('😞 '+a.nome+' está muito infeliz. Alimente-o mais.', true);
     }
   });
   if (state.tecnologias['tech_coletor_automatico']){
@@ -1729,8 +1987,11 @@ function advanceDay(){
   tentarNovoColono();
   if (state.caps > state.maiorCapsAcumulado) state.maiorCapsAcumulado = state.caps;
   checkMarcos();
-
+  // Save on every new day
+  saveGame();
   renderAll();
+  // Trigger random event after render
+  setTimeout(tentarDispararEvento, 400);
 }
 
 // ============================================================
@@ -2580,18 +2841,23 @@ function resolverEscolha(idx) {
   if (!eventoPendente) return;
   const escolha = eventoPendente.escolhas[idx];
   escolha.exec(state);
+  // ── Registrar no histórico ──
+  if (!state.historicoEventos) state.historicoEventos = [];
+  state.historicoEventos.unshift({
+    dia:    state.dia,
+    icon:   eventoPendente.icon,
+    titulo: eventoPendente.titulo,
+    escolha: escolha.label,
+    consequencia: escolha.consequencia
+  });
+  if (state.historicoEventos.length > 30) state.historicoEventos.pop();
   document.getElementById('event-modal').classList.add('hidden');
   eventoPendente = null;
   checkMarcos();
   renderAll();
 }
 
-// Integrar eventos ao advanceDay — disparar após avançar
-const _origAdvanceDay = advanceDay;
-window.advanceDay = function() {
-  _origAdvanceDay();
-  setTimeout(tentarDispararEvento, 400);
-};
+// Events are now integrated directly inside advanceDay (no fragile wrapper)
 // Rebind sleep button após o override
 document.addEventListener('keydown', (e) => {
   const tool = TOOLS.find(t=>t.key===e.key);
@@ -2614,8 +2880,13 @@ window.addEventListener('load',()=>{
   setTimeout(()=>{
     const loader=document.getElementById('loading-screen');
     if (loader){ loader.classList.add('fade-out'); setTimeout(()=>loader.remove(),1300); }
+    const loaded = loadGame();
     renderAll();
-    toast('Bem-vindo ao Vale 111. A terra espera por você. reconstrua a civilização ! ');
+    if (loaded) {
+      toast('💾 Progresso carregado! Bem-vindo de volta — Dia '+state.dia);
+    } else {
+      toast('🌱 Bem-vindo ao Vale 111. A terra espera por você. Reconstrua a civilização!');
+    }
   },1700);
 });
 </script>
