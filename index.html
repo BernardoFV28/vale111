@@ -244,6 +244,73 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .leaf-particle:nth-child(5){left:88%;animation-duration:22s; animation-delay:13s;}
 .leaf-particle:nth-child(6){left:40%;animation-duration:30s; animation-delay:6s;}
 
+/* Vaga-lumes: só aparecem à noite */
+.fireflies{opacity:0;transition:opacity 1.5s ease;}
+#farm-bg.night .fireflies{opacity:1;}
+.firefly{
+  position:absolute;width:4px;height:4px;border-radius:50%;
+  background:var(--pip-green);
+  box-shadow:0 0 6px 3px rgba(95,255,138,.8);
+  animation:fireflyDrift 9s ease-in-out infinite, fireflyBlink 1.6s ease-in-out infinite;
+}
+.firefly:nth-child(1){left:15%;top:40%;animation-delay:0s,.2s;}
+.firefly:nth-child(2){left:35%;top:55%;animation-delay:1.2s,.6s;}
+.firefly:nth-child(3){left:58%;top:38%;animation-delay:2.4s,0s;}
+.firefly:nth-child(4){left:75%;top:60%;animation-delay:3.6s,.9s;}
+.firefly:nth-child(5){left:90%;top:45%;animation-delay:.8s,.3s;}
+@keyframes fireflyDrift{
+  0%,100%{transform:translate(0,0);}
+  25%{transform:translate(18px,-14px);}
+  50%{transform:translate(-10px,-22px);}
+  75%{transform:translate(-22px,6px);}
+}
+@keyframes fireflyBlink{0%,100%{opacity:.15;}50%{opacity:1;}}
+
+/* Neblina radioativa: intensidade controlada via JS (state.radiacao) */
+#rad-fog{
+  position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 30% 85%, rgba(232,208,0,.35) 0%, transparent 55%),
+             radial-gradient(ellipse at 75% 90%, rgba(95,255,138,.25) 0%, transparent 60%);
+  animation:fogDrift 14s ease-in-out infinite alternate;
+  transition:opacity 1.5s ease;
+}
+@keyframes fogDrift{0%{transform:translateX(-4%);}100%{transform:translateX(4%);}}
+
+/* Flash de raio durante tempestades radioativas */
+#lightning-flash{position:absolute;inset:0;z-index:6;pointer-events:none;background:rgba(220,240,255,0);}
+#lightning-flash.flash-active{animation:lightningFlash .5s ease-out;}
+@keyframes lightningFlash{
+  0%{background:rgba(220,245,255,.85);}
+  12%{background:rgba(220,245,255,.1);}
+  22%{background:rgba(220,245,255,.6);}
+  40%{background:rgba(220,245,255,0);}
+  100%{background:rgba(220,245,255,0);}
+}
+
+/* Tremor de tela leve */
+#app.shake{animation:appShake .4s ease;}
+@keyframes appShake{
+  0%,100%{transform:translate(0,0);}
+  20%{transform:translate(calc(var(--shake-mag,6px)*-1), calc(var(--shake-mag,6px)*.6));}
+  40%{transform:translate(var(--shake-mag,6px), calc(var(--shake-mag,6px)*-1));}
+  60%{transform:translate(calc(var(--shake-mag,6px)*-.6), var(--shake-mag,6px));}
+  80%{transform:translate(calc(var(--shake-mag,6px)*.5), calc(var(--shake-mag,6px)*-.5));}
+}
+
+/* Camada de partículas para explosões de colheita/eventos */
+#fx-layer{position:fixed;inset:0;z-index:8600;pointer-events:none;overflow:hidden;}
+.burst-particle{
+  position:fixed;font-size:14px;
+  transform:translate(-50%,-50%);
+  animation:burstFly .8s ease-out forwards;
+  filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));
+}
+@keyframes burstFly{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(.6);}
+  70%{opacity:1;}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1);}
+}
+
 #farm-grid{
   position:relative;z-index:5;
   display:grid;
@@ -539,6 +606,33 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .ev-desc{font-size:14px;margin-bottom:8px;}
   .ev-choice{padding:7px 10px;font-size:13px;}
 }
+#expedicao-modal{
+  position:fixed;inset:0;z-index:8850;background:rgba(4,8,4,.92);
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeIn .25s ease;
+}
+#expedicao-modal.hidden{display:none;}
+.battle-vs{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+.battle-side{flex:1;text-align:center;}
+.battle-emoji{font-size:38px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+.battle-name{font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);margin:4px 0;letter-spacing:1px;}
+.battle-hp-label{font-size:11px;color:var(--text-dim);margin-top:2px;font-family:var(--font-mono);}
+.battle-log{background:#0a0c08;border:2px solid var(--border);padding:6px 8px;font-size:12px;color:var(--text-dim);max-height:100px;overflow-y:auto;margin-bottom:10px;font-family:var(--font-mono);line-height:1.5;}
+.battle-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.equip-slot{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel2);border:2px solid var(--border);padding:6px 8px;margin-bottom:5px;font-size:12px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
+.rarity-comum{color:#bfd0b8;}
+.rarity-incomum{color:var(--pip-green);}
+.rarity-raro{color:#6fc7ff;}
+.rarity-epico{color:#d29bff;}
+.rarity-lendario{color:#ffd24a;text-shadow:0 0 6px rgba(255,210,74,.6);}
+.upgrade-pips{font-size:10px;color:var(--pip-amber);letter-spacing:1px;}
+.battle-side{position:relative;}
+.battle-emoji{transition:transform .1s ease;}
+.battle-emoji.hit-shake{animation:hitShake .35s ease;}
+.battle-emoji.hit-flash{filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)) brightness(2.4) drop-shadow(0 0 10px #ff5555);}
+@keyframes hitShake{0%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-4deg)}40%{transform:translateX(5px) rotate(3deg)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}100%{transform:translateX(0)}}
+.dmg-float{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-family:var(--font-pixel);font-size:11px;pointer-events:none;animation:floatUp .8s ease-out forwards;white-space:nowrap;z-index:60;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;}
+.rep-bar-wrap{display:flex;align-items:center;gap:6px;}
 #toggle-panel{display:none;font-family:var(--font-pixel);font-size:8px;color:var(--pip-green);background:var(--panel2);border:2px solid var(--pip-green-dim);padding:6px 8px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 .animal-card{display:flex;gap:8px;align-items:center;background:var(--panel2);border:2px solid var(--border);padding:8px;margin-bottom:6px;box-shadow:2px 2px 0 0 rgba(0,0,0,.4);}
 .animal-emoji{font-size:26px;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.5));}
@@ -620,6 +714,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 <div id="toast-stack"></div>
 <div id="dialogue-box"></div>
 <div id="event-modal" class="hidden"></div>
+<div id="expedicao-modal" class="hidden"></div>
 
 <div id="app">
   <div id="topbar">
@@ -638,9 +733,30 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   </div>
   <div id="main">
     <div id="farm-view">
-      <div id="farm-bg"></div>
+      <div id="farm-bg">
+        <div class="grass-band"></div>
+        <div class="rain-layer"></div>
+        <div id="rad-fog"></div>
+        <div class="ambient-particles">
+          <span class="leaf-particle">🍂</span>
+          <span class="leaf-particle">🍃</span>
+          <span class="leaf-particle">🍂</span>
+          <span class="leaf-particle">🍃</span>
+          <span class="leaf-particle">🍂</span>
+          <span class="leaf-particle">🍃</span>
+        </div>
+        <div class="ambient-particles fireflies">
+          <span class="firefly"></span>
+          <span class="firefly"></span>
+          <span class="firefly"></span>
+          <span class="firefly"></span>
+          <span class="firefly"></span>
+        </div>
+      </div>
       <div id="farm-grid"></div>
+      <div id="lightning-flash"></div>
     </div>
+    <div id="fx-layer"></div>
     <div id="sidepanel">
       <div id="sp-tabs">
         <button class="sp-tab active" data-tab="missoes">MISSÕES</button>
@@ -668,12 +784,14 @@ const SEASONS = ['VERÃO ','OUTONO ','INVERNO ','PRIMAVERA '];
 const SEASON_EMOJI = ['☢️','☢️','☢️','☢️'];
 
 const CROPS = {
-  cenoura_mut: {nome:'Cenoura Mutante', emoji:'☢️', plantEmoji:'☢️', dias:3, custo:8, venda:22, seasons:[0,3]},
-  batata_glow: {nome:'Batata Glow', emoji:'☢️', plantEmoji:'☢️', dias:4, custo:12, venda:30, seasons:[0,1,3]},
-  milho_rad: {nome:'Milho Radioativo', emoji:'☢️', plantEmoji:'☢️', dias:5, custo:22, venda:45, seasons:[0,1]},
-  cogu_brilhante: {nome:'Cogumelo Brilhante', emoji:'☢️', plantEmoji:'☢️', dias:2, custo:15, venda:35, seasons:[1,2,3]},
-  tomate_verde: {nome:'Tomate Verdejante', emoji:'☢️', plantEmoji:'☢️', dias:4, custo:14, venda:38, seasons:[0,3]},
-  trigo_cinza: {nome:'Trigo das Cinzas', emoji:'☢️', plantEmoji:'☢️', dias:3, custo:6, venda:16, seasons:[1,2]},
+  cenoura_mut: {nome:'Cenoura Mutante', emoji:'🥕', plantEmoji:'🌱', dias:3, custo:8, venda:22, seasons:[0,3]},
+  batata_glow: {nome:'Batata Glow', emoji:'🥔', plantEmoji:'🌿', dias:4, custo:12, venda:30, seasons:[0,1,3]},
+  milho_rad: {nome:'Milho Radioativo', emoji:'🌽', plantEmoji:'🌾', dias:5, custo:22, venda:45, seasons:[0,1]},
+  cogu_brilhante: {nome:'Cogumelo Brilhante', emoji:'🍄', plantEmoji:'🍃', dias:2, custo:15, venda:35, seasons:[1,2,3]},
+  tomate_verde: {nome:'Tomate Verdejante', emoji:'🍅', plantEmoji:'🌱', dias:4, custo:14, venda:38, seasons:[0,3]},
+  trigo_cinza: {nome:'Trigo das Cinzas', emoji:'🌾', plantEmoji:'🌿', dias:3, custo:6, venda:16, seasons:[1,2]},
+  abobora_atomica: {nome:'Abóbora Atômica', emoji:'🎃', plantEmoji:'🌿', dias:6, custo:28, venda:58, seasons:[1,3]},
+  uva_geiger: {nome:'Uva Geiger', emoji:'🍇', plantEmoji:'🌱', dias:5, custo:20, venda:42, seasons:[0,2]},
 };
 
 const NPCS = [
@@ -710,6 +828,7 @@ const QUESTS = [
   {id:'q12', titulo:'Caçador de Sucata', desc:'Colete 50 unidades de sucata.', meta:'sucata', alvo:50, recompensa:{caps:170, metal:25}, completa:false, ativa:false},
   {id:'q13', titulo:'Defensor do Vale', desc:'Derrote 10 criaturas hostis.', meta:'combate', alvo:10, recompensa:{caps:200, energiaMax:15}, completa:false, ativa:false},
   {id:'q14', titulo:'Lenda do Refúgio', desc:'Alcance o nível 10 de reputação.', meta:'reputacao', alvo:10, recompensa:{caps:300, sementes:15, energiaMax:30}, completa:false, ativa:false},
+  {id:'q15', titulo:'Caçador de Chefes', desc:'Derrote 2 chefes nas ruínas (Sentinela, Guardião ou General).', meta:'chefes', alvo:2, recompensa:{caps:350, energiaMax:20}, completa:false, ativa:false},
 ];
 
 const SHOP_ITEMS = [
@@ -719,7 +838,11 @@ const SHOP_ITEMS = [
   {id:'semente_cogumelo', nome:'Sementes: Cogumelo Brilhante', emoji:'🍄', preco:15, tipo:'semente', cropKey:'cogu_brilhante'},
   {id:'semente_tomate', nome:'Sementes: Tomate Verdejante', emoji:'🍅', preco:14, tipo:'semente', cropKey:'tomate_verde'},
   {id:'semente_trigo', nome:'Sementes: Trigo das Cinzas', emoji:'🌾', preco:6, tipo:'semente', cropKey:'trigo_cinza'},
+  {id:'semente_abobora', nome:'Sementes: Abóbora Atômica', emoji:'🎃', preco:28, tipo:'semente', cropKey:'abobora_atomica'},
+  {id:'semente_uva', nome:'Sementes: Uva Geiger', emoji:'🍇', preco:20, tipo:'semente', cropKey:'uva_geiger'},
   {id:'rad_x', nome:'RadAway (remove radiação)', emoji:'💊', preco:35, tipo:'consumivel', efeito:'rad'},
+  {id:'stimpak', nome:'Stimpak (cura 25 HP em combate)', emoji:'💉', preco:20, tipo:'consumivel', efeito:'stimpak'},
+  {id:'granada', nome:'Granada de Fragmentação (dano pesado em combate)', emoji:'💣', preco:45, tipo:'consumivel', efeito:'granada'},
   {id:'racao_pip', nome:'Ração para Pip', emoji:'🦴', preco:10, tipo:'consumivel', efeito:'pip'},
   {id:'expansao', nome:'Carta de Expansão (libera parcela)', emoji:'📜', preco:60, tipo:'expansao'},
   {id:'fertilizante', nome:'Fertilizante Mutagênico', emoji:'🧪', preco:25, tipo:'fertilizante'},
@@ -782,8 +905,18 @@ function ganharXP(skillKey, qtd){
   if (sk.xp >= need && sk.nivel < 5){
     sk.xp -= need;
     sk.nivel++;
-    toast('⭐ '+SKILLS[skillKey].nome+' subiu para o nível '+sk.nivel+'!');
+    state.pontosAtributo = (state.pontosAtributo||0) + 1;
+    toast('⭐ '+SKILLS[skillKey].nome+' subiu para o nível '+sk.nivel+'! (+1 ponto de atributo)');
   }
+}
+function gastarPontoAtributo(attr){
+  if (!(state.pontosAtributo>0)) { toast('Sem pontos de atributo disponíveis.', true); return; }
+  if (!state.atributos) state.atributos = { forca:0, agilidade:0, resistencia:0, sorte:0 };
+  state.atributos[attr] = (state.atributos[attr]||0)+1;
+  state.pontosAtributo--;
+  garantirHpValido();
+  toast('💪 Atributo aumentado: '+attr.toUpperCase());
+  renderSidepanel();
 }
 const COLONY_TIERS = [
   {nome:'Acampamento de Sobreviventes', emoji:'⛺', minPontos:0,
@@ -888,35 +1021,173 @@ function getColonyTier(){
   for (const t of COLONY_TIERS){ if (pts >= t.minPontos) tier = t; }
   return tier;
 }
+// ═══════════════════════════════════════════════════════════════
+// SISTEMA DE EXPEDIÇÕES — RPG: ITENS, COMBATE E ENCONTROS
+// ═══════════════════════════════════════════════════════════════
+const WEAPONS = [
+  {id:'cano_enferrujado', nome:'Cano Enferrujado', emoji:'🔧', danoMin:2, danoMax:5, raridade:'comum'},
+  {id:'faca_serrilhada', nome:'Faca Serrilhada', emoji:'🔪', danoMin:3, danoMax:7, raridade:'comum', efeito:'sangramento'},
+  {id:'machadinha', nome:'Machadinha de Sucata', emoji:'🪓', danoMin:4, danoMax:8, raridade:'incomum'},
+  {id:'pistola_9mm', nome:'Pistola 9mm', emoji:'🔫', danoMin:6, danoMax:11, raridade:'incomum'},
+  {id:'lamina_prewar', nome:'Lâmina Pré-Guerra', emoji:'🗡️', danoMin:7, danoMax:13, raridade:'incomum', efeito:'sangramento'},
+  {id:'taco_pregos', nome:'Taco com Pregos', emoji:'🏏', danoMin:6, danoMax:12, raridade:'incomum', efeito:'atordoamento'},
+  {id:'seringa_vampirica', nome:'Seringa Vampírica', emoji:'🩸', danoMin:5, danoMax:10, raridade:'incomum', efeito:'vampirismo'},
+  {id:'rifle_assalto', nome:'Rifle de Assalto', emoji:'🏹', danoMin:10, danoMax:17, raridade:'raro'},
+  {id:'martelo_choque', nome:'Martelo de Choque', emoji:'🔨', danoMin:11, danoMax:19, raridade:'raro', efeito:'atordoamento'},
+  {id:'rifle_perfurante', nome:'Rifle Perfurante .50', emoji:'🎯', danoMin:9, danoMax:16, raridade:'raro', efeito:'perfurante'},
+  {id:'canhao_plasma', nome:'Canhão de Plasma', emoji:'💥', danoMin:16, danoMax:26, raridade:'epico'},
+  {id:'lamina_sanguessuga', nome:'Lâmina Sanguessuga', emoji:'🧛', danoMin:14, danoMax:22, raridade:'epico', efeito:'vampirismo'},
+  {id:'fuzil_gauss', nome:'Fuzil Gauss Experimental', emoji:'⚡', danoMin:22, danoMax:34, raridade:'lendario', efeito:'atordoamento'},
+  {id:'lamina_monomolecular', nome:'Lâmina Monomolecular', emoji:'🔱', danoMin:24, danoMax:31, raridade:'lendario', efeito:'sangramento'},
+];
+const ARMORS = [
+  {id:'roupas_reforcadas', nome:'Roupas Reforçadas', emoji:'🥼', defesa:2, hpBonus:6, raridade:'comum'},
+  {id:'jaqueta_couro', nome:'Jaqueta de Couro Remendada', emoji:'🧥', defesa:3, hpBonus:9, raridade:'comum'},
+  {id:'colete_tatico', nome:'Colete Tático', emoji:'🦺', defesa:5, hpBonus:14, raridade:'incomum'},
+  {id:'traje_hazmat', nome:'Traje Hazmat Selado', emoji:'☣️', defesa:4, hpBonus:12, raridade:'incomum'},
+  {id:'armadura_metal', nome:'Armadura de Metal Soldado', emoji:'🛡️', defesa:8, hpBonus:22, raridade:'raro'},
+  {id:'exo_esqueleto', nome:'Exo-Esqueleto Militar', emoji:'🤖', defesa:13, hpBonus:35, raridade:'epico'},
+  {id:'armadura_assalto_x02', nome:'Armadura de Assalto X-02', emoji:'🦾', defesa:19, hpBonus:48, raridade:'lendario'},
+];
+
+const ENEMIES = [
+  {id:'barata_gigante', nome:'Barata Radioativa Gigante', emoji:'🪳', hpMax:16, atkMin:2, atkMax:5, def:0, xp:5, capsMin:5, capsMax:15, tag:null, zonas:[1], dropChance:0.10, iaTipo:'padrao'},
+  {id:'cao_selvagem', nome:'Cão Selvagem Mutado', emoji:'🐕‍🦺', hpMax:24, atkMin:3, atkMax:7, def:1, xp:7, capsMin:8, capsMax:20, tag:null, zonas:[1,2], dropChance:0.12, iaTipo:'furioso'},
+  {id:'saqueador', nome:'Saqueador Faminto', emoji:'🥷', hpMax:22, atkMin:3, atkMax:6, def:1, xp:8, capsMin:15, capsMax:35, tag:null, zonas:[1,2], dropChance:0.25, iaTipo:'covarde'},
+  {id:'rato_toupeira', nome:'Rato-Toupeira Gigante', emoji:'🐀', hpMax:19, atkMin:2, atkMax:6, def:0, xp:6, capsMin:6, capsMax:16, tag:null, zonas:[1], dropChance:0.10, iaTipo:'padrao'},
+  {id:'ghoul_errante', nome:'Ghoul Errante', emoji:'🧟', hpMax:36, atkMin:5, atkMax:10, def:2, xp:12, capsMin:12, capsMax:30, tag:'mutante', zonas:[2], dropChance:0.15, iaTipo:'venenoso'},
+  {id:'mutante_sombras', nome:'Mutante das Sombras', emoji:'👹', hpMax:48, atkMin:6, atkMax:13, def:3, xp:16, capsMin:20, capsMax:45, tag:'mutante', zonas:[2,3], dropChance:0.20, iaTipo:'furioso'},
+  {id:'robo_seguranca', nome:'Robô de Segurança Danificado', emoji:'🤖', hpMax:42, atkMin:5, atkMax:11, def:5, xp:15, capsMin:18, capsMax:40, tag:'robo', zonas:[2,3], dropChance:0.22, iaTipo:'defensivo'},
+  {id:'curandeira_mutante', nome:'Xamã Mutante', emoji:'🧙', hpMax:38, atkMin:4, atkMax:9, def:1, xp:17, capsMin:20, capsMax:42, tag:'mutante', zonas:[2,3], dropChance:0.24, iaTipo:'curandeiro'},
+  {id:'sentinela_blindada', nome:'Sentinela Blindada', emoji:'🛰️', hpMax:85, atkMin:11, atkMax:19, def:7, xp:28, capsMin:40, capsMax:90, tag:'robo', zonas:[3], dropChance:0.35, iaTipo:'defensivo'},
+  {id:'aranha_irradiada', nome:'Aranha Irradiada Gigante', emoji:'🕷️', hpMax:56, atkMin:7, atkMax:13, def:2, xp:20, capsMin:24, capsMax:50, tag:'mutante', zonas:[3], dropChance:0.22, iaTipo:'venenoso'},
+  {id:'guardiao_cofre', nome:'Guardião do Cofre', emoji:'👁️', hpMax:130, atkMin:15, atkMax:24, def:9, xp:45, capsMin:80, capsMax:160, tag:'mutante', zonas:[3], dropChance:0.5, boss:true, iaTipo:'furioso'},
+  {id:'ciborgue_sentinela', nome:'Ciborgue Sentinela', emoji:'🦿', hpMax:150, atkMin:17, atkMax:27, def:11, xp:55, capsMin:90, capsMax:170, tag:'robo', zonas:[4], dropChance:0.4, iaTipo:'defensivo'},
+  {id:'behemoth_irradiado', nome:'Behemoth Irradiado', emoji:'☢️', hpMax:190, atkMin:20, atkMax:30, def:8, xp:65, capsMin:100, capsMax:190, tag:'mutante', zonas:[4], dropChance:0.45, iaTipo:'furioso'},
+  {id:'colosso_toxico', nome:'Colosso Tóxico', emoji:'🦠', hpMax:170, atkMin:16, atkMax:26, def:6, xp:58, capsMin:90, capsMax:175, tag:'mutante', zonas:[4], dropChance:0.4, iaTipo:'venenoso'},
+  {id:'general_espectro', nome:'General Pré-Guerra (Espectro)', emoji:'💀', hpMax:260, atkMin:24, atkMax:36, def:13, xp:100, capsMin:180, capsMax:320, tag:'mutante', zonas:[4], dropChance:0.75, boss:true, iaTipo:'curandeiro'},
+];
+
+const WASTELAND_NPCS = [
+  {id:'mercador_errante', nome:'Mercador Errante', emoji:'🧳',
+   linha:'Um vendedor puxa um carrinho enferrujado cheio de tralhas. "Ei, colono! Interessado numa troca justa?"',
+   zonas:[1,2,3,4]},
+  {id:'sobrevivente_ferido', nome:'Sobrevivente Ferido', emoji:'🤕',
+   linha:'Você encontra um sobrevivente encolhido atrás de destroços, sangrando. Ele te encara com esperança cansada.',
+   zonas:[1,2,3,4]},
+  {id:'bandido_solitario', nome:'Bandido Solitário', emoji:'🥸',
+   linha:'Uma figura encapuzada bloqueia o caminho, arma em punho. "Essa área tem pedágio agora, forasteiro."',
+   zonas:[1,2,3,4]},
+  {id:'andarilho_misterioso', nome:'Andarilho Misterioso', emoji:'🌫️',
+   linha:'Um viajante encapuzado surge do nevoeiro radioativo, quase flutuando por entre os destroços.',
+   zonas:[2,3,4]},
+];
+
 const RUINAS_ZONAS = [
   {id:1, nome:'Superfície em Ruínas', emoji:'🏚️', custoEnergia:12, custoCaps:0, minExploracoes:0,
-    desc:'Os destroços do antigo povoado. Seguro, mas com poucos tesouros valiosos.',
+    desc:'Os destroços do antigo povoado. Perigo moderado — bom lugar para começar a se aventurar.',
+    chances:{combate:32, npc:16, saque:52},
     loot:[
-      {tipo:'caps', peso:35, min:5, max:20},
-      {tipo:'sucata', peso:30, min:1, max:3},
-      {tipo:'nada', peso:20},
+      {tipo:'caps', peso:30, min:5, max:20},
+      {tipo:'sucata', peso:26, min:1, max:3},
+      {tipo:'nada', peso:16},
       {tipo:'relíquia', peso:10, pool:['Lata de Refrigerante Pré-Guerra','Boné Desbotado da Liga','Disco de Vinil Quebrado']},
+      {tipo:'consumivel', peso:8, id:'stimpak', min:1, max:1},
+      {tipo:'equipamento', peso:5, pool:['cano_enferrujado','faca_serrilhada','roupas_reforcadas']},
       {tipo:'perigo', peso:5, radiacao:[3,8], mensagem:'Você pisou numa poça radioativa!'},
     ]},
   {id:2, nome:'Subsolo do Vale', emoji:'🕳️', custoEnergia:20, custoCaps:0, minExploracoes:5,
     desc:'Túneis colapsados e bunkers esquecidos. Mais perigoso, mais recompensador.',
+    chances:{combate:38, npc:14, saque:48},
     loot:[
-      {tipo:'caps', peso:28, min:15, max:45},
-      {tipo:'sucata', peso:25, min:2, max:5},
-      {tipo:'nada', peso:15},
-      {tipo:'relíquia', peso:20, pool:['Terminal Pip-Boy Quebrado','Capacete de Patrulheiro','Mapa do Vale Original','Chave-Mestra Enferrujada']},
-      {tipo:'perigo', peso:12, radiacao:[8,16], mensagem:'Um mutante das sombras atacou! Você fugiu, mas se feriu.'},
+      {tipo:'caps', peso:24, min:15, max:45},
+      {tipo:'sucata', peso:20, min:2, max:5},
+      {tipo:'nada', peso:12},
+      {tipo:'relíquia', peso:18, pool:['Terminal Pip-Boy Quebrado','Capacete de Patrulheiro','Mapa do Vale Original','Chave-Mestra Enferrujada']},
+      {tipo:'consumivel', peso:10, id:'stimpak', min:1, max:2},
+      {tipo:'consumivel', peso:4, id:'granada', min:1, max:1},
+      {tipo:'equipamento', peso:8, pool:['machadinha','pistola_9mm','jaqueta_couro','colete_tatico','taco_pregos','seringa_vampirica']},
+      {tipo:'perigo', peso:12, radiacao:[8,16], mensagem:'Gás tóxico vazou de um cano próximo!'},
     ]},
   {id:3, nome:'Cofre Profundo', emoji:'🔐', custoEnergia:30, custoCaps:80, minExploracoes:15,
-    desc:'Um cofre pré-guerra selado. Exige tampinhas para reativar o acesso, mas guarda tesouros raros.',
+    desc:'Um cofre pré-guerra selado. Exige tampinhas para reativar o acesso, mas guarda tesouros raros e os inimigos mais fortes do Vale.',
+    chances:{combate:45, npc:10, saque:45},
     loot:[
-      {tipo:'caps', peso:25, min:40, max:120},
-      {tipo:'sucata', peso:15, min:3, max:8},
-      {tipo:'nada', peso:10},
-      {tipo:'relíquia', peso:35, pool:['Núcleo de Energia Intacto','Coroa do Antigo Prefeito','Diário do Último Cientista','Semente Geneticamente Pura','Medalha de Honra ao Mérito']},
+      {tipo:'caps', peso:20, min:40, max:120},
+      {tipo:'sucata', peso:12, min:3, max:8},
+      {tipo:'nada', peso:8},
+      {tipo:'relíquia', peso:28, pool:['Núcleo de Energia Intacto','Coroa do Antigo Prefeito','Diário do Último Cientista','Semente Geneticamente Pura','Medalha de Honra ao Mérito']},
+      {tipo:'consumivel', peso:12, id:'stimpak', min:1, max:2},
+      {tipo:'consumivel', peso:6, id:'granada', min:1, max:2},
+      {tipo:'equipamento', peso:10, pool:['rifle_assalto','lamina_prewar','martelo_choque','armadura_metal','traje_hazmat','exo_esqueleto','canhao_plasma','rifle_perfurante']},
       {tipo:'perigo', peso:15, radiacao:[12,22], mensagem:'O sistema de defesa do cofre disparou! Radiação severa.'},
     ]},
+  {id:4, nome:'Instalação Militar Subterrânea', emoji:'🎖️', custoEnergia:42, custoCaps:200, minExploracoes:30,
+    desc:'Um bunker militar pré-guerra ainda energizado. Robôs de defesa e horrores irradiados patrulham os corredores — mas os cofres de armamento guardam tecnologia lendária.',
+    chances:{combate:52, npc:8, saque:40},
+    loot:[
+      {tipo:'caps', peso:16, min:70, max:180},
+      {tipo:'sucata', peso:14, min:5, max:12},
+      {tipo:'nada', peso:6},
+      {tipo:'relíquia', peso:22, pool:['Distintivo de General Enferrujado','Fita Cassete de Comando','Chave de Acesso Nível Ômega','Bandeira Pré-Guerra Queimada']},
+      {tipo:'consumivel', peso:12, id:'stimpak', min:2, max:3},
+      {tipo:'consumivel', peso:8, id:'granada', min:1, max:2},
+      {tipo:'equipamento', peso:15, pool:['martelo_choque','canhao_plasma','exo_esqueleto','armadura_metal','fuzil_gauss','lamina_monomolecular','armadura_assalto_x02','lamina_sanguessuga']},
+      {tipo:'perigo', peso:15, radiacao:[15,28], mensagem:'Um vazamento do reator interno te expôs a radiação extrema!'},
+    ]},
 ];
+
+let battleState = null;
+let expedicaoNpcAtual = null;
+
+const UPGRADE_MAX = 3;
+function nivelUpgrade(itemId){ return (state.upgrades && state.upgrades[itemId]) || 0; }
+function custoUpgrade(itemId){
+  const nivel = nivelUpgrade(itemId);
+  if (nivel >= UPGRADE_MAX) return null;
+  return { sucata: (nivel+1)*10, caps: (nivel+1)*45, proximo: nivel+1 };
+}
+function melhorarItem(itemId){
+  const custo = custoUpgrade(itemId);
+  if (!custo) { toast('Item já no nível máximo de melhoria.', true); return; }
+  const sucataAtual = state.inventario.sucata||0;
+  if (sucataAtual < custo.sucata || state.caps < custo.caps){ toast('Sucata ou tampinhas insuficientes para melhorar.', true); return; }
+  state.inventario.sucata -= custo.sucata;
+  state.caps -= custo.caps;
+  state.upgrades[itemId] = custo.proximo;
+  garantirHpValido();
+  toast('🔧 Item melhorado para o nível +'+custo.proximo+'!');
+  registrarExpedicao('🔧', 'Melhorou um item de equipamento para o nível +'+custo.proximo+'.');
+  renderSidepanel();
+}
+function ganharReputacao(qtd){
+  state.reputacao = Math.max(0, (state.reputacao||0) + qtd);
+  updateQuestProgress('reputacao', state.reputacao);
+}
+
+function getPlayerStats(){
+  const arma = state.equipado.arma ? WEAPONS.find(w=>w.id===state.equipado.arma) : null;
+  const armadura = state.equipado.armadura ? ARMORS.find(a=>a.id===state.equipado.armadura) : null;
+  const nivel = state.skills.combate.nivel;
+  const armaUp = arma ? nivelUpgrade(arma.id) : 0;
+  const armaduraUp = armadura ? nivelUpgrade(armadura.id) : 0;
+  const attr = state.atributos || { forca:0, agilidade:0, resistencia:0, sorte:0 };
+  const hpMax = 50 + (nivel-1)*10 + (armadura?armadura.hpBonus + armaduraUp*6:0) + attr.resistencia*4;
+  const atkMin = 3 + (nivel-1) + (arma?arma.danoMin + armaUp*2:0) + Math.floor(attr.forca*0.5);
+  const atkMax = 7 + (nivel-1)*2 + (arma?arma.danoMax + armaUp*3:0) + attr.forca;
+  const def = (armadura ? armadura.defesa + armaduraUp*2 : 0) + Math.floor(attr.resistencia*0.6);
+  const critChance = (nivel>=5 ? 0.20 : 0.10) + attr.sorte*0.02;
+  const dodgeChance = Math.min(0.35, attr.agilidade*0.03);
+  const dropBonus = attr.sorte*0.01;
+  const efeito = arma ? arma.efeito : null;
+  return {hpMax, atkMin, atkMax, def, nivel, arma, armadura, armaUp, armaduraUp, critChance, dodgeChance, dropBonus, efeito};
+}
+
+function garantirHpValido(){
+  const stats = getPlayerStats();
+  if (state.combateHp===undefined || state.combateHp===null) state.combateHp = stats.hpMax;
+  state.combateHp = Math.min(state.combateHp, stats.hpMax);
+}
 
 function getZonaAtual(){
   return RUINAS_ZONAS.find(z=>z.id===state.ruinas.zonaSelecionada) || RUINAS_ZONAS[0];
@@ -936,7 +1207,39 @@ function sortearLoot(zona){
   return zona.loot[0];
 }
 
-function explorarRuinas(){
+function registrarExpedicao(icon, texto){
+  if (!state.ruinas.registro) state.ruinas.registro = [];
+  state.ruinas.registro.unshift({dia:state.dia, icon, texto});
+  if (state.ruinas.registro.length > 30) state.ruinas.registro.pop();
+}
+
+function receberItem(itemId){
+  const arma = WEAPONS.find(w=>w.id===itemId);
+  const armadura = ARMORS.find(a=>a.id===itemId);
+  if (arma){
+    if (!state.itensArmas.includes(itemId)) state.itensArmas.push(itemId);
+    toast('🎒 Item encontrado: '+arma.emoji+' '+arma.nome);
+    registrarExpedicao(arma.emoji, 'Encontrou a arma: '+arma.nome+'.');
+  } else if (armadura){
+    if (!state.itensArmaduras.includes(itemId)) state.itensArmaduras.push(itemId);
+    toast('🎒 Item encontrado: '+armadura.emoji+' '+armadura.nome);
+    registrarExpedicao(armadura.emoji, 'Encontrou a armadura: '+armadura.nome+'.');
+  }
+}
+
+function equiparArma(id){
+  state.equipado.arma = (state.equipado.arma===id) ? null : id;
+  garantirHpValido();
+  renderSidepanel();
+}
+function equiparArmadura(id){
+  state.equipado.armadura = (state.equipado.armadura===id) ? null : id;
+  garantirHpValido();
+  renderSidepanel();
+}
+
+function iniciarExploracao(){
+  if (battleState || expedicaoNpcAtual){ toast('Resolva o encontro atual primeiro.', true); return; }
   const zona = getZonaAtual();
   if (!zonaDesbloqueada(zona)){ toast('Zona ainda bloqueada.', true); return; }
   if (state.energia < zona.custoEnergia){ toast('Energia insuficiente para explorar.', true); return; }
@@ -946,35 +1249,79 @@ function explorarRuinas(){
     state.ruinas.cofreAberto = true;
     toast('🔐 Cofre Profundo reativado! Acesso liberado.');
   }
+  if (zona.id===4 && !state.ruinas.instalacaoAberta){
+    if (state.caps < zona.custoCaps){ toast('Tampinhas insuficientes para hackear a Instalação Militar.', true); return; }
+    state.caps -= zona.custoCaps;
+    state.ruinas.instalacaoAberta = true;
+    toast('🎖️ Instalação Militar Subterrânea desbloqueada! Acesso liberado.');
+  }
   state.energia = Math.max(0, state.energia - zona.custoEnergia);
   state.ruinas.exploracoes++;
+  updateQuestProgress('expedicao', state.ruinas.exploracoes);
 
+  const roll = Math.random()*100;
+  const c = zona.chances;
+  if (roll < c.combate){
+    let pool = ENEMIES.filter(e=>e.zonas.includes(zona.id) && !e.boss);
+    if (Math.random() < 0.12){
+      const bossPool = ENEMIES.filter(e=>e.zonas.includes(zona.id) && e.boss);
+      if (bossPool.length) pool = bossPool;
+    }
+    const inimigo = pool[Math.floor(Math.random()*pool.length)];
+    iniciarBatalha(inimigo, zona);
+  } else if (roll < c.combate + c.npc){
+    const poolNpc = WASTELAND_NPCS.filter(n=>n.zonas.includes(zona.id));
+    const npc = poolNpc[Math.floor(Math.random()*poolNpc.length)];
+    iniciarEncontroNPC(npc, zona);
+  } else {
+    resolverSaque(zona);
+    checkMarcos();
+    renderAll();
+  }
+}
+
+function resolverSaque(zona){
   const resultado = sortearLoot(zona);
   if (resultado.tipo==='caps'){
     const valor = Math.floor(resultado.min + Math.random()*(resultado.max-resultado.min+1));
     state.caps += valor;
     state.maiorCapsAcumulado = Math.max(state.maiorCapsAcumulado, state.caps);
     toast('🧢 Encontrou '+valor+' tampinhas nas ruínas!');
+    registrarExpedicao('🧢', 'Encontrou '+valor+' tampinhas.');
   } else if (resultado.tipo==='sucata'){
     const qtd = Math.floor(resultado.min + Math.random()*(resultado.max-resultado.min+1));
     state.inventario.sucata = (state.inventario.sucata||0) + qtd;
+    state.sucataTotalColetada = (state.sucataTotalColetada||0) + qtd;
+    updateQuestProgress('sucata', state.sucataTotalColetada);
     toast('🔩 Encontrou '+qtd+'x Sucata.');
+    registrarExpedicao('🔩', 'Encontrou '+qtd+'x Sucata.');
   } else if (resultado.tipo==='relíquia'){
     const nome = resultado.pool[Math.floor(Math.random()*resultado.pool.length)];
     state.ruinas.relíquias.push({nome, zona:zona.nome, dia:state.dia});
     toast('✨ RELÍQUIA ENCONTRADA: '+nome+'!');
+    registrarExpedicao('✨', 'Encontrou a relíquia: '+nome+'.');
+  } else if (resultado.tipo==='consumivel'){
+    const qtd = Math.floor(resultado.min + Math.random()*(resultado.max-resultado.min+1));
+    if (!state.inventario.consumiveis) state.inventario.consumiveis={};
+    state.inventario.consumiveis[resultado.id] = (state.inventario.consumiveis[resultado.id]||0)+qtd;
+    const nomeItem = resultado.id==='granada' ? 'Granada de Fragmentação' : 'Stimpak';
+    const emojiItem = resultado.id==='granada' ? '💣' : '💉';
+    toast(emojiItem+' Encontrou '+qtd+'x '+nomeItem+'.');
+    registrarExpedicao(emojiItem, 'Encontrou '+qtd+'x '+nomeItem+'.');
+  } else if (resultado.tipo==='equipamento'){
+    const id = resultado.pool[Math.floor(Math.random()*resultado.pool.length)];
+    receberItem(id);
   } else if (resultado.tipo==='perigo'){
     const rad = Math.floor(resultado.radiacao[0] + Math.random()*(resultado.radiacao[1]-resultado.radiacao[0]+1));
     state.radiacao = Math.min(100, state.radiacao + rad);
     state.energia = Math.max(0, state.energia - 8);
     toast('☢️ '+resultado.mensagem+' (+'+rad+'% radiação)', true);
+    registrarExpedicao('☢️', resultado.mensagem);
   } else {
     toast('Você vasculhou as ruínas, mas não encontrou nada de valor.');
+    registrarExpedicao('🔍', 'Vasculhou e não achou nada.');
   }
-  ganharXP('combate', 2);
   ganharXP('mineracao', 2);
-  checkMarcos();
-  renderAll();
 }
 
 function selecionarZonaRuinas(id){
@@ -984,22 +1331,555 @@ function selecionarZonaRuinas(id){
   renderSidepanel();
 }
 
+// ── COMBATE ──
+function iniciarBatalha(enemyTemplate, zona){
+  garantirHpValido();
+  battleState = {
+    zona,
+    inimigo: {...enemyTemplate, hpAtual: enemyTemplate.hpMax},
+    log: ['Um(a) '+enemyTemplate.nome+' surge das ruínas'+(enemyTemplate.boss?' — CHEFE!':'!')],
+    statusInimigo: { sangramento:0, atordoado:false, curouUmaVez:false },
+    statusJogador: { veneno:0 },
+  };
+  renderAll();
+}
+
+function addBattleLog(txt){
+  battleState.log.unshift(txt);
+  if (battleState.log.length > 6) battleState.log.pop();
+}
+
+// Processa o veneno no jogador; retorna true se o jogador morreu com isso (batalha já finalizada)
+function tickVenenoJogador(){
+  if (!battleState || !battleState.statusJogador || !(battleState.statusJogador.veneno>0)) return false;
+  const dmg = 4;
+  state.combateHp = Math.max(0, state.combateHp - dmg);
+  battleState.statusJogador.veneno--;
+  battlePopup('player', '☠️-'+dmg, '#8aff5a');
+  addBattleLog('☠️ Veneno causa '+dmg+' de dano a você.');
+  if (state.combateHp<=0){ finalizarBatalha(false); return true; }
+  return false;
+}
+
+function renderBatalha(){
+  const modal = document.getElementById('expedicao-modal');
+  if (!battleState){ modal.classList.add('hidden'); return; }
+  const stats = getPlayerStats();
+  const inimigo = battleState.inimigo;
+  const hpPct = Math.max(0, state.combateHp/stats.hpMax*100);
+  const inHpPct = Math.max(0, inimigo.hpAtual/inimigo.hpMax*100);
+  const stimpaks = (state.inventario.consumiveis && state.inventario.consumiveis['stimpak']) || 0;
+  const granadas = (state.inventario.consumiveis && state.inventario.consumiveis['granada']) || 0;
+  const stInimigo = battleState.statusInimigo || {};
+  const stJogador = battleState.statusJogador || {};
+  const tagsInimigo = [stInimigo.sangramento>0?'🩸Sangrando':'', stInimigo.atordoado?'⚡Atordoado':''].filter(Boolean).join(' ');
+  const tagsJogador = stJogador.veneno>0 ? '☠️Envenenado x'+stJogador.veneno : '';
+
+  modal.innerHTML = `
+    <div class="event-modal-box">
+      <div class="ev-header">
+        <div class="ev-icon">⚔️</div>
+        <div class="ev-title-block">
+          <div class="ev-tag">${battleState.zona.emoji} ${battleState.zona.nome}</div>
+          <div class="ev-title">COMBATE${inimigo.boss?' · CHEFE':''}</div>
+        </div>
+      </div>
+      <div class="ev-body">
+        <div class="battle-vs">
+          <div class="battle-side" id="battle-side-player">
+            <div class="battle-emoji">🧑‍🌾</div>
+            <div class="battle-name">Você</div>
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:${hpPct}%;background:${hpPct>40?'var(--pip-green)':'#ff5555'};"></div></div>
+            <div class="battle-hp-label">${Math.max(0,Math.round(state.combateHp))}/${stats.hpMax} HP</div>
+            ${tagsJogador?`<div style="font-size:9px;color:#8aff5a;">${tagsJogador}</div>`:''}
+          </div>
+          <div style="font-family:var(--font-pixel);font-size:10px;color:var(--pip-amber);">VS</div>
+          <div class="battle-side" id="battle-side-enemy">
+            <div class="battle-emoji">${inimigo.emoji}</div>
+            <div class="battle-name">${inimigo.nome}${inimigo.iaTipo&&inimigo.iaTipo!=='padrao'?` <span style="font-size:8px;color:var(--text-dim);">[${inimigo.iaTipo}]</span>`:''}</div>
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:${inHpPct}%;background:#ff8a3d;"></div></div>
+            <div class="battle-hp-label">${Math.max(0,Math.round(inimigo.hpAtual))}/${inimigo.hpMax} HP</div>
+            ${tagsInimigo?`<div style="font-size:9px;color:#ff8a3d;">${tagsInimigo}</div>`:''}
+          </div>
+        </div>
+        <div class="battle-log">${battleState.log.map(l=>'· '+l).join('<br>')}</div>
+        <div class="battle-actions">
+          <button class="sp-btn" id="btn-batalha-atacar">⚔️ ATACAR</button>
+          <button class="sp-btn amber" id="btn-batalha-item" ${stimpaks<=0?'disabled':''}>💉 STIMPAK (${stimpaks})</button>
+          <button class="sp-btn amber" id="btn-batalha-granada" ${granadas<=0?'disabled':''}>💣 GRANADA (${granadas})</button>
+          <button class="sp-btn danger" id="btn-batalha-fugir">🏃 FUGIR</button>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+  document.getElementById('btn-batalha-atacar').addEventListener('click', battleAtacar);
+  const itemBtn = document.getElementById('btn-batalha-item');
+  if (itemBtn) itemBtn.addEventListener('click', battleUsarStimpak);
+  const granadaBtn = document.getElementById('btn-batalha-granada');
+  if (granadaBtn) granadaBtn.addEventListener('click', battleUsarGranada);
+  document.getElementById('btn-batalha-fugir').addEventListener('click', battleFugir);
+}
+
+function battlePopup(side, text, cor){
+  const modal = document.getElementById('expedicao-modal');
+  if (!modal) return;
+  const sideEl = modal.querySelector(side==='player' ? '#battle-side-player' : '#battle-side-enemy');
+  if (!sideEl) return;
+  const f = document.createElement('div');
+  f.className = 'dmg-float';
+  f.textContent = text;
+  f.style.color = cor || '#ff5555';
+  sideEl.appendChild(f);
+  setTimeout(()=>f.remove(), 800);
+  const emojiEl = sideEl.querySelector('.battle-emoji');
+  if (emojiEl){
+    emojiEl.classList.remove('hit-shake');
+    void emojiEl.offsetWidth;
+    emojiEl.classList.add('hit-shake');
+  }
+}
+
+function battleAtacar(){
+  if (!battleState) return;
+  if (tickVenenoJogador()) return;
+  const stats = getPlayerStats();
+  const inimigo = battleState.inimigo;
+
+  let dano = Math.round(stats.atkMin + Math.random()*(stats.atkMax-stats.atkMin));
+  const critico = Math.random() < stats.critChance;
+  if (critico) dano = Math.round(dano*1.6);
+  if (inimigo.tag==='mutante' && stats.nivel>=2) dano = Math.round(dano*1.1);
+
+  // Efeito de armas
+  const efeito = stats.efeito;
+  let defEfetiva = inimigo.def;
+  if (efeito==='perfurante') defEfetiva = Math.floor(inimigo.def*0.5);
+  dano = Math.max(1, dano - defEfetiva);
+
+  // Bloqueio de inimigos defensivos
+  let bloqueado = false;
+  if (inimigo.iaTipo==='defensivo' && Math.random()<0.3){ dano = Math.ceil(dano*0.5); bloqueado = true; }
+
+  inimigo.hpAtual = Math.max(0, inimigo.hpAtual - dano);
+  battlePopup('enemy', (critico?'💥 ':'')+'-'+dano, critico?'#ffd24a':'#ff8a3d');
+  addBattleLog((critico?'💥 CRÍTICO! ':'')+(bloqueado?'(bloqueado) ':'')+'Você acerta '+inimigo.nome+' em '+dano+' de dano.');
+  if (critico) screenShake(5);
+
+  if (efeito==='sangramento'){
+    battleState.statusInimigo.sangramento = 3;
+    addBattleLog('🩸 '+inimigo.nome+' está sangrando!');
+  }
+  if (efeito==='atordoamento' && Math.random()<0.30){
+    battleState.statusInimigo.atordoado = true;
+    addBattleLog('⚡ '+inimigo.nome+' foi atordoado!');
+  }
+  if (efeito==='vampirismo'){
+    const cura = Math.round(dano*0.3);
+    state.combateHp = Math.min(stats.hpMax, state.combateHp + cura);
+    if (cura>0) battlePopup('player','+'+cura,'#5fff8a');
+  }
+
+  if (inimigo.hpAtual<=0){
+    burstParticles(document.querySelector('#battle-side-enemy .battle-emoji')||document.body, '✨', 8);
+    setTimeout(()=>finalizarBatalha(true), 380);
+    return;
+  }
+  setTimeout(inimigoAtaca, 380);
+}
+
+function inimigoAtaca(){
+  const stats = getPlayerStats();
+  const inimigo = battleState.inimigo;
+  const st = battleState.statusInimigo || (battleState.statusInimigo = { sangramento:0, atordoado:false, curouUmaVez:false });
+
+  // Sangramento tica no início do turno do inimigo
+  if (st.sangramento>0){
+    const dmgSangue = 3 + Math.floor(inimigo.hpMax*0.03);
+    inimigo.hpAtual = Math.max(0, inimigo.hpAtual - dmgSangue);
+    st.sangramento--;
+    addBattleLog('🩸 '+inimigo.nome+' sofre '+dmgSangue+' de sangramento.');
+    if (inimigo.hpAtual<=0){ setTimeout(()=>finalizarBatalha(true), 380); return; }
+  }
+
+  // IA: covarde foge quando com pouca vida
+  if (inimigo.iaTipo==='covarde' && inimigo.hpAtual/inimigo.hpMax < 0.25 && Math.random()<0.4){
+    addBattleLog('🏳️ '+inimigo.nome+' entra em pânico e foge da batalha!');
+    toast(inimigo.nome+' fugiu covardemente!');
+    battleState = null;
+    fecharExpedicaoModal();
+    return;
+  }
+
+  // IA: curandeiro se cura uma vez quando com pouca vida
+  if (inimigo.iaTipo==='curandeiro' && !st.curouUmaVez && inimigo.hpAtual/inimigo.hpMax < 0.5){
+    st.curouUmaVez = true;
+    const cura = Math.round(inimigo.hpMax*0.25);
+    inimigo.hpAtual = Math.min(inimigo.hpMax, inimigo.hpAtual + cura);
+    battlePopup('enemy','+'+cura,'#5fff8a');
+    addBattleLog('✨ '+inimigo.nome+' se cura em '+cura+' HP!');
+    setTimeout(renderBatalha, 380);
+    return;
+  }
+
+  // Atordoado perde o turno
+  if (st.atordoado){
+    st.atordoado = false;
+    addBattleLog('⚡ '+inimigo.nome+' está atordoado e perde o turno!');
+    setTimeout(renderBatalha, 380);
+    return;
+  }
+
+  // Esquiva do jogador
+  if (Math.random() < stats.dodgeChance){
+    addBattleLog('💨 Você esquivou do ataque de '+inimigo.nome+'!');
+    setTimeout(renderBatalha, 380);
+    return;
+  }
+
+  let dano = Math.round(inimigo.atkMin + Math.random()*(inimigo.atkMax-inimigo.atkMin));
+  if (inimigo.iaTipo==='furioso' && inimigo.hpAtual/inimigo.hpMax < 0.3) dano = Math.round(dano*1.4);
+  dano = Math.max(1, dano - stats.def);
+  state.combateHp = Math.max(0, state.combateHp - dano);
+  battlePopup('player', '-'+dano, '#ff5555');
+  addBattleLog(inimigo.nome+(inimigo.iaTipo==='furioso' && inimigo.hpAtual/inimigo.hpMax<0.3?' (ENFURECIDO) ':' ')+'revida e causa '+dano+' de dano a você.');
+
+  if (inimigo.iaTipo==='venenoso'){
+    battleState.statusJogador.veneno = 3;
+    addBattleLog('☠️ Você foi envenenado!');
+  }
+
+  if (state.combateHp<=0){ setTimeout(()=>finalizarBatalha(false), 380); return; }
+  setTimeout(renderBatalha, 380);
+}
+
+function battleUsarStimpak(){
+  if (!battleState) return;
+  if (tickVenenoJogador()) return;
+  if (!state.inventario.consumiveis || !state.inventario.consumiveis['stimpak']) return;
+  const stats = getPlayerStats();
+  state.inventario.consumiveis['stimpak']--;
+  state.combateHp = Math.min(stats.hpMax, state.combateHp + 25);
+  battlePopup('player', '+25', '#5fff8a');
+  addBattleLog('💉 Você usa um Stimpak e recupera 25 HP.');
+  setTimeout(inimigoAtaca, 350);
+}
+
+function battleUsarGranada(){
+  if (!battleState) return;
+  if (tickVenenoJogador()) return;
+  if (!state.inventario.consumiveis || !state.inventario.consumiveis['granada']) return;
+  const inimigo = battleState.inimigo;
+  state.inventario.consumiveis['granada']--;
+  let dano = 26 + Math.floor(Math.random()*16);
+  dano = Math.max(dano - Math.floor(inimigo.def*0.4), 12);
+  inimigo.hpAtual = Math.max(0, inimigo.hpAtual - dano);
+  battlePopup('enemy', '💣 -'+dano, '#ff8a3d');
+  addBattleLog('💣 Você arremessa uma granada e causa '+dano+' de dano, ignorando parte da armadura.');
+  screenShake(9);
+  if (inimigo.hpAtual<=0){ setTimeout(()=>finalizarBatalha(true), 380); return; }
+  setTimeout(inimigoAtaca, 380);
+}
+
+function battleFugir(){
+  if (!battleState) return;
+  if (tickVenenoJogador()) return;
+  const nivel = state.skills.combate.nivel;
+  const chance = Math.min(0.9, 0.55 + (nivel-1)*0.08);
+  if (Math.random() < chance){
+    toast('🏃 Você fugiu do combate.');
+    registrarExpedicao('🏃', 'Fugiu de um combate contra '+battleState.inimigo.nome+'.');
+    battleState = null;
+    fecharExpedicaoModal();
+  } else {
+    addBattleLog('Você tentou fugir, mas falhou!');
+    setTimeout(inimigoAtaca, 300);
+  }
+}
+
+function finalizarBatalha(vitoria){
+  const inimigo = battleState.inimigo;
+  if (vitoria){
+    const caps = Math.floor(inimigo.capsMin + Math.random()*(inimigo.capsMax-inimigo.capsMin+1));
+    state.caps += caps;
+    state.maiorCapsAcumulado = Math.max(state.maiorCapsAcumulado, state.caps);
+    ganharXP('combate', inimigo.xp);
+    state.combateVitorias = (state.combateVitorias||0)+1;
+    updateQuestProgress('combate', state.combateVitorias);
+    if (inimigo.boss){
+      state.chefesDerrotados = (state.chefesDerrotados||0)+1;
+      updateQuestProgress('chefes', state.chefesDerrotados);
+    }
+    toast('🏆 Vitória! '+inimigo.nome+' derrotado. +'+caps+' tampinhas, +'+inimigo.xp+' XP de combate.');
+    registrarExpedicao('🏆', 'Venceu '+inimigo.nome+' (+'+caps+' 🧢).');
+    if (Math.random() < inimigo.dropChance){
+      const dropPool = [...WEAPONS, ...ARMORS].filter(it=>{
+        if (inimigo.boss && inimigo.zonas.includes(4)) return it.raridade==='epico' || it.raridade==='lendario';
+        if (inimigo.boss) return it.raridade==='raro' || (it.raridade==='epico' && Math.random()<0.5);
+        if (inimigo.zonas.includes(4)) return it.raridade==='raro' || it.raridade==='epico' || (it.raridade==='lendario' && Math.random()<0.15);
+        if (inimigo.zonas.includes(3)) return it.raridade!=='epico' || Math.random()<0.3;
+        return it.raridade==='comum' || it.raridade==='incomum';
+      });
+      if (dropPool.length) receberItem(dropPool[Math.floor(Math.random()*dropPool.length)].id);
+    }
+  } else {
+    const perdaCaps = Math.floor(state.caps*0.15);
+    state.caps -= perdaCaps;
+    state.energia = Math.min(state.energia, 8);
+    state.radiacao = Math.min(100, state.radiacao+6);
+    state.combateHp = 1;
+    toast('💀 Você foi derrotado por '+inimigo.nome+' e mal escapou com vida! -'+perdaCaps+' tampinhas.', true);
+    registrarExpedicao('💀', 'Derrotado por '+inimigo.nome+'. Escapou ferido.');
+  }
+  battleState = null;
+  checkMarcos();
+  fecharExpedicaoModal();
+}
+
+// ── ENCONTROS COM NPCS ──
+function iniciarEncontroNPC(npc, zona){
+  expedicaoNpcAtual = {npc, zona};
+  renderAll();
+}
+
+function renderEncontroNPC(){
+  const modal = document.getElementById('expedicao-modal');
+  if (!expedicaoNpcAtual){ modal.classList.add('hidden'); return; }
+  const {npc} = expedicaoNpcAtual;
+  let opcoes = [];
+  if (npc.id==='mercador_errante'){
+    opcoes = [
+      {label:'[A] NEGOCIAR (30 🧢)', texto:'Trocar tampinhas por um item ou suprimento aleatório.', consequencia: state.caps>=30?'Recebe um item aleatório.':'Tampinhas insuficientes.', fn:'npcNegociar'},
+      {label:'[B] PEDIR INFORMAÇÕES', texto:'Perguntar sobre as redondezas.', consequencia:'+5 XP de Social, sem custo.', fn:'npcInformacao'},
+      {label:'[C] IR EMBORA', texto:'Continuar a exploração.', consequencia:'Nenhum efeito.', fn:'npcIgnorar'},
+    ];
+  } else if (npc.id==='sobrevivente_ferido'){
+    opcoes = [
+      {label:'[A] AJUDAR (usa 1 Stimpak)', texto:'Curá-lo com um Stimpak do seu inventário.', consequencia:'Recompensa em tampinhas e possível recrutamento.', fn:'npcAjudar'},
+      {label:'[B] DAR TAMPINHAS (20 🧢)', texto:'Doar suprimentos para ele seguir viagem.', consequencia:'+Reputação, -20 tampinhas.', fn:'npcDoarCaps'},
+      {label:'[C] IGNORAR', texto:'Seguir seu caminho.', consequencia:'Nenhum efeito.', fn:'npcIgnorar'},
+    ];
+  } else if (npc.id==='bandido_solitario'){
+    opcoes = [
+      {label:'[A] PAGAR PEDÁGIO (25 🧢)', texto:'Evitar o confronto pagando.', consequencia:'-25 tampinhas, sem luta.', fn:'npcPagarPedagio'},
+      {label:'[B] ATACAR', texto:'Partir para o combate.', consequencia:'Inicia uma batalha.', fn:'npcAtacar'},
+      {label:'[C] FUGIR', texto:'Recuar rapidamente.', consequencia:'Nenhum efeito.', fn:'npcIgnorar'},
+    ];
+  } else if (npc.id==='andarilho_misterioso'){
+    opcoes = [
+      {label:'[A] OUVIR A HISTÓRIA', texto:'Escutar suas histórias sobre o mundo antigo.', consequencia:'+8 XP de Social, chance de relíquia.', fn:'npcHistoria'},
+      {label:'[B] PEDIR AJUDA', texto:'Pedir orientação e cura.', consequencia:'Recupera energia e HP.', fn:'npcAjudaMistica'},
+      {label:'[C] SEGUIR CAMINHO', texto:'Deixá-lo em paz.', consequencia:'Nenhum efeito.', fn:'npcIgnorar'},
+    ];
+  }
+
+  const opcoesHtml = opcoes.map((o,i)=>`
+    <button class="ev-choice" data-npcopt="${i}">
+      <span class="ev-choice-label">${o.label}</span>
+      ${o.texto}
+      <span class="ev-consequence neu">${o.consequencia}</span>
+    </button>
+  `).join('');
+
+  modal.innerHTML = `
+    <div class="event-modal-box">
+      <div class="ev-header">
+        <div class="ev-icon">${npc.emoji}</div>
+        <div class="ev-title-block">
+          <div class="ev-tag">${expedicaoNpcAtual.zona.emoji} ${expedicaoNpcAtual.zona.nome}</div>
+          <div class="ev-title">${npc.nome}</div>
+        </div>
+      </div>
+      <div class="ev-body">
+        <div class="ev-desc">${npc.linha}</div>
+        <div class="ev-choices">${opcoesHtml}</div>
+      </div>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+  modal.querySelectorAll('[data-npcopt]').forEach((btn,i)=>{
+    btn.addEventListener('click', ()=>{ window[opcoes[i].fn](); });
+  });
+}
+
+function npcIgnorar(){
+  toast('Você segue seu caminho.');
+  registrarExpedicao('🚶', 'Encontro evitado sem consequências.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcNegociar(){
+  if (state.caps<30){ toast('Tampinhas insuficientes.', true); return; }
+  state.caps -= 30;
+  const roll = Math.random();
+  if (roll<0.4){
+    const pool=[...WEAPONS.filter(w=>w.raridade==='comum'||w.raridade==='incomum'),...ARMORS.filter(a=>a.raridade==='comum'||a.raridade==='incomum')];
+    receberItem(pool[Math.floor(Math.random()*pool.length)].id);
+  } else if (roll<0.7){
+    if (!state.inventario.consumiveis) state.inventario.consumiveis={};
+    state.inventario.consumiveis['stimpak']=(state.inventario.consumiveis['stimpak']||0)+2;
+    toast('💉 O mercador te vendeu 2x Stimpak.');
+  } else {
+    const ganho = 40+Math.floor(Math.random()*40);
+    state.caps += ganho;
+    toast('🧢 Negócio vantajoso! Você lucrou '+ganho+' tampinhas de volta.');
+  }
+  ganharXP('social', 3);
+  ganharReputacao(2);
+  registrarExpedicao('🧳', 'Negociou com o Mercador Errante.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcInformacao(){
+  ganharXP('social', 5);
+  ganharReputacao(1);
+  toast('💬 Você troca informações valiosas sobre a região.');
+  registrarExpedicao('💬', 'Conversou com o Mercador Errante.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcAjudar(){
+  const temStimpak = state.inventario.consumiveis && state.inventario.consumiveis['stimpak']>0;
+  if (!temStimpak){ toast('Você não tem Stimpaks para ajudá-lo.', true); return; }
+  state.inventario.consumiveis['stimpak']--;
+  const ganho = 30+Math.floor(Math.random()*50);
+  state.caps += ganho;
+  ganharXP('social', 6);
+  ganharReputacao(8);
+  toast('❤️ Você curou o sobrevivente. Ele agradece com '+ganho+' tampinhas.');
+  if (Math.random()<0.15){
+    tentarNovoColono();
+    toast('🧑‍🤝‍🧑 O sobrevivente decidiu se juntar à sua colônia!');
+  }
+  registrarExpedicao('🤕', 'Ajudou um sobrevivente ferido.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcDoarCaps(){
+  if (state.caps<20){ toast('Tampinhas insuficientes.', true); return; }
+  state.caps -= 20;
+  ganharXP('social', 4);
+  ganharReputacao(5);
+  toast('🙏 O sobrevivente agradece profundamente sua generosidade.');
+  registrarExpedicao('🙏', 'Doou tampinhas a um sobrevivente.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcPagarPedagio(){
+  if (state.caps<25){ toast('Tampinhas insuficientes para pagar.', true); return; }
+  state.caps -= 25;
+  toast('🥸 O bandido pega as tampinhas e desaparece nas ruínas.');
+  registrarExpedicao('🥸', 'Pagou pedágio a um bandido.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcAtacar(){
+  const zona = expedicaoNpcAtual.zona;
+  const bandidoInimigo = {id:'bandido_combate', nome:'Bandido Solitário', emoji:'🥸', hpMax:30, atkMin:4, atkMax:9, def:2, xp:10, capsMin:20, capsMax:50, tag:null, zonas:[zona.id], dropChance:0.3};
+  expedicaoNpcAtual = null;
+  ganharReputacao(-3);
+  iniciarBatalha(bandidoInimigo, zona);
+}
+function npcHistoria(){
+  ganharXP('social', 8);
+  ganharReputacao(2);
+  if (Math.random()<0.3){
+    const pool = ['Fragmento de Diário Antigo','Moeda Derretida','Bugiganga Brilhante'];
+    const nome = pool[Math.floor(Math.random()*pool.length)];
+    state.ruinas.relíquias.push({nome, zona:expedicaoNpcAtual.zona.nome, dia:state.dia});
+    toast('✨ O andarilho te presenteia: '+nome+'!');
+  } else {
+    toast('🌫️ Histórias fascinantes sobre o mundo antes da guerra.');
+  }
+  registrarExpedicao('🌫️', 'Ouviu histórias do Andarilho Misterioso.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+function npcAjudaMistica(){
+  const stats = getPlayerStats();
+  state.combateHp = stats.hpMax;
+  state.energia = Math.min(state.energiaMax, state.energia+20);
+  ganharReputacao(3);
+  toast('🌫️ O andarilho murmura palavras estranhas. Você se sente renovado.');
+  registrarExpedicao('🌫️', 'Recebeu cura mística do Andarilho.');
+  expedicaoNpcAtual = null;
+  fecharExpedicaoModal();
+}
+
+function fecharExpedicaoModal(){
+  const modal = document.getElementById('expedicao-modal');
+  if (modal) modal.classList.add('hidden');
+  checkMarcos();
+  renderAll();
+}
+
 function renderRuinas(){
+  garantirHpValido();
+  const stats = getPlayerStats();
   const zonaAtual = getZonaAtual();
-  let h = '<div class="sp-section-title">EXPLORAÇÃO DE RUÍNAS</div>';
-  h += '<div class="sp-card" style="color:var(--text-dim);font-size:12px;">Explorações realizadas: '+state.ruinas.exploracoes+' · Relíquias: '+state.ruinas.relíquias.length+'</div>';
+  const stimpaks = (state.inventario.consumiveis && state.inventario.consumiveis['stimpak']) || 0;
+  const granadas = (state.inventario.consumiveis && state.inventario.consumiveis['granada']) || 0;
+  let h = '<div class="sp-section-title">FICHA DE COMBATE</div>';
+  const hpPct = Math.max(0, state.combateHp/stats.hpMax*100);
+  h += `<div class="sp-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span>❤️ HP: ${Math.round(state.combateHp)}/${stats.hpMax}</span>
+      <span>⚔️ ${stats.atkMin}-${stats.atkMax} · 🛡️ ${stats.def}</span>
+    </div>
+    <div class="mini-bar" style="margin-top:4px;"><div class="mini-bar-fill" style="width:${hpPct}%;background:${hpPct>40?'var(--pip-green)':'#ff5555'};"></div></div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Arma: ${stats.arma?stats.arma.emoji+' '+stats.arma.nome+(stats.armaUp?' +'+stats.armaUp:''):'Punhos (desarmado)'} · Armadura: ${stats.armadura?stats.armadura.emoji+' '+stats.armadura.nome+(stats.armaduraUp?' +'+stats.armaduraUp:''):'Nenhuma'}</div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">💉 Stimpaks: ${stimpaks} · 💣 Granadas: ${granadas} · 🤝 Reputação: ${state.reputacao||0}</div>
+  </div>`;
+
+  h += '<div class="sp-section-title">EQUIPAMENTO</div>';
+  if (!state.itensArmas.length && !state.itensArmaduras.length){
+    h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum item encontrado ainda. Explore e lute nas ruínas para conseguir armas e armaduras!</div>';
+  } else {
+    const sucataAtual = state.inventario.sucata||0;
+    state.itensArmas.forEach(id=>{
+      const it = WEAPONS.find(w=>w.id===id);
+      if (!it) return;
+      const equipada = state.equipado.arma===id;
+      const nivel = nivelUpgrade(id);
+      const custo = custoUpgrade(id);
+      const efeitoLabel = {sangramento:'🩸 Sangramento', atordoamento:'⚡ Atordoa', vampirismo:'🧛 Roubo de vida', perfurante:'🎯 Perfurante'}[it.efeito] || '';
+      h += `<div class="equip-slot" style="flex-wrap:wrap;">
+        <span class="rarity-${it.raridade}">${it.emoji} ${it.nome} (${it.danoMin}-${it.danoMax} dano)${efeitoLabel?' · '+efeitoLabel:''}${nivel?' <span class="upgrade-pips">+'+nivel+'</span>':''}</span>
+        <div style="display:flex;gap:4px;">
+          <button class="sp-btn ${equipada?'amber':''}" data-equiparma="${id}" style="font-size:10px;padding:4px 8px;">${equipada?'EQUIPADA':'EQUIPAR'}</button>
+          ${custo ? `<button class="sp-btn" data-upgraditem="${id}" style="font-size:10px;padding:4px 8px;" ${(sucataAtual<custo.sucata||state.caps<custo.caps)?'disabled':''}>🔧 +${custo.proximo} (${custo.sucata}🔩/${custo.caps}🧢)</button>` : `<span style="font-size:10px;color:var(--pip-green);">MELHORIA MÁXIMA</span>`}
+        </div></div>`;
+    });
+    state.itensArmaduras.forEach(id=>{
+      const it = ARMORS.find(a=>a.id===id);
+      if (!it) return;
+      const equipada = state.equipado.armadura===id;
+      const nivel = nivelUpgrade(id);
+      const custo = custoUpgrade(id);
+      h += `<div class="equip-slot" style="flex-wrap:wrap;">
+        <span class="rarity-${it.raridade}">${it.emoji} ${it.nome} (DEF ${it.defesa}, +${it.hpBonus} HP)${nivel?' <span class="upgrade-pips">+'+nivel+'</span>':''}</span>
+        <div style="display:flex;gap:4px;">
+          <button class="sp-btn ${equipada?'amber':''}" data-equiparmadura="${id}" style="font-size:10px;padding:4px 8px;">${equipada?'EQUIPADA':'EQUIPAR'}</button>
+          ${custo ? `<button class="sp-btn" data-upgraditem="${id}" style="font-size:10px;padding:4px 8px;" ${(sucataAtual<custo.sucata||state.caps<custo.caps)?'disabled':''}>🔧 +${custo.proximo} (${custo.sucata}🔩/${custo.caps}🧢)</button>` : `<span style="font-size:10px;color:var(--pip-green);">MELHORIA MÁXIMA</span>`}
+        </div></div>`;
+    });
+    h += `<div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Sucata disponível: ${sucataAtual} 🔩 · Melhorias na Oficina aumentam dano/defesa permanentemente (máx. +${UPGRADE_MAX}).</div>`;
+  }
+
+  h += '<div class="sp-section-title">EXPLORAÇÃO DE RUÍNAS</div>';
+  h += '<div class="sp-card" style="color:var(--text-dim);font-size:12px;">Explorações: '+state.ruinas.exploracoes+' · Vitórias em combate: '+(state.combateVitorias||0)+' · Chefes derrotados: '+(state.chefesDerrotados||0)+' · Relíquias: '+state.ruinas.relíquias.length+'</div>';
 
   RUINAS_ZONAS.forEach(zona=>{
     const desbloqueada = zonaDesbloqueada(zona);
     const selecionada = zona.id===zonaAtual.id;
     h += `<div class="building-card ${selecionada?'maxed':''}" style="${!desbloqueada?'opacity:.5;':''}cursor:${desbloqueada?'pointer':'default'};" ${desbloqueada?`data-zona="${zona.id}"`:''}>
       <div class="building-title">${zona.emoji} ${zona.nome} ${selecionada?'· SELECIONADA':''}</div>
-      <div class="building-level">Energia: ${zona.custoEnergia} ⚡ ${zona.id===3?(state.ruinas.cofreAberto?'· Cofre aberto':'· Custo de acesso: '+zona.custoCaps+' 🧢'):''}</div>
+      <div class="building-level">Energia: ${zona.custoEnergia} ⚡ ${zona.id===3?(state.ruinas.cofreAberto?'· Cofre aberto':'· Custo de acesso: '+zona.custoCaps+' 🧢'):''}${zona.id===4?(state.ruinas.instalacaoAberta?'· Instalação hackeada':'· Custo de acesso: '+zona.custoCaps+' 🧢'):''} · ⚔️${zona.chances.combate}% 💬${zona.chances.npc}% 🎒${zona.chances.saque}%</div>
       <div class="building-desc">${desbloqueada ? zona.desc : '🔒 Desbloqueia após '+zona.minExploracoes+' explorações.'}</div>
     </div>`;
   });
 
-  h += `<button class="sp-btn" style="width:100%;margin:8px 0;" id="btn-explorar-ruinas" ${state.energia<zonaAtual.custoEnergia?'disabled':''}>🔍 EXPLORAR (${zonaAtual.custoEnergia} ⚡)</button>`;
+  h += `<button class="sp-btn" style="width:100%;margin:8px 0;" id="btn-explorar-ruinas" ${state.energia<zonaAtual.custoEnergia?'disabled':''}>🔍 INICIAR EXPEDIÇÃO (${zonaAtual.custoEnergia} ⚡)</button>`;
 
   h += '<div class="sp-section-title" style="margin-top:10px;">RELÍQUIAS COLETADAS</div>';
   if (!state.ruinas.relíquias.length){
@@ -1009,8 +1889,18 @@ function renderRuinas(){
       h += `<div class="sp-card" style="font-size:12px;">✨ <b>${r.nome}</b><br><span style="color:var(--text-dim);">${r.zona} · Dia ${r.dia}</span></div>`;
     });
   }
+
+  h += '<div class="sp-section-title" style="margin-top:10px;">REGISTRO DE EXPEDIÇÃO</div>';
+  if (!state.ruinas.registro || !state.ruinas.registro.length){
+    h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum evento registrado ainda.</div>';
+  } else {
+    state.ruinas.registro.slice(0,15).forEach(r=>{
+      h += `<div class="sp-card" style="font-size:11px;color:var(--text-dim);">${r.icon} Dia ${r.dia}: ${r.texto}</div>`;
+    });
+  }
   return h;
 }
+
 
 const TOTAL_PLOTS = 32;
 const UNLOCKED_START = 12;
@@ -1044,12 +1934,29 @@ let state = {
   colonosEspecialistas: [],
   maiorCapsAcumulado: 100,
   rumoColonia: null,
-  ruinas: { exploracoes:0, zonaSelecionada:1, cofreAberto:false, relíquias:[] },
+  ruinas: { exploracoes:0, zonaSelecionada:1, cofreAberto:false, instalacaoAberta:false, relíquias:[], registro:[] },
+  reputacao: 0,
+  upgrades: {},
+  chefesDerrotados: 0,
+  totalUpgrades: 0,
+  energiaRecuperadaTotal: 0,
+  sucataTotalColetada: 0,
+  alimentosColhidosTotal: 0,
+  regasFeitas: 0,
   historicoEventos: [], // {dia, icon, titulo, escolha} // 'tecnologia' 'natureza''militar'
+  combateHp: 50,
+  equipado: { arma:null, armadura:null },
+  itensArmas: [],
+  itensArmaduras: [],
+  combateVitorias: 0,
+  atributos: { forca:0, agilidade:0, resistencia:0, sorte:0 },
+  pontosAtributo: 0,
+  statusInimigo: null,
+  statusJogador: null,
 };
 
 for (let i=0;i<TOTAL_PLOTS;i++){
-  state.plots.push({ idx:i, locked: i>=UNLOCKED_START, tilled:false, watered:false, crop:null, growth:0, ready:false });
+  state.plots.push({ idx:i, locked: i>=UNLOCKED_START, tilled:false, watered:false, crop:null, growth:0, ready:false, soloQualidade:0 });
 }
 
 
@@ -1088,8 +1995,27 @@ function loadGame() {
     if (snap.marcosCompletos === undefined) snap.marcosCompletos = [];
     if (snap.colonosEspecialistas === undefined) snap.colonosEspecialistas = [];
     if (snap.rumoColonia === undefined) snap.rumoColonia = null;
-    if (snap.ruinas === undefined) snap.ruinas = { exploracoes:0, zonaSelecionada:1, cofreAberto:false, relíquias:[] };
+    if (snap.ruinas === undefined) snap.ruinas = { exploracoes:0, zonaSelecionada:1, cofreAberto:false, instalacaoAberta:false, relíquias:[], registro:[] };
+    if (snap.ruinas.registro === undefined) snap.ruinas.registro = [];
+    if (snap.ruinas.instalacaoAberta === undefined) snap.ruinas.instalacaoAberta = false;
+    if (snap.reputacao === undefined) snap.reputacao = 0;
+    if (snap.upgrades === undefined) snap.upgrades = {};
+    if (snap.chefesDerrotados === undefined) snap.chefesDerrotados = 0;
+    if (snap.totalUpgrades === undefined) snap.totalUpgrades = 0;
+    if (snap.energiaRecuperadaTotal === undefined) snap.energiaRecuperadaTotal = 0;
+    if (snap.sucataTotalColetada === undefined) snap.sucataTotalColetada = 0;
+    if (snap.alimentosColhidosTotal === undefined) snap.alimentosColhidosTotal = 0;
+    if (snap.regasFeitas === undefined) snap.regasFeitas = 0;
+    if (snap.equipado === undefined) snap.equipado = { arma:null, armadura:null };
+    if (snap.itensArmas === undefined) snap.itensArmas = [];
+    if (snap.itensArmaduras === undefined) snap.itensArmaduras = [];
+    if (snap.combateVitorias === undefined) snap.combateVitorias = 0;
+    if (snap.combateHp === undefined) snap.combateHp = 50;
     if (snap.produtosAnimais === undefined) snap.produtosAnimais = {};
+    if (snap.atributos === undefined) snap.atributos = { forca:0, agilidade:0, resistencia:0, sorte:0 };
+    if (snap.pontosAtributo === undefined) snap.pontosAtributo = 0;
+    if (snap.statusInimigo === undefined) snap.statusInimigo = null;
+    if (snap.statusJogador === undefined) snap.statusJogador = null;
     if (snap.inventario && !snap.inventario.fertilizante) snap.inventario.fertilizante = 0;
     if (snap.inventario && !snap.inventario.racao) snap.inventario.racao = 0;
     Object.assign(state, snap);
@@ -1127,6 +2053,57 @@ function floatText(plotEl, text){
   setTimeout(()=>f.remove(),1000);
 }
 
+// Explosão de partículas (usada em colheitas especiais, coleta de animais, vitórias em batalha)
+function burstParticles(originEl, emoji, count){
+  count = count || 6;
+  const rect = originEl.getBoundingClientRect();
+  const layer = document.getElementById('fx-layer');
+  if (!layer) return;
+  for (let i=0;i<count;i++){
+    const p = document.createElement('span');
+    p.className = 'burst-particle';
+    p.textContent = emoji;
+    const angle = (Math.PI*2*i/count) + Math.random()*0.6;
+    const dist = 30 + Math.random()*30;
+    p.style.left = (rect.left + rect.width/2) + 'px';
+    p.style.top = (rect.top + rect.height/2) + 'px';
+    p.style.setProperty('--dx', Math.cos(angle)*dist+'px');
+    p.style.setProperty('--dy', Math.sin(angle)*dist+'px');
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), 900);
+  }
+}
+
+// Tremor de tela leve (usado em explosões, hits de combate, tempestades)
+function screenShake(strength){
+  const app = document.getElementById('app');
+  if (!app) return;
+  app.style.setProperty('--shake-mag', (strength||6)+'px');
+  app.classList.remove('shake');
+  void app.offsetWidth; // força reflow p/ reiniciar a animação
+  app.classList.add('shake');
+  setTimeout(()=>app.classList.remove('shake'), 420);
+}
+
+// Flash de raio na tempestade radioativa
+function triggerLightning(){
+  const flash = document.getElementById('lightning-flash');
+  if (!flash) return;
+  flash.classList.remove('flash-active');
+  void flash.offsetWidth;
+  flash.classList.add('flash-active');
+  screenShake(4);
+}
+let lightningInterval = null;
+function manageLightningLoop(){
+  if (lightningInterval) clearInterval(lightningInterval);
+  if (state.tempestadeAtiva){
+    lightningInterval = setInterval(()=>{
+      if (state.tempestadeAtiva && Math.random()<0.5) triggerLightning();
+    }, 3500);
+  }
+}
+
 function fmtTime(h){
   const hh = Math.floor(h)%24;
   const mm = Math.floor((h%1)*60);
@@ -1141,14 +2118,18 @@ function renderTopbar(){
   document.getElementById('hud-rad').textContent = Math.round(state.radiacao)+'%';
 
   const bg = document.getElementById('farm-bg');
-  bg.classList.remove('dusk','night');
+  bg.classList.remove('dusk','night','rain');
   if (state.hora>=18 && state.hora<21) bg.classList.add('dusk');
   else if (state.hora>=21 || state.hora<6) bg.classList.add('night');
+  if (state.tempestadeAtiva) bg.classList.add('rain');
 
   const radEl = document.getElementById('hud-rad');
   radEl.style.color = state.radiacao>50 ? '#ff5555' : state.radiacao>25 ? 'var(--pip-amber)' : 'var(--rad-yellow)';
 
   document.getElementById('radstorm-overlay').classList.toggle('active', state.tempestadeAtiva);
+  manageLightningLoop();
+  const fog = document.getElementById('rad-fog');
+  if (fog) fog.style.opacity = Math.min(0.5, (state.radiacao||0)/160);
 
   const tier = getColonyTier();
   const titleEl = document.querySelector('.title-bit');
@@ -1209,6 +2190,8 @@ function handlePlotClick(p, el){
       if (p.watered){ toast('Já está regado vai mata a plantinha piá.'); return; }
       if (!spendEnergy(Math.ceil(2*energiaMult))) return;
       p.watered = true;
+      state.regasFeitas = (state.regasFeitas||0)+1;
+      updateQuestProgress('irrigacao', state.regasFeitas);
       floatText(el,'💧');
       break;
 
@@ -1259,22 +2242,35 @@ function handlePlotClick(p, el){
         let qualidade = 'Normal';
         const fertBonus = (p.fertilizado ? (state.tecnologias['tech_fertilizante_avancado']?0.40:0.20) : 0);
         const agricultorBonus = state.colonosEspecialistas.some(c=>c.tipo==='agricultor') ? 0.05 : 0;
-        const rollAlta = 0.10 + agriLvl*0.05 + fertBonus + agricultorBonus;
+        const soloBonus = (p.soloQualidade||0)/100 * 0.25; // solo fértil até +25% chance de Alta
+        const rollAlta = 0.10 + agriLvl*0.05 + fertBonus + agricultorBonus + soloBonus;
         let rollMutante = agriLvl>=5 ? 0.08 : 0;
         if (p.fertilizado && state.tecnologias['tech_fertilizante_avancado']) rollMutante += 0.05;
+        rollMutante += (p.soloQualidade||0)/100 * 0.06; // solo muito fértil também aumenta chance de mutação
+        let rollLendaria = (p.soloQualidade||0)>=80 ? 0.03 : 0; // colheita lendária só em solo quase saturado
         const roll = Math.random();
-        if (roll < rollMutante){ qualidade='Mutante'; qtd=2; }
-        else if (roll < rollMutante+rollAlta){ qualidade='Alta'; }
+        if (roll < rollLendaria){ qualidade='Lendária'; qtd=3; }
+        else if (roll < rollLendaria+rollMutante){ qualidade='Mutante'; qtd=2; }
+        else if (roll < rollLendaria+rollMutante+rollAlta){ qualidade='Alta'; }
         state.inventario.colheitas[p.crop] = (state.inventario.colheitas[p.crop]||0)+qtd;
         if (qualidade!=='Normal'){
           state.inventario.qualidades = state.inventario.qualidades||{};
           state.inventario.qualidades[p.crop] = state.inventario.qualidades[p.crop]||{};
           state.inventario.qualidades[p.crop][qualidade] = (state.inventario.qualidades[p.crop][qualidade]||0)+qtd;
+          // Colheitas boas enriquecem o solo dessa parcela (memória genética)
+          const ganhoSolo = qualidade==='Lendária' ? 14 : qualidade==='Mutante' ? 8 : 4;
+          p.soloQualidade = Math.min(100, (p.soloQualidade||0) + ganhoSolo);
+        } else {
+          p.soloQualidade = Math.max(0, (p.soloQualidade||0) - 2); // colheita comum drena um pouco o solo
         }
-        floatText(el,'+'+qtd+' '+c.emoji+(qualidade!=='Normal'?' ★'+qualidade:''));
+        const emojiSolo = (p.soloQualidade||0)>=80 ? ' 🧬' : (p.soloQualidade||0)>=40 ? ' 🌿' : '';
+        floatText(el,'+'+qtd+' '+c.emoji+(qualidade!=='Normal'?' ★'+qualidade:'')+emojiSolo);
+        if (qualidade!=='Normal') burstParticles(el, qualidade==='Lendária'?'✨':(qualidade==='Mutante'?'☢️':'⭐'));
         state.colheitasFeitas++;
-        ganharXP('agricultura', 8 + (qualidade==='Alta'?4:0) + (qualidade==='Mutante'?10:0));
+        state.alimentosColhidosTotal = (state.alimentosColhidosTotal||0) + qtd;
+        ganharXP('agricultura', 8 + (qualidade==='Alta'?4:0) + (qualidade==='Mutante'?10:0) + (qualidade==='Lendária'?20:0));
         updateQuestProgress('colher', state.colheitasFeitas);
+        updateQuestProgress('colher_total', state.alimentosColhidosTotal);
         p.crop=null; p.growth=0; p.ready=false; p.tilled=true; p.watered=false; p.fertilizado=false;
       }
       break;
@@ -1327,7 +2323,7 @@ function updateQuestProgress(meta, val){
 }
 
 function activateNextQuest(){
-  const order = ['q1','q2','q3','q4','q5'];
+  const order = ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14','q15'];
   for (let id of order){
     const q = state.quests.find(x=>x.id===id);
     if (!q.ativa && !q.completa){ q.ativa=true; toast('📜 Nova missão: '+q.titulo); break; }
@@ -1342,6 +2338,18 @@ function grantReward(r){
     Object.keys(CROPS).slice(0,1).forEach(k=>{
       state.inventario.sementes[k]=(state.inventario.sementes[k]||0)+r.sementes;
     });
+  }
+  if (r.madeira || r.metal){
+    const qtd = (r.madeira||0)+(r.metal||0);
+    state.inventario.sucata = (state.inventario.sucata||0)+qtd;
+    state.sucataTotalColetada = (state.sucataTotalColetada||0)+qtd;
+    updateQuestProgress('sucata', state.sucataTotalColetada);
+    toast('+'+qtd+' sucata 🔩');
+  }
+  if (r.bateria){
+    if (!state.inventario.consumiveis) state.inventario.consumiveis={};
+    state.inventario.consumiveis['stimpak'] = (state.inventario.consumiveis['stimpak']||0)+r.bateria;
+    toast('+'+r.bateria+' Stimpak 💉');
   }
 }
 let activeTab = 'missoes';
@@ -1477,10 +2485,11 @@ function renderAnimais(){
   if (!state.animais.length) h += '<div class="sp-card" style="color:var(--text-dim);">Nenhum animal ainda. Compre filhotes no Empório.</div>';
   state.animais.forEach(a=>{
     const t = ANIMAL_TYPES[a.tipo];
+    const linCor = a.linhagem==='Dourada' ? 'var(--pip-amber)' : a.linhagem==='Prata' ? '#c8d0e0' : 'var(--text-dim)';
     h += `<div class="animal-card">
       <div class="animal-emoji">${t.emoji}</div>
       <div class="animal-info">
-        <div class="animal-name">${a.nome} · ${t.nome}</div>
+        <div class="animal-name">${a.nome} · ${t.nome}${a.linhagem&&a.linhagem!=='Comum'?` <span style="color:${linCor};font-size:10px;">★${a.linhagem}</span>`:''}</div>
         <div class="animal-stats">Fome</div>
         <div class="mini-bar"><div class="mini-bar-fill" style="width:${a.fome}%;background:${a.fome>40?'var(--pip-green)':'var(--rust)'};"></div></div>
         <div class="animal-stats" style="margin-top:3px;">Felicidade</div>
@@ -1524,6 +2533,21 @@ function renderHabilidades(){
       <div class="skill-perks">${info.perks.slice(0, sk.nivel-1).join('<br>')||'Suba de nível para desbloquear bônus.'}</div>
     </div>`;
   });
+  const attr = state.atributos || { forca:0, agilidade:0, resistencia:0, sorte:0 };
+  h += `<div class="sp-section-title" style="margin-top:14px;">ATRIBUTOS (RPG) · ${state.pontosAtributo||0} pontos disponíveis</div>`;
+  const attrInfo = [
+    {key:'forca', nome:'💪 Força', desc:'+dano corpo a corpo/à distância'},
+    {key:'agilidade', nome:'🏃 Agilidade', desc:'+chance de esquiva em combate'},
+    {key:'resistencia', nome:'🛡️ Resistência', desc:'+HP máximo e +defesa'},
+    {key:'sorte', nome:'🍀 Sorte', desc:'+crítico e +chance de itens raros'},
+  ];
+  attrInfo.forEach(a=>{
+    h += `<div class="sp-card">
+      <div class="sp-row"><span>${a.nome}: <b>${attr[a.key]||0}</b></span>
+      <button class="sp-btn" data-attr="${a.key}" ${!(state.pontosAtributo>0)?'disabled':''}>+1</button></div>
+      <div style="font-size:10px;color:var(--text-dim);">${a.desc}</div>
+    </div>`;
+  });
   return h;
 }
 function feedAnimal(id){
@@ -1541,11 +2565,16 @@ function collectAnimalProduct(id){
   const a = state.animais.find(x=>x.id===id);
   if (!a || !a.pronto) return;
   const t = ANIMAL_TYPES[a.tipo];
-  state.produtosAnimais[a.tipo] = (state.produtosAnimais[a.tipo]||0)+1;
+  let qtd = 1;
+  if (a.linhagem==='Prata') qtd = Math.random()<0.25 ? 2 : 1;
+  if (a.linhagem==='Dourada') qtd = Math.random()<0.5 ? 2 : 1;
+  state.produtosAnimais[a.tipo] = (state.produtosAnimais[a.tipo]||0)+qtd;
   a.pronto = false;
   a.diasDesdeProducao = 0;
   ganharXP('social',3);
-  toast('Coletado: '+t.produtoEmoji+' '+t.produto);
+  toast('Coletado: '+t.produtoEmoji+' '+t.produto+(qtd>1?' x'+qtd:'')+(a.linhagem&&a.linhagem!=='Comum'?' ('+a.linhagem+')':''));
+  const cardEl = document.querySelector(`[data-collect="${id}"]`);
+  if (cardEl) burstParticles(cardEl, t.produtoEmoji, 5);
   renderSidepanel();
 }
 
@@ -1561,6 +2590,10 @@ function upgradeBuilding(key){
     state.energiaMax += b.bonusEnergiaMax[lvl];
     state.energia = state.energiaMax;
   }
+  state.totalUpgrades = (state.totalUpgrades||0)+1;
+  updateQuestProgress('upgrade', state.totalUpgrades);
+  const construidas = Object.values(state.buildings).filter(v=>v>1).length;
+  updateQuestProgress('construir', construidas);
   toast(b.emoji+' '+b.nome+' evoluído para o nível '+state.buildings[key]+'!');
   renderTopbar(); renderSidepanel();
 }
@@ -1720,7 +2753,16 @@ function bindSidepanelEvents(){
     el.addEventListener('click', ()=>selecionarZonaRuinas(el.dataset.zona));
   });
   const btnExplorar = document.getElementById('btn-explorar-ruinas');
-  if (btnExplorar) btnExplorar.addEventListener('click', explorarRuinas);
+  if (btnExplorar) btnExplorar.addEventListener('click', iniciarExploracao);
+  document.querySelectorAll('[data-equiparma]').forEach(btn=>{
+    btn.addEventListener('click', ()=>equiparArma(btn.dataset.equiparma));
+  });
+  document.querySelectorAll('[data-equiparmadura]').forEach(btn=>{
+    btn.addEventListener('click', ()=>equiparArmadura(btn.dataset.equiparmadura));
+  });
+  document.querySelectorAll('[data-upgraditem]').forEach(btn=>{
+    btn.addEventListener('click', ()=>melhorarItem(btn.dataset.upgraditem));
+  });
   document.querySelectorAll('.npc-card').forEach(el=>{
     el.addEventListener('click', ()=>openDialogue(el.dataset.npc));
   });
@@ -1747,6 +2789,9 @@ function bindSidepanelEvents(){
   });
   document.querySelectorAll('[data-rumo]').forEach(btn=>{
     btn.addEventListener('click',()=>escolherRumo(btn.dataset.rumo));
+  });
+  document.querySelectorAll('[data-attr]').forEach(btn=>{
+    btn.addEventListener('click',()=>gastarPontoAtributo(btn.dataset.attr));
   });
   const sleepBtn = document.getElementById('sleep-btn');
   if (sleepBtn) sleepBtn.addEventListener('click', advanceDay);
@@ -1784,7 +2829,7 @@ function buyItem(id){
       state.caps += item.preco;
       toast('Celeiro sem espaço! Evolua o Celeiro no SETOR.', true);
     } else {
-      state.animais.push({ id:'a'+Date.now()+Math.random(), tipo:item.animalKey, nome:gerarNomeAnimal(item.animalKey), fome:100, felicidade:80, diasDesdeProducao:0, pronto:false });
+      state.animais.push({ id:'a'+Date.now()+Math.random(), tipo:item.animalKey, nome:gerarNomeAnimal(item.animalKey), fome:100, felicidade:80, diasDesdeProducao:0, pronto:false, linhagem: sortearLinhagem() });
       toast('Novo animal no curral! '+ANIMAL_TYPES[item.animalKey].emoji);
     }
   }
@@ -1795,6 +2840,14 @@ function gerarNomeAnimal(tipo){
   const nomes = {galinha:['Pena','Cluck','Atomic','Glow'], vaca:['Mu','Brahma','Verde','Cinder'], cabra:['Duo','Chifre','Mutante','Bico']};
   const arr = nomes[tipo]||['Bicho'];
   return arr[Math.floor(Math.random()*arr.length)]+'-'+Math.floor(Math.random()*99);
+}
+
+// Genética do animal: a maioria nasce Comum, mas há chance de linhagem Prata ou Dourada (mais produtivas)
+function sortearLinhagem(){
+  const roll = Math.random();
+  if (roll < 0.04) return 'Dourada';
+  if (roll < 0.22) return 'Prata';
+  return 'Comum';
 }
 
 function sellCrop(key, qualidade){
@@ -1917,8 +2970,10 @@ function advanceDay(){
       const c = CROPS[pronto.crop];
       state.inventario.colheitas[pronto.crop] = (state.inventario.colheitas[pronto.crop]||0)+1;
       state.colheitasFeitas++;
+      state.alimentosColhidosTotal = (state.alimentosColhidosTotal||0) + 1;
       ganharXP('agricultura', 4);
       updateQuestProgress('colher', state.colheitasFeitas);
+      updateQuestProgress('colher_total', state.alimentosColhidosTotal);
       pronto.crop=null; pronto.growth=0; pronto.ready=false; pronto.watered=false;
       toast('🛰️ Drone colheu automaticamente: '+c.emoji+' '+c.nome);
     }
@@ -1954,6 +3009,20 @@ function advanceDay(){
       }
     });
   }
+
+  // Reprodução: casais felizes e bem alimentados podem gerar um filhote, se houver espaço no celeiro
+  const capCeleiro = CELEIRO_CAPACIDADE[state.buildings.celeiro-1];
+  if (state.animais.length < capCeleiro){
+    Object.keys(ANIMAL_TYPES).forEach(tipo=>{
+      if (state.animais.length >= capCeleiro) return;
+      const casal = state.animais.filter(a=>a.tipo===tipo && a.felicidade>=75 && a.fome>=50);
+      if (casal.length>=2 && Math.random()<0.10){
+        const filhote = { id:'a'+Date.now()+Math.random(), tipo, nome:gerarNomeAnimal(tipo), fome:80, felicidade:80, diasDesdeProducao:0, pronto:false, linhagem:sortearLinhagem() };
+        state.animais.push(filhote);
+        toast('🍼 '+ANIMAL_TYPES[tipo].emoji+' Novo filhote no curral: '+filhote.nome+(filhote.linhagem!=='Comum'?' ('+filhote.linhagem+'! 🧬)':''));
+      }
+    });
+  }
   let pdGanho = state.buildings.laboratorio - 1; // nível 2+ gera PD
   state.colonosEspecialistas.forEach(c=>{ if (c.tipo==='cientista') pdGanho += 1; });
   if (state.rumoColonia==='tecnologia') pdGanho += 1;
@@ -1961,7 +3030,11 @@ function advanceDay(){
 
   state.dia++;
   state.hora=6;
+  const energiaRecuperada = Math.max(0, state.energiaMax - state.energia);
+  state.energiaRecuperadaTotal = (state.energiaRecuperadaTotal||0) + energiaRecuperada;
+  updateQuestProgress('energia_rec', state.energiaRecuperadaTotal);
   state.energia = state.energiaMax;
+  state.combateHp = getPlayerStats().hpMax;
   state.conversadosHoje.clear();
   if ((state.dia-1)%7===0){
     state.estacaoIdx = (state.estacaoIdx+1)%4;
@@ -2875,17 +3948,58 @@ function renderAll(){
   renderFarm();
   renderHotbar();
   renderSidepanel();
+  renderBatalha();
+  renderEncontroNPC();
 }
+
+// ═══════════════════════════════════════════════════════════════
+// RELÓGIO DO JOGO EM TEMPO REAL
+// Cada hora do jogo passa em tempo real; o dia acaba sozinho quando
+// o relógio chega à meia-noite. Pausa durante combate/diálogo/eventos.
+// ═══════════════════════════════════════════════════════════════
+const GAME_HOUR_MS = 14000; // 14s reais = 1 hora do jogo (~4min de jogo por dia inteiro)
+const CLOCK_TICK_MS = 1000; // atualiza o relógio a cada 1s real, para o HUD mostrar minutos correndo
+let gameClockInterval = null;
+
+function jogoEstaPausado(){
+  if (battleState) return true;
+  const evModal = document.getElementById('event-modal');
+  if (evModal && !evModal.classList.contains('hidden')) return true;
+  const expModal = document.getElementById('expedicao-modal');
+  if (expModal && !expModal.classList.contains('hidden')) return true;
+  const dlg = document.getElementById('dialogue-box');
+  if (dlg && dlg.classList.contains('show')) return true;
+  return false;
+}
+
+function tickGameClock(){
+  if (jogoEstaPausado()) return;
+  state.hora += CLOCK_TICK_MS/GAME_HOUR_MS;
+  if (state.hora >= 24){
+    state.hora = 24;
+    toast('🌙 A noite cai e o dia termina...');
+    advanceDay();
+    return; // advanceDay já re-renderiza tudo
+  }
+  renderTopbar();
+}
+
+function startGameClock(){
+  if (gameClockInterval) clearInterval(gameClockInterval);
+  gameClockInterval = setInterval(tickGameClock, CLOCK_TICK_MS);
+}
+
 window.addEventListener('load',()=>{
   setTimeout(()=>{
     const loader=document.getElementById('loading-screen');
     if (loader){ loader.classList.add('fade-out'); setTimeout(()=>loader.remove(),1300); }
     const loaded = loadGame();
     renderAll();
+    startGameClock();
     if (loaded) {
-      toast('💾 Progresso carregado! Bem-vindo de volta — Dia '+state.dia);
+      toast(' Progresso carregado! Bem-vindo de volta — Dia '+state.dia);
     } else {
-      toast('🌱 Bem-vindo ao Vale 111. A terra espera por você. Reconstrua a civilização!');
+      toast(' Bem-vindo ao Vale 111. A terra espera por você. Reconstrua a civilização!');
     }
   },1700);
 });
